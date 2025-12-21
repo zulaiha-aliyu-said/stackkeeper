@@ -1,6 +1,6 @@
 import { Tool } from '@/types/tool';
 import { formatDistanceToNow } from 'date-fns';
-import { Eye, Zap } from 'lucide-react';
+import { Eye, Zap, Tag } from 'lucide-react';
 
 interface ToolCardProps {
   tool: Tool;
@@ -27,6 +27,26 @@ export function ToolCard({ tool, onViewDetails, onMarkAsUsed }: ToolCardProps) {
           {usageText}
         </span>
       </div>
+
+      {/* Tags */}
+      {tool.tags && tool.tags.length > 0 && (
+        <div className="flex flex-wrap gap-1 mb-3">
+          {tool.tags.slice(0, 3).map(tag => (
+            <span
+              key={tag}
+              className="inline-flex items-center gap-1 px-2 py-0.5 bg-primary/10 text-primary text-xs rounded-full"
+            >
+              <Tag className="h-3 w-3" />
+              {tag}
+            </span>
+          ))}
+          {tool.tags.length > 3 && (
+            <span className="text-xs text-muted-foreground">
+              +{tool.tags.length - 3} more
+            </span>
+          )}
+        </div>
+      )}
 
       <div className="space-y-2 mb-4">
         <div className="flex justify-between text-sm">

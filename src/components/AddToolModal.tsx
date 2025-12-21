@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { X } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { X, Plus, Tag } from 'lucide-react';
 import { Tool, CATEGORIES, PLATFORMS, Category, Platform } from '@/types/tool';
 import { toast } from 'sonner';
 
@@ -9,23 +9,75 @@ interface AddToolModalProps {
   onAdd: (tool: Omit<Tool, 'id' | 'addedDate' | 'lastUsed' | 'timesUsed'>) => void;
   editTool?: Tool | null;
   onUpdate?: (id: string, updates: Partial<Tool>) => void;
+  existingTags?: string[];
 }
 
-export function AddToolModal({ isOpen, onClose, onAdd, editTool, onUpdate }: AddToolModalProps) {
+export function AddToolModal({ isOpen, onClose, onAdd, editTool, onUpdate, existingTags = [] }: AddToolModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [newTag, setNewTag] = useState('');
   const [formData, setFormData] = useState({
-    name: editTool?.name || '',
-    category: editTool?.category || '' as Category | '',
-    platform: editTool?.platform || '' as Platform | '',
-    price: editTool?.price?.toString() || '',
-    purchaseDate: editTool?.purchaseDate?.split('T')[0] || '',
-    login: editTool?.login || '',
-    password: editTool?.password || '',
-    redemptionCode: editTool?.redemptionCode || '',
-    notes: editTool?.notes || '',
+    name: '',
+    category: '' as Category | '',
+    platform: '' as Platform | '',
+    price: '',
+    purchaseDate: '',
+    login: '',
+    password: '',
+    redemptionCode: '',
+    notes: '',
+    tags: [] as string[],
   });
 
+  useEffect(() => {
+    if (editTool) {
+      setFormData({
+        name: editTool.name,
+        category: editTool.category,
+        platform: editTool.platform,
+        price: editTool.price.toString(),
+        purchaseDate: editTool.purchaseDate.split('T')[0],
+        login: editTool.login || '',
+        password: editTool.password || '',
+        redemptionCode: editTool.redemptionCode || '',
+        notes: editTool.notes || '',
+        tags: editTool.tags || [],
+      });
+    } else {
+      setFormData({
+        name: '',
+        category: '' as Category | '',
+        platform: '' as Platform | '',
+        price: '',
+        purchaseDate: '',
+        login: '',
+        password: '',
+        redemptionCode: '',
+        notes: '',
+        tags: [],
+      });
+    }
+  }, [editTool, isOpen]);
+
   if (!isOpen) return null;
+
+  const handleAddTag = () => {
+    const tag = newTag.trim();
+    if (tag && !formData.tags.includes(tag)) {
+      setFormData(prev => ({ ...prev, tags: [...prev.tags, tag] }));
+      setNewTag('');
+    }
+  };
+
+  const handleRemoveTag = (tagToRemove: string) => {
+    setFormData(prev => ({ ...prev, tags: prev.tags.filter(t => t !== tagToRemove) }));
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAddTag();
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,6 +101,7 @@ export function AddToolModal({ isOpen, onClose, onAdd, editTool, onUpdate }: Add
           password: formData.password || undefined,
           redemptionCode: formData.redemptionCode || undefined,
           notes: formData.notes || undefined,
+          tags: formData.tags.length > 0 ? formData.tags : undefined,
         });
         toast.success('Tool updated successfully!');
       } else {
@@ -62,6 +115,7 @@ export function AddToolModal({ isOpen, onClose, onAdd, editTool, onUpdate }: Add
           password: formData.password || undefined,
           redemptionCode: formData.redemptionCode || undefined,
           notes: formData.notes || undefined,
+          tags: formData.tags.length > 0 ? formData.tags : undefined,
         });
         toast.success('Tool added to your vault!');
       }
@@ -70,6 +124,10 @@ export function AddToolModal({ isOpen, onClose, onAdd, editTool, onUpdate }: Add
       setIsSubmitting(false);
     }
   };
+
+  const suggestedTags = existingTags.filter(
+    tag => !formData.tags.includes(tag) && tag.toLowerCase().includes(newTag.toLowerCase())
+  );
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm animate-fade-in">
@@ -197,6 +255,65 @@ export function AddToolModal({ isOpen, onClose, onAdd, editTool, onUpdate }: Add
                 className="input-field w-full"
               />
             </div>
+          </div>
+
+          {/* Tags Section */}
+          <div className="space-y-3">
+            <label className="text-sm font-medium text-foreground flex items-center gap-2">
+              <Tag className="h-4 w-4" />
+              Custom Tags
+            </label>
+            <div className="flex flex-wrap gap-2 mb-2">
+              {formData.tags.map(tag => (
+                <span
+                  key={tag}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 bg-primary/20 text-primary rounded-full text-sm"
+                >
+                  {tag}
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveTag(tag)}
+                    className="hover:text-destructive transition-colors"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              ))}
+            </div>
+            <div className="relative flex gap-2">
+              <input
+                type="text"
+                value={newTag}
+                onChange={(e) => setNewTag(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Add a tag..."
+                className="input-field flex-1"
+              />
+              <button
+                type="button"
+                onClick={handleAddTag}
+                className="btn-secondary px-3"
+              >
+                <Plus className="h-4 w-4" />
+              </button>
+            </div>
+            {suggestedTags.length > 0 && newTag && (
+              <div className="flex flex-wrap gap-1">
+                {suggestedTags.slice(0, 5).map(tag => (
+                  <button
+                    key={tag}
+                    type="button"
+                    onClick={() => {
+                      setFormData(prev => ({ ...prev, tags: [...prev.tags, tag] }));
+                      setNewTag('');
+                    }}
+                    className="text-xs px-2 py-1 bg-secondary hover:bg-secondary/80 text-muted-foreground rounded-md transition-colors"
+                  >
+                    + {tag}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="space-y-2">
