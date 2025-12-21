@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Tool } from '@/types/tool';
+import { useState, useEffect, useMemo } from 'react';
+import { Tool, SortOption, Category } from '@/types/tool';
 
 const STORAGE_KEY = 'stackvault_tools';
 
@@ -57,6 +57,92 @@ export function useTools() {
 
   const getTool = (id: string) => tools.find(tool => tool.id === id);
 
+  // Sorting function
+  const sortTools = (toolsToSort: Tool[], sortBy: SortOption): Tool[] => {
+    return [...toolsToSort].sort((a, b) => {
+      switch (sortBy) {
+        case 'name':
+          return a.name.localeCompare(b.name);
+        case 'price-asc':
+          return a.price - b.price;
+        case 'price-desc':
+          return b.price - a.price;
+        case 'date-newest':
+          return new Date(b.purchaseDate).getTime() - new Date(a.purchaseDate).getTime();
+        case 'date-oldest':
+          return new Date(a.purchaseDate).getTime() - new Date(b.purchaseDate).getTime();
+        case 'usage':
+          return b.timesUsed - a.timesUsed;
+        default:
+          return 0;
+      }
+    });
+  };
+
+  // Duplicate detection - tools in the same category
+  const getDuplicates = useMemo(() => {
+    const categoryGroups: Record<Category, Tool[]> = {} as Record<Category, Tool[]>;
+    tools.forEach(tool => {
+      if (!categoryGroups[tool.category]) {
+        categoryGroups[tool.category] = [];
+      }
+      categoryGroups[tool.category].push(tool);
+    });
+    
+    const duplicates: { category: Category; tools: Tool[] }[] = [];
+    Object.entries(categoryGroups).forEach(([category, categoryTools]) => {
+      if (categoryTools.length > 1) {
+        duplicates.push({ category: category as Category, tools: categoryTools });
+      }
+    });
+    return duplicates;
+  }, [tools]);
+
+  // Export to CSV
+  const exportToCSV = () => {
+    const headers = [
+      'Name',
+      'Category',
+      'Platform',
+      'Price',
+      'Purchase Date',
+      'Login',
+      'Redemption Code',
+      'Notes',
+      'Times Used',
+      'Last Used',
+      'Tags'
+    ];
+    
+    const csvRows = [
+      headers.join(','),
+      ...tools.map(tool => [
+        `"${tool.name.replace(/"/g, '""')}"`,
+        tool.category,
+        tool.platform,
+        tool.price,
+        tool.purchaseDate.split('T')[0],
+        `"${(tool.login || '').replace(/"/g, '""')}"`,
+        `"${(tool.redemptionCode || '').replace(/"/g, '""')}"`,
+        `"${(tool.notes || '').replace(/"/g, '""')}"`,
+        tool.timesUsed,
+        tool.lastUsed ? tool.lastUsed.split('T')[0] : '',
+        `"${(tool.tags || []).join(', ')}"`
+      ].join(','))
+    ];
+    
+    const csvContent = csvRows.join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `stackvault_export_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   // Computed values
   const totalInvestment = tools.reduce((sum, tool) => sum + tool.price, 0);
   
@@ -111,6 +197,15 @@ export function useTools() {
     return breakdown;
   };
 
+  // Get all unique tags
+  const getAllTags = useMemo(() => {
+    const tagSet = new Set<string>();
+    tools.forEach(tool => {
+      (tool.tags || []).forEach(tag => tagSet.add(tag));
+    });
+    return Array.from(tagSet).sort();
+  }, [tools]);
+
   const activeToolsValue = usedTools.reduce((sum, tool) => sum + tool.price, 0);
   const unusedToolsValue = unusedTools.reduce((sum, tool) => sum + tool.price, 0);
 
@@ -122,6 +217,10 @@ export function useTools() {
     deleteTool,
     markAsUsed,
     getTool,
+    sortTools,
+    exportToCSV,
+    getDuplicates,
+    getAllTags,
     totalInvestment,
     usedTools,
     unusedTools,

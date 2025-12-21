@@ -12,7 +12,19 @@ export interface Tool {
   addedDate: string;
   lastUsed: string | null;
   timesUsed: number;
+  tags?: string[];
 }
+
+export type SortOption = 'name' | 'price-asc' | 'price-desc' | 'date-newest' | 'date-oldest' | 'usage';
+
+export const SORT_OPTIONS: { value: SortOption; label: string }[] = [
+  { value: 'name', label: 'Name (A-Z)' },
+  { value: 'price-desc', label: 'Price (High to Low)' },
+  { value: 'price-asc', label: 'Price (Low to High)' },
+  { value: 'date-newest', label: 'Newest First' },
+  { value: 'date-oldest', label: 'Oldest First' },
+  { value: 'usage', label: 'Most Used' },
+];
 
 export type Category = 
   | 'Marketing'

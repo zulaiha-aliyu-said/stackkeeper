@@ -67,6 +67,21 @@ export function ToolDetailModal({
             </span>
           </div>
 
+          {/* Tags */}
+          {tool.tags && tool.tags.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {tool.tags.map(tag => (
+                <span
+                  key={tag}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-primary/20 text-primary text-sm rounded-full"
+                >
+                  <Tag className="h-3 w-3" />
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
+
           {/* Refund Alert */}
           {isRefundActive && daysUntilRefund <= 10 && (
             <div className="alert-warning">
