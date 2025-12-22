@@ -12,6 +12,9 @@ export interface ROIMetrics {
   statusLabel: string;
 }
 
+// Alias for backward compatibility
+export type ROIData = ROIMetrics;
+
 export function calculateROI(tool: Tool): ROIMetrics {
   const daysOwned = differenceInDays(new Date(), new Date(tool.purchaseDate));
   

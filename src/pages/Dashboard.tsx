@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Package, DollarSign, TrendingUp, AlertTriangle, Plus, Zap, Ghost } from 'lucide-react';
+import { Package, DollarSign, TrendingUp, AlertTriangle, Plus, Zap, Ghost, Share2 } from 'lucide-react';
 import { Layout } from '@/components/Layout';
 import { MetricCard } from '@/components/MetricCard';
 import { RefundAlerts } from '@/components/RefundAlerts';
@@ -7,6 +7,7 @@ import { EmptyState } from '@/components/EmptyState';
 import { AddToolModal } from '@/components/AddToolModal';
 import { ToolDetailModal } from '@/components/ToolDetailModal';
 import { DuplicateAlert } from '@/components/DuplicateAlert';
+import { ShareStackModal } from '@/components/ShareStackModal';
 import { useTools } from '@/hooks/useTools';
 import { Tool } from '@/types/tool';
 import { formatDistanceToNow } from 'date-fns';
@@ -30,7 +31,7 @@ export default function Dashboard() {
   const [selectedTool, setSelectedTool] = useState<Tool | null>(null);
   const [editTool, setEditTool] = useState<Tool | null>(null);
   const [dismissedDuplicates, setDismissedDuplicates] = useState(false);
-
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const refundAlerts = getRefundAlerts();
   const recentTools = getRecentlyAdded();
   const graveyardTools = getToolGraveyard();
@@ -72,13 +73,22 @@ export default function Dashboard() {
             <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
             <p className="text-muted-foreground mt-1">Your lifetime deal command center</p>
           </div>
-          <button
-            onClick={() => setIsAddModalOpen(true)}
-            className="btn-primary flex items-center gap-2"
-          >
-            <Plus className="h-5 w-5" />
-            Add Tool
-          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setIsShareModalOpen(true)}
+              className="btn-secondary flex items-center gap-2"
+            >
+              <Share2 className="h-5 w-5" />
+              <span className="hidden sm:inline">Share</span>
+            </button>
+            <button
+              onClick={() => setIsAddModalOpen(true)}
+              className="btn-primary flex items-center gap-2"
+            >
+              <Plus className="h-5 w-5" />
+              Add Tool
+            </button>
+          </div>
         </div>
 
         {/* Metrics Grid */}
@@ -218,6 +228,14 @@ export default function Dashboard() {
           onDelete={deleteTool}
         />
       )}
+
+      <ShareStackModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        tools={tools}
+        totalInvestment={totalInvestment}
+        stackScore={stackScore}
+      />
     </Layout>
   );
 }

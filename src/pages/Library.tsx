@@ -1,10 +1,12 @@
 import { useState, useMemo } from 'react';
-import { Search, Plus, Filter, ArrowUpDown, Download, AlertTriangle, Tag } from 'lucide-react';
+import { Search, Plus, Filter, ArrowUpDown, Download, AlertTriangle, Tag, Mail, GitCompare, CheckSquare, Square } from 'lucide-react';
 import { Layout } from '@/components/Layout';
 import { ToolCard } from '@/components/ToolCard';
 import { EmptyState } from '@/components/EmptyState';
 import { AddToolModal } from '@/components/AddToolModal';
 import { ToolDetailModal } from '@/components/ToolDetailModal';
+import { EmailImportModal } from '@/components/EmailImportModal';
+import { CompareToolsModal } from '@/components/CompareToolsModal';
 import { useTools } from '@/hooks/useTools';
 import { Tool, CATEGORIES, Category, SortOption, SORT_OPTIONS } from '@/types/tool';
 import { toast } from 'sonner';
@@ -17,6 +19,10 @@ export default function Library() {
   const [tagFilter, setTagFilter] = useState<string | 'All'>('All');
   const [sortBy, setSortBy] = useState<SortOption>('date-newest');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [isCompareMode, setIsCompareMode] = useState(false);
+  const [selectedForCompare, setSelectedForCompare] = useState<Tool[]>([]);
+  const [isCompareModalOpen, setIsCompareModalOpen] = useState(false);
   const [selectedTool, setSelectedTool] = useState<Tool | null>(null);
   const [editTool, setEditTool] = useState<Tool | null>(null);
 
@@ -50,22 +56,59 @@ export default function Library() {
             <h1 className="text-3xl font-bold text-foreground">Tool Library</h1>
             <p className="text-muted-foreground mt-1">{tools.length} tools in your vault</p>
           </div>
-          <div className="flex gap-2">
-            <button
-              onClick={handleExport}
-              className="btn-secondary flex items-center gap-2"
-              title="Export to CSV"
-            >
-              <Download className="h-5 w-5" />
-              <span className="hidden sm:inline">Export</span>
-            </button>
-            <button
-              onClick={() => setIsAddModalOpen(true)}
-              className="btn-primary flex items-center gap-2"
-            >
-              <Plus className="h-5 w-5" />
-              Add Tool
-            </button>
+          <div className="flex flex-wrap gap-2">
+            {isCompareMode ? (
+              <>
+                <button
+                  onClick={() => { setIsCompareMode(false); setSelectedForCompare([]); }}
+                  className="btn-secondary flex items-center gap-2"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={() => setIsCompareModalOpen(true)}
+                  disabled={selectedForCompare.length < 2}
+                  className="btn-primary flex items-center gap-2 disabled:opacity-50"
+                >
+                  <GitCompare className="h-5 w-5" />
+                  Compare ({selectedForCompare.length})
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={() => setIsCompareMode(true)}
+                  className="btn-secondary flex items-center gap-2"
+                  title="Compare Tools"
+                >
+                  <GitCompare className="h-5 w-5" />
+                  <span className="hidden sm:inline">Compare</span>
+                </button>
+                <button
+                  onClick={() => setIsImportModalOpen(true)}
+                  className="btn-secondary flex items-center gap-2"
+                  title="Import from Email"
+                >
+                  <Mail className="h-5 w-5" />
+                  <span className="hidden sm:inline">Import</span>
+                </button>
+                <button
+                  onClick={handleExport}
+                  className="btn-secondary flex items-center gap-2"
+                  title="Export to CSV"
+                >
+                  <Download className="h-5 w-5" />
+                  <span className="hidden sm:inline">Export</span>
+                </button>
+                <button
+                  onClick={() => setIsAddModalOpen(true)}
+                  className="btn-primary flex items-center gap-2"
+                >
+                  <Plus className="h-5 w-5" />
+                  Add Tool
+                </button>
+              </>
+            )}
           </div>
         </div>
 
@@ -164,19 +207,40 @@ export default function Library() {
           />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredAndSortedTools.map((tool, index) => (
-              <div 
-                key={tool.id} 
-                style={{ animationDelay: `${index * 50}ms` }}
-                className="animate-fade-in"
-              >
-                <ToolCard
-                  tool={tool}
-                  onViewDetails={setSelectedTool}
-                  onMarkAsUsed={markAsUsed}
-                />
-              </div>
-            ))}
+            {filteredAndSortedTools.map((tool, index) => {
+              const isSelected = selectedForCompare.some(t => t.id === tool.id);
+              return (
+                <div 
+                  key={tool.id} 
+                  style={{ animationDelay: `${index * 50}ms` }}
+                  className="animate-fade-in relative"
+                >
+                  {isCompareMode && (
+                    <button
+                      onClick={() => {
+                        if (isSelected) {
+                          setSelectedForCompare(prev => prev.filter(t => t.id !== tool.id));
+                        } else if (selectedForCompare.length < 3) {
+                          setSelectedForCompare(prev => [...prev, tool]);
+                        } else {
+                          toast.error('You can compare up to 3 tools');
+                        }
+                      }}
+                      className={`absolute top-2 left-2 z-10 p-1.5 rounded-lg transition-colors ${
+                        isSelected ? 'bg-primary text-primary-foreground' : 'bg-secondary/80 text-muted-foreground hover:bg-secondary'
+                      }`}
+                    >
+                      {isSelected ? <CheckSquare className="h-5 w-5" /> : <Square className="h-5 w-5" />}
+                    </button>
+                  )}
+                  <ToolCard
+                    tool={tool}
+                    onViewDetails={isCompareMode ? undefined : setSelectedTool}
+                    onMarkAsUsed={markAsUsed}
+                  />
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
@@ -209,6 +273,18 @@ export default function Library() {
           onDelete={deleteTool}
         />
       )}
+
+      <EmailImportModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        onImport={addTool}
+      />
+
+      <CompareToolsModal
+        isOpen={isCompareModalOpen}
+        onClose={() => { setIsCompareModalOpen(false); setIsCompareMode(false); setSelectedForCompare([]); }}
+        tools={selectedForCompare}
+      />
     </Layout>
   );
 }
