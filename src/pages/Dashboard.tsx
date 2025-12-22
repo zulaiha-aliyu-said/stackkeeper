@@ -6,6 +6,7 @@ import { RefundAlerts } from '@/components/RefundAlerts';
 import { EmptyState } from '@/components/EmptyState';
 import { AddToolModal } from '@/components/AddToolModal';
 import { ToolDetailModal } from '@/components/ToolDetailModal';
+import { DuplicateAlert } from '@/components/DuplicateAlert';
 import { useTools } from '@/hooks/useTools';
 import { Tool } from '@/types/tool';
 import { formatDistanceToNow } from 'date-fns';
@@ -21,12 +22,14 @@ export default function Dashboard() {
     stackScore, 
     getRefundAlerts,
     getRecentlyAdded,
-    getToolGraveyard 
+    getToolGraveyard,
+    getDuplicates
   } = useTools();
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [selectedTool, setSelectedTool] = useState<Tool | null>(null);
   const [editTool, setEditTool] = useState<Tool | null>(null);
+  const [dismissedDuplicates, setDismissedDuplicates] = useState(false);
 
   const refundAlerts = getRefundAlerts();
   const recentTools = getRecentlyAdded();
@@ -108,6 +111,15 @@ export default function Dashboard() {
             iconColor={refundAlerts.length > 0 ? 'text-warning' : 'text-muted-foreground'}
           />
         </div>
+
+        {/* Duplicate Alert */}
+        {!dismissedDuplicates && getDuplicates.length > 0 && (
+          <DuplicateAlert
+            duplicates={getDuplicates}
+            onDismiss={() => setDismissedDuplicates(true)}
+            onViewTool={(tool) => setSelectedTool(tool)}
+          />
+        )}
 
         {/* Refund Alerts */}
         {refundAlerts.length > 0 && (

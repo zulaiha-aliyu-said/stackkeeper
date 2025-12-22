@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { X, Copy, Check, Edit2, Trash2, Zap, Eye, EyeOff, Calendar, DollarSign, Tag, Globe } from 'lucide-react';
+import { X, Copy, Check, Edit2, Trash2, Zap, Eye, EyeOff, Calendar, DollarSign, Tag } from 'lucide-react';
 import { Tool } from '@/types/tool';
 import { format, differenceInDays, addDays } from 'date-fns';
 import { toast } from 'sonner';
-
+import { ROISection } from './ROISection';
 interface ToolDetailModalProps {
   tool: Tool;
   isOpen: boolean;
@@ -132,6 +132,9 @@ export function ToolDetailModal({
               </div>
             )}
           </div>
+
+          {/* ROI Section */}
+          <ROISection tool={tool} />
 
           {/* Credentials Section */}
           {(tool.login || tool.password || tool.redemptionCode) && (
