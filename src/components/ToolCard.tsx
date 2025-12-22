@@ -1,6 +1,7 @@
 import { Tool } from '@/types/tool';
 import { formatDistanceToNow } from 'date-fns';
 import { Eye, Zap, Tag } from 'lucide-react';
+import { ROIBadge } from './ROIBadge';
 
 interface ToolCardProps {
   tool: Tool;
@@ -23,9 +24,12 @@ export function ToolCard({ tool, onViewDetails, onMarkAsUsed }: ToolCardProps) {
             <span className="badge-platform">{tool.platform}</span>
           </div>
         </div>
-        <span className={tool.lastUsed ? 'badge-used' : 'badge-unused'}>
-          {usageText}
-        </span>
+        <div className="flex flex-col items-end gap-1">
+          <span className={tool.lastUsed ? 'badge-used' : 'badge-unused'}>
+            {usageText}
+          </span>
+          <ROIBadge tool={tool} showLabel />
+        </div>
       </div>
 
       {/* Tags */}

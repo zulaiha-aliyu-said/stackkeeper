@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Tool, SortOption, Category } from '@/types/tool';
+import { calculateROI } from '@/lib/roi';
 
 const STORAGE_KEY = 'stackvault_tools';
 
@@ -98,7 +99,7 @@ export function useTools() {
     return duplicates;
   }, [tools]);
 
-  // Export to CSV
+  // Export to CSV with ROI data
   const exportToCSV = () => {
     const headers = [
       'Name',
@@ -111,24 +112,31 @@ export function useTools() {
       'Notes',
       'Times Used',
       'Last Used',
-      'Tags'
+      'Tags',
+      'Cost Per Use',
+      'ROI Status'
     ];
     
     const csvRows = [
       headers.join(','),
-      ...tools.map(tool => [
-        `"${tool.name.replace(/"/g, '""')}"`,
-        tool.category,
-        tool.platform,
-        tool.price,
-        tool.purchaseDate.split('T')[0],
-        `"${(tool.login || '').replace(/"/g, '""')}"`,
-        `"${(tool.redemptionCode || '').replace(/"/g, '""')}"`,
-        `"${(tool.notes || '').replace(/"/g, '""')}"`,
-        tool.timesUsed,
-        tool.lastUsed ? tool.lastUsed.split('T')[0] : '',
-        `"${(tool.tags || []).join(', ')}"`
-      ].join(','))
+      ...tools.map(tool => {
+        const roi = calculateROI(tool);
+        return [
+          `"${tool.name.replace(/"/g, '""')}"`,
+          tool.category,
+          tool.platform,
+          tool.price,
+          tool.purchaseDate.split('T')[0],
+          `"${(tool.login || '').replace(/"/g, '""')}"`,
+          `"${(tool.redemptionCode || '').replace(/"/g, '""')}"`,
+          `"${(tool.notes || '').replace(/"/g, '""')}"`,
+          tool.timesUsed,
+          tool.lastUsed ? tool.lastUsed.split('T')[0] : '',
+          `"${(tool.tags || []).join(', ')}"`,
+          roi.costPerUse !== null ? roi.costPerUse.toFixed(2) : 'N/A',
+          roi.statusLabel
+        ].join(',');
+      })
     ];
     
     const csvContent = csvRows.join('\n');

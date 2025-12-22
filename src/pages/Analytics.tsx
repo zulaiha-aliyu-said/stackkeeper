@@ -1,9 +1,17 @@
+import { useState } from 'react';
 import { Layout } from '@/components/Layout';
 import { EmptyState } from '@/components/EmptyState';
+import { ROILeaderboard } from '@/components/ROILeaderboard';
+import { ToolDetailModal } from '@/components/ToolDetailModal';
+import { AddToolModal } from '@/components/AddToolModal';
 import { useTools } from '@/hooks/useTools';
+import { Tool } from '@/types/tool';
 import { DollarSign, PieChart, TrendingUp, Globe, BarChart3 } from 'lucide-react';
-
 export default function Analytics() {
+  const [selectedTool, setSelectedTool] = useState<Tool | null>(null);
+  const [editTool, setEditTool] = useState<Tool | null>(null);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  
   const {
     tools,
     totalInvestment,
@@ -14,6 +22,10 @@ export default function Analytics() {
     stackScore,
     getCategoryBreakdown,
     getPlatformBreakdown,
+    updateTool,
+    deleteTool,
+    markAsUsed,
+    addTool,
   } = useTools();
 
   const categoryBreakdown = getCategoryBreakdown();
@@ -57,6 +69,9 @@ export default function Analytics() {
           <h1 className="text-3xl font-bold text-foreground">Analytics</h1>
           <p className="text-muted-foreground mt-1">Insights into your tool investments</p>
         </div>
+
+        {/* ROI Leaderboard */}
+        <ROILeaderboard tools={tools} onViewTool={setSelectedTool} />
 
         {/* Analytics Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -190,6 +205,31 @@ export default function Analytics() {
           </div>
         </div>
       </div>
+
+      {selectedTool && (
+        <ToolDetailModal
+          tool={selectedTool}
+          isOpen={!!selectedTool}
+          onClose={() => setSelectedTool(null)}
+          onMarkAsUsed={markAsUsed}
+          onEdit={(tool) => {
+            setEditTool(tool);
+            setIsAddModalOpen(true);
+          }}
+          onDelete={deleteTool}
+        />
+      )}
+
+      <AddToolModal
+        isOpen={isAddModalOpen}
+        onClose={() => {
+          setIsAddModalOpen(false);
+          setEditTool(null);
+        }}
+        onAdd={addTool}
+        editTool={editTool}
+        onUpdate={updateTool}
+      />
     </Layout>
   );
 }
