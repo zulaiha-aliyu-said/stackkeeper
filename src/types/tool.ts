@@ -1,3 +1,10 @@
+export interface UsageEntry {
+  id: string;
+  timestamp: string;
+  duration?: number; // Session duration in seconds
+  source: 'manual' | 'timer' | 'extension' | 'daily-prompt';
+}
+
 export interface Tool {
   id: string;
   name: string;
@@ -13,6 +20,10 @@ export interface Tool {
   lastUsed: string | null;
   timesUsed: number;
   tags?: string[];
+  toolUrl?: string;
+  usageHistory?: UsageEntry[];
+  currentStreak?: number;
+  longestStreak?: number;
 }
 
 export type SortOption = 'name' | 'price-asc' | 'price-desc' | 'date-newest' | 'date-oldest' | 'usage';

@@ -1,6 +1,7 @@
-import { useState, useEffect, useMemo } from 'react';
-import { Tool, SortOption, Category } from '@/types/tool';
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import { Tool, SortOption, Category, UsageEntry } from '@/types/tool';
 import { calculateROI } from '@/lib/roi';
+import { calculateStreak } from '@/lib/streaks';
 
 const STORAGE_KEY = 'stackvault_tools';
 
@@ -48,13 +49,63 @@ export function useTools() {
     setTools(prev => prev.filter(tool => tool.id !== id));
   };
 
-  const markAsUsed = (id: string) => {
-    setTools(prev => prev.map(tool => 
-      tool.id === id 
-        ? { ...tool, lastUsed: new Date().toISOString(), timesUsed: tool.timesUsed + 1 }
-        : tool
-    ));
+  const markAsUsed = (id: string, source: UsageEntry['source'] = 'manual', duration?: number) => {
+    const now = new Date().toISOString();
+    const newEntry: UsageEntry = {
+      id: crypto.randomUUID(),
+      timestamp: now,
+      source,
+      duration,
+    };
+
+    setTools(prev => prev.map(tool => {
+      if (tool.id !== id) return tool;
+      
+      const updatedHistory = [...(tool.usageHistory || []), newEntry];
+      const streakInfo = calculateStreak(updatedHistory, now);
+      
+      return {
+        ...tool,
+        lastUsed: now,
+        timesUsed: tool.timesUsed + 1,
+        usageHistory: updatedHistory,
+        currentStreak: streakInfo.currentStreak,
+        longestStreak: Math.max(tool.longestStreak || 0, streakInfo.longestStreak),
+      };
+    }));
   };
+
+  // Bulk mark tools as used (for daily prompt)
+  const bulkMarkAsUsed = useCallback((toolIds: string[]) => {
+    const now = new Date().toISOString();
+    
+    setTools(prev => prev.map(tool => {
+      if (!toolIds.includes(tool.id)) return tool;
+      
+      const newEntry: UsageEntry = {
+        id: crypto.randomUUID(),
+        timestamp: now,
+        source: 'daily-prompt',
+      };
+      
+      const updatedHistory = [...(tool.usageHistory || []), newEntry];
+      const streakInfo = calculateStreak(updatedHistory, now);
+      
+      return {
+        ...tool,
+        lastUsed: now,
+        timesUsed: tool.timesUsed + 1,
+        usageHistory: updatedHistory,
+        currentStreak: streakInfo.currentStreak,
+        longestStreak: Math.max(tool.longestStreak || 0, streakInfo.longestStreak),
+      };
+    }));
+  }, []);
+
+  // Log usage with timer
+  const logTimerUsage = useCallback((id: string, duration: number) => {
+    markAsUsed(id, 'timer', duration);
+  }, []);
 
   const getTool = (id: string) => tools.find(tool => tool.id === id);
 
@@ -224,6 +275,8 @@ export function useTools() {
     updateTool,
     deleteTool,
     markAsUsed,
+    bulkMarkAsUsed,
+    logTimerUsage,
     getTool,
     sortTools,
     exportToCSV,
