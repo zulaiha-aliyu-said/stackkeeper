@@ -1,21 +1,42 @@
 import { Tool } from '@/types/tool';
 import { formatDistanceToNow } from 'date-fns';
-import { Eye, Zap, Tag } from 'lucide-react';
+import { Eye, Zap, Tag, Play, Square, Clock } from 'lucide-react';
 import { ROIBadge } from './ROIBadge';
+import { StreakBadge } from './StreakBadge';
+import { calculateStreak } from '@/lib/streaks';
+import { useTimer } from '@/hooks/useTimer';
+import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface ToolCardProps {
   tool: Tool;
   onViewDetails: (tool: Tool) => void;
   onMarkAsUsed: (id: string) => void;
+  onLogTimerUsage?: (id: string, duration: number) => void;
 }
 
-export function ToolCard({ tool, onViewDetails, onMarkAsUsed }: ToolCardProps) {
+export function ToolCard({ tool, onViewDetails, onMarkAsUsed, onLogTimerUsage }: ToolCardProps) {
+  const { startTimer, stopTimer, isTimerRunning, getElapsedTime, formatTime } = useTimer();
+  
   const usageText = tool.timesUsed > 0 
     ? `Used ${tool.timesUsed}x` 
     : 'Never used';
 
+  const streakInfo = calculateStreak(tool.usageHistory, tool.lastUsed);
+  const isRunning = isTimerRunning(tool.id);
+  const elapsed = getElapsedTime(tool.id);
+
+  const handleTimerToggle = () => {
+    if (isRunning) {
+      const duration = stopTimer(tool.id);
+      onLogTimerUsage?.(tool.id, duration);
+    } else {
+      startTimer(tool.id, tool.name);
+    }
+  };
+
   return (
-    <div className="tool-card animate-fade-in">
+    <div className={`tool-card animate-fade-in ${isRunning ? 'ring-2 ring-destructive' : ''}`}>
       <div className="flex items-start justify-between mb-4">
         <div>
           <h3 className="text-lg font-semibold text-foreground mb-2">{tool.name}</h3>
@@ -28,9 +49,25 @@ export function ToolCard({ tool, onViewDetails, onMarkAsUsed }: ToolCardProps) {
           <span className={tool.lastUsed ? 'badge-used' : 'badge-unused'}>
             {usageText}
           </span>
-          <ROIBadge tool={tool} showLabel />
+          <div className="flex items-center gap-1">
+            {streakInfo.currentStreak > 0 && (
+              <StreakBadge streak={streakInfo.currentStreak} />
+            )}
+            <ROIBadge tool={tool} showLabel />
+          </div>
         </div>
       </div>
+
+      {/* Timer indicator */}
+      {isRunning && (
+        <div className="flex items-center gap-2 mb-3 p-2 rounded-lg bg-destructive/10 border border-destructive/20">
+          <Clock className="h-4 w-4 text-destructive animate-pulse" />
+          <span className="font-mono text-sm text-destructive font-medium">
+            {formatTime(elapsed)}
+          </span>
+          <span className="text-xs text-destructive/80">Session active</span>
+        </div>
+      )}
 
       {/* Tags */}
       {tool.tags && tool.tags.length > 0 && (
@@ -73,6 +110,29 @@ export function ToolCard({ tool, onViewDetails, onMarkAsUsed }: ToolCardProps) {
           <Eye className="h-4 w-4" />
           Details
         </button>
+        
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant={isRunning ? 'destructive' : 'outline'}
+                size="sm"
+                onClick={handleTimerToggle}
+                className={`${isRunning ? 'animate-pulse' : ''}`}
+              >
+                {isRunning ? (
+                  <Square className="h-4 w-4" />
+                ) : (
+                  <Play className="h-4 w-4" />
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              {isRunning ? 'Stop timer & log usage' : 'Start usage timer'}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
         <button
           onClick={() => onMarkAsUsed(tool.id)}
           className="btn-primary flex-1 flex items-center justify-center gap-2"

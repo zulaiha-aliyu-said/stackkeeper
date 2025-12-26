@@ -8,6 +8,7 @@ import { SpendingChart } from '@/components/SpendingChart';
 import { CategoryChart } from '@/components/CategoryChart';
 import { UsageChart } from '@/components/UsageChart';
 import { AchievementsPanel } from '@/components/AchievementsPanel';
+import { UsageHistoryLog } from '@/components/UsageHistoryLog';
 import { useTools } from '@/hooks/useTools';
 import { Tool } from '@/types/tool';
 import { DollarSign, PieChart, TrendingUp, Globe, BarChart3, Activity, Trophy } from 'lucide-react';
@@ -245,6 +246,9 @@ export default function Analytics() {
           </div>
           <UsageChart tools={tools} />
         </div>
+
+        {/* Usage History */}
+        <UsageHistoryLog tools={tools} />
 
         {/* Achievements */}
         <AchievementsPanel 

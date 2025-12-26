@@ -12,7 +12,7 @@ import { Tool, CATEGORIES, Category, SortOption, SORT_OPTIONS } from '@/types/to
 import { toast } from 'sonner';
 
 export default function Library() {
-  const { tools, addTool, updateTool, deleteTool, markAsUsed, sortTools, exportToCSV, getDuplicates, getAllTags } = useTools();
+  const { tools, addTool, updateTool, deleteTool, markAsUsed, logTimerUsage, sortTools, exportToCSV, getDuplicates, getAllTags } = useTools();
   
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<Category | 'All'>('All');
@@ -235,8 +235,9 @@ export default function Library() {
                   )}
                   <ToolCard
                     tool={tool}
-                    onViewDetails={isCompareMode ? undefined : setSelectedTool}
+                    onViewDetails={isCompareMode ? () => {} : setSelectedTool}
                     onMarkAsUsed={markAsUsed}
+                    onLogTimerUsage={logTimerUsage}
                   />
                 </div>
               );

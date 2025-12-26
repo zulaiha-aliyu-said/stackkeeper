@@ -8,6 +8,9 @@ import { AddToolModal } from '@/components/AddToolModal';
 import { ToolDetailModal } from '@/components/ToolDetailModal';
 import { DuplicateAlert } from '@/components/DuplicateAlert';
 import { ShareStackModal } from '@/components/ShareStackModal';
+import { WeeklyUsageSummary } from '@/components/WeeklyUsageSummary';
+import { DailyUsagePrompt } from '@/components/DailyUsagePrompt';
+import { ActiveTimersIndicator } from '@/components/UsageTimer';
 import { useTools } from '@/hooks/useTools';
 import { Tool } from '@/types/tool';
 import { formatDistanceToNow } from 'date-fns';
@@ -19,6 +22,7 @@ export default function Dashboard() {
     updateTool,
     deleteTool,
     markAsUsed,
+    bulkMarkAsUsed,
     totalInvestment, 
     stackScore, 
     getRefundAlerts,
@@ -137,6 +141,9 @@ export default function Dashboard() {
           onViewTool={(tool) => setSelectedTool(tool)} 
         />
 
+        {/* Weekly Usage Summary */}
+        <WeeklyUsageSummary tools={tools} />
+
         {/* Two Column Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Recently Added */}
@@ -237,6 +244,12 @@ export default function Dashboard() {
         totalInvestment={totalInvestment}
         stackScore={stackScore}
       />
+
+      {/* Daily Usage Prompt */}
+      <DailyUsagePrompt tools={tools} onMarkAsUsed={bulkMarkAsUsed} />
+
+      {/* Active Timers Indicator */}
+      <ActiveTimersIndicator />
     </Layout>
   );
 }
