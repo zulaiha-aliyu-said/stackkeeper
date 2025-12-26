@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Package, DollarSign, TrendingUp, AlertTriangle, Plus, Zap, Ghost, Share2 } from 'lucide-react';
 import { Layout } from '@/components/Layout';
 import { MetricCard } from '@/components/MetricCard';
-import { RefundAlerts } from '@/components/RefundAlerts';
+import { RefundTimer } from '@/components/RefundTimer';
 import { EmptyState } from '@/components/EmptyState';
 import { AddToolModal } from '@/components/AddToolModal';
 import { ToolDetailModal } from '@/components/ToolDetailModal';
@@ -131,10 +131,11 @@ export default function Dashboard() {
           />
         )}
 
-        {/* Refund Alerts */}
-        {refundAlerts.length > 0 && (
-          <RefundAlerts alerts={refundAlerts} />
-        )}
+        {/* Refund Timer */}
+        <RefundTimer 
+          alerts={refundAlerts} 
+          onViewTool={(tool) => setSelectedTool(tool)} 
+        />
 
         {/* Two Column Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
