@@ -4,9 +4,14 @@ import { EmptyState } from '@/components/EmptyState';
 import { ROILeaderboard } from '@/components/ROILeaderboard';
 import { ToolDetailModal } from '@/components/ToolDetailModal';
 import { AddToolModal } from '@/components/AddToolModal';
+import { SpendingChart } from '@/components/SpendingChart';
+import { CategoryChart } from '@/components/CategoryChart';
+import { UsageChart } from '@/components/UsageChart';
+import { AchievementsPanel } from '@/components/AchievementsPanel';
 import { useTools } from '@/hooks/useTools';
 import { Tool } from '@/types/tool';
-import { DollarSign, PieChart, TrendingUp, Globe, BarChart3 } from 'lucide-react';
+import { DollarSign, PieChart, TrendingUp, Globe, BarChart3, Activity, Trophy } from 'lucide-react';
+
 export default function Analytics() {
   const [selectedTool, setSelectedTool] = useState<Tool | null>(null);
   const [editTool, setEditTool] = useState<Tool | null>(null);
@@ -204,6 +209,49 @@ export default function Analytics() {
             </div>
           </div>
         </div>
+
+        {/* Charts Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Spending Over Time */}
+          <div className="metric-card">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="rounded-lg bg-success/10 p-2">
+                <TrendingUp className="h-5 w-5 text-success" />
+              </div>
+              <h3 className="font-semibold text-foreground">Spending Over Time</h3>
+            </div>
+            <SpendingChart tools={tools} />
+          </div>
+
+          {/* Category Breakdown Chart */}
+          <div className="metric-card">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="rounded-lg bg-info/10 p-2">
+                <PieChart className="h-5 w-5 text-info" />
+              </div>
+              <h3 className="font-semibold text-foreground">Category Distribution</h3>
+            </div>
+            <CategoryChart tools={tools} />
+          </div>
+        </div>
+
+        {/* Usage Chart - Full Width */}
+        <div className="metric-card">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="rounded-lg bg-primary/10 p-2">
+              <Activity className="h-5 w-5 text-primary" />
+            </div>
+            <h3 className="font-semibold text-foreground">Tool Usage Ranking</h3>
+          </div>
+          <UsageChart tools={tools} />
+        </div>
+
+        {/* Achievements */}
+        <AchievementsPanel 
+          tools={tools} 
+          totalInvestment={totalInvestment} 
+          stackScore={stackScore} 
+        />
       </div>
 
       {selectedTool && (
