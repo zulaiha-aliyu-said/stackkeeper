@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Layout } from '@/components/Layout';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -15,13 +15,29 @@ import {
   ArrowRight,
   Globe,
   AlertTriangle,
-  Zap
+  Zap,
+  Package,
+  Loader2
 } from 'lucide-react';
+import { generateExtensionZip } from '@/lib/extensionFiles';
+import { saveAs } from 'file-saver';
+import { toast } from 'sonner';
 
 const Extension: React.FC = () => {
-  const handleInstallExtension = () => {
-    // This would link to Chrome Web Store in production
-    window.open('https://chrome.google.com/webstore', '_blank');
+  const [isDownloading, setIsDownloading] = useState(false);
+
+  const handleDownloadExtension = async () => {
+    setIsDownloading(true);
+    try {
+      const blob = await generateExtensionZip();
+      saveAs(blob, 'stackvault-guardian-extension.zip');
+      toast.success('Extension downloaded! Follow the setup guide below to install.');
+    } catch (error) {
+      console.error('Failed to generate extension:', error);
+      toast.error('Failed to download extension. Please try again.');
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   return (
@@ -39,10 +55,28 @@ const Extension: React.FC = () => {
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Your personal LTD watchdog. Automatically tracks usage and stops impulse purchases before they happen.
           </p>
-          <Button size="lg" onClick={handleInstallExtension} className="gap-2 mt-4">
-            <Download className="h-5 w-5" />
-            Add to Chrome - It's Free
+          <Button 
+            size="lg" 
+            onClick={handleDownloadExtension} 
+            className="gap-2 mt-4"
+            disabled={isDownloading}
+          >
+            {isDownloading ? (
+              <>
+                <Loader2 className="h-5 w-5 animate-spin" />
+                Preparing Download...
+              </>
+            ) : (
+              <>
+                <Download className="h-5 w-5" />
+                Download Extension (ZIP)
+              </>
+            )}
           </Button>
+          <p className="text-xs text-muted-foreground">
+            <Package className="h-3 w-3 inline mr-1" />
+            Manual installation required - follow setup guide below
+          </p>
         </div>
 
         {/* Main Features */}
@@ -143,7 +177,7 @@ const Extension: React.FC = () => {
                 <div className="flex items-start gap-3">
                   <AlertTriangle className="h-5 w-5 text-destructive shrink-0" />
                   <div className="space-y-1">
-                    <p className="text-sm font-medium">Hold on! 🛑</p>
+                    <p className="text-sm font-medium">Hold on!</p>
                     <p className="text-xs text-muted-foreground">
                       You already own <strong>2 AI Writers</strong>. One has <strong>0% usage</strong> this month.
                     </p>
@@ -185,10 +219,15 @@ const Extension: React.FC = () => {
         </div>
 
         {/* Setup Instructions */}
-        <Card className="mt-8">
+        <Card className="mt-8 border-primary/20">
           <CardHeader>
-            <CardTitle>Quick Setup Guide</CardTitle>
-            <CardDescription>Get started in under 2 minutes</CardDescription>
+            <CardTitle className="flex items-center gap-2">
+              <Package className="h-5 w-5 text-primary" />
+              Installation Guide (Developer Mode)
+            </CardTitle>
+            <CardDescription>
+              Since this extension isn't on the Chrome Web Store yet, follow these steps to install manually
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-6">
@@ -197,9 +236,9 @@ const Extension: React.FC = () => {
                   1
                 </div>
                 <div>
-                  <h4 className="font-medium">Install the Extension</h4>
+                  <h4 className="font-medium">Download & Extract</h4>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Click "Add to Chrome" above to install from the Chrome Web Store. The extension is lightweight and privacy-focused.
+                    Click the download button above, then <strong>unzip the file</strong> to a folder on your computer (e.g., Desktop/stackvault-guardian).
                   </p>
                 </div>
               </div>
@@ -209,9 +248,9 @@ const Extension: React.FC = () => {
                   2
                 </div>
                 <div>
-                  <h4 className="font-medium">Add Tool URLs</h4>
+                  <h4 className="font-medium">Open Chrome Extensions</h4>
                   <p className="text-sm text-muted-foreground mt-1">
-                    For each tool in your library, add the website URL (e.g., app.relayter.com). The extension uses these to recognize when you're using your tools.
+                    Go to <code className="bg-muted px-2 py-0.5 rounded text-xs">chrome://extensions/</code> in your browser address bar.
                   </p>
                 </div>
               </div>
@@ -221,9 +260,9 @@ const Extension: React.FC = () => {
                   3
                 </div>
                 <div>
-                  <h4 className="font-medium">Enable Tracking</h4>
+                  <h4 className="font-medium">Enable Developer Mode</h4>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Click the extension icon and toggle on tracking. You'll see a green badge when it's active.
+                    Toggle <strong>"Developer mode"</strong> ON in the top-right corner of the extensions page.
                   </p>
                 </div>
               </div>
@@ -233,9 +272,21 @@ const Extension: React.FC = () => {
                   4
                 </div>
                 <div>
-                  <h4 className="font-medium">Browse Normally</h4>
+                  <h4 className="font-medium">Load the Extension</h4>
                   <p className="text-sm text-muted-foreground mt-1">
-                    That's it! Use your tools as usual. The extension handles everything automatically and syncs with your dashboard.
+                    Click <strong>"Load unpacked"</strong> button and select the unzipped folder. The Guardian icon should appear in your toolbar!
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4">
+                <div className="h-8 w-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center shrink-0 font-bold">
+                  5
+                </div>
+                <div>
+                  <h4 className="font-medium">Add Your Tool Domains</h4>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Click the Guardian icon and add domains for your LTD tools (e.g., <code className="bg-muted px-2 py-0.5 rounded text-xs">relayter.com</code>). The extension will now track your usage automatically!
                   </p>
                 </div>
               </div>
@@ -261,12 +312,26 @@ const Extension: React.FC = () => {
 
         {/* CTA */}
         <div className="text-center py-8">
-          <Button size="lg" onClick={handleInstallExtension} className="gap-2">
-            <Chrome className="h-5 w-5" />
-            Install The Guardian Extension
+          <Button 
+            size="lg" 
+            onClick={handleDownloadExtension} 
+            className="gap-2"
+            disabled={isDownloading}
+          >
+            {isDownloading ? (
+              <>
+                <Loader2 className="h-5 w-5 animate-spin" />
+                Preparing...
+              </>
+            ) : (
+              <>
+                <Download className="h-5 w-5" />
+                Download The Guardian Extension
+              </>
+            )}
           </Button>
           <p className="text-sm text-muted-foreground mt-3">
-            Free forever • No account required • Works offline
+            Free forever • Open source • Privacy focused
           </p>
         </div>
       </div>
