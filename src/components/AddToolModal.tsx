@@ -26,6 +26,7 @@ export function AddToolModal({ isOpen, onClose, onAdd, editTool, onUpdate, exist
     redemptionCode: '',
     notes: '',
     tags: [] as string[],
+    toolUrl: '',
   });
 
   useEffect(() => {
@@ -41,6 +42,7 @@ export function AddToolModal({ isOpen, onClose, onAdd, editTool, onUpdate, exist
         redemptionCode: editTool.redemptionCode || '',
         notes: editTool.notes || '',
         tags: editTool.tags || [],
+        toolUrl: editTool.toolUrl || '',
       });
     } else {
       setFormData({
@@ -54,6 +56,7 @@ export function AddToolModal({ isOpen, onClose, onAdd, editTool, onUpdate, exist
         redemptionCode: '',
         notes: '',
         tags: [],
+        toolUrl: '',
       });
     }
   }, [editTool, isOpen]);
@@ -102,6 +105,7 @@ export function AddToolModal({ isOpen, onClose, onAdd, editTool, onUpdate, exist
           redemptionCode: formData.redemptionCode || undefined,
           notes: formData.notes || undefined,
           tags: formData.tags.length > 0 ? formData.tags : undefined,
+          toolUrl: formData.toolUrl || undefined,
         });
         toast.success('Tool updated successfully!');
       } else {
@@ -116,6 +120,7 @@ export function AddToolModal({ isOpen, onClose, onAdd, editTool, onUpdate, exist
           redemptionCode: formData.redemptionCode || undefined,
           notes: formData.notes || undefined,
           tags: formData.tags.length > 0 ? formData.tags : undefined,
+          toolUrl: formData.toolUrl || undefined,
         });
         toast.success('Tool added to your vault!');
       }
@@ -252,6 +257,20 @@ export function AddToolModal({ isOpen, onClose, onAdd, editTool, onUpdate, exist
                 value={formData.redemptionCode}
                 onChange={(e) => setFormData(prev => ({ ...prev, redemptionCode: e.target.value }))}
                 placeholder="License key or code"
+                className="input-field w-full"
+              />
+            </div>
+
+            <div className="space-y-2 md:col-span-2">
+              <label className="text-sm font-medium text-foreground">
+                Tool URL
+                <span className="text-xs text-muted-foreground ml-2">(for extension tracking)</span>
+              </label>
+              <input
+                type="url"
+                value={formData.toolUrl}
+                onChange={(e) => setFormData(prev => ({ ...prev, toolUrl: e.target.value }))}
+                placeholder="https://app.toolname.com"
                 className="input-field w-full"
               />
             </div>

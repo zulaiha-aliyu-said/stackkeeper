@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Copy, Check, Edit2, Trash2, Zap, Eye, EyeOff, Calendar, DollarSign, Tag } from 'lucide-react';
+import { X, Copy, Check, Edit2, Trash2, Zap, Eye, EyeOff, Calendar, DollarSign, Tag, ExternalLink, Globe } from 'lucide-react';
 import { Tool } from '@/types/tool';
 import { format, differenceInDays, addDays } from 'date-fns';
 import { toast } from 'sonner';
@@ -132,6 +132,35 @@ export function ToolDetailModal({
               </div>
             )}
           </div>
+
+          {/* Tool URL */}
+          {tool.toolUrl && (
+            <div className="flex items-center gap-3 p-3 bg-secondary rounded-lg">
+              <Globe className="h-5 w-5 text-primary" />
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-muted-foreground">Tool URL (tracked by extension)</p>
+                <p className="font-mono text-sm text-foreground truncate">{tool.toolUrl}</p>
+              </div>
+              <a
+                href={tool.toolUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 rounded-lg hover:bg-background transition-colors"
+              >
+                <ExternalLink className="h-4 w-4 text-muted-foreground" />
+              </a>
+              <button
+                onClick={() => copyToClipboard(tool.toolUrl!, 'URL')}
+                className="p-2 rounded-lg hover:bg-background transition-colors"
+              >
+                {copiedField === 'URL' ? (
+                  <Check className="h-4 w-4 text-success" />
+                ) : (
+                  <Copy className="h-4 w-4 text-muted-foreground" />
+                )}
+              </button>
+            </div>
+          )}
 
           {/* ROI Section */}
           <ROISection tool={tool} />
