@@ -48,7 +48,7 @@ export function Layout({ children }: LayoutProps) {
   });
 
   const navLinks = [
-    { path: '/', label: 'Dashboard', icon: LayoutDashboard },
+    { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
     { path: '/library', label: 'Tool Library', icon: Library },
     { path: '/analytics', label: 'Analytics', icon: BarChart3 },
     { path: '/extension', label: 'Extension', icon: Chrome },
