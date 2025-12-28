@@ -4,6 +4,7 @@ import { Tool } from '@/types/tool';
 import { format, differenceInDays, addDays } from 'date-fns';
 import { toast } from 'sonner';
 import { ROISection } from './ROISection';
+import { UsageGoalProgress } from './UsageGoalProgress';
 interface ToolDetailModalProps {
   tool: Tool;
   isOpen: boolean;
@@ -159,6 +160,13 @@ export function ToolDetailModal({
                   <Copy className="h-4 w-4 text-muted-foreground" />
                 )}
               </button>
+            </div>
+          )}
+
+          {/* Usage Goal Progress */}
+          {tool.usageGoal && tool.usageGoalPeriod && (
+            <div className="p-4 bg-secondary/50 rounded-lg">
+              <UsageGoalProgress tool={tool} />
             </div>
           )}
 

@@ -5,6 +5,8 @@ export interface UsageEntry {
   source: 'manual' | 'timer' | 'extension' | 'daily-prompt';
 }
 
+export type UsageGoalPeriod = 'weekly' | 'monthly';
+
 export interface Tool {
   id: string;
   name: string;
@@ -24,6 +26,9 @@ export interface Tool {
   usageHistory?: UsageEntry[];
   currentStreak?: number;
   longestStreak?: number;
+  usageGoal?: number;
+  usageGoalPeriod?: UsageGoalPeriod;
+  annualValue?: number; // What this tool would cost as annual subscription
 }
 
 export type SortOption = 'name' | 'price-asc' | 'price-desc' | 'date-newest' | 'date-oldest' | 'usage';

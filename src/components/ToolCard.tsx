@@ -3,6 +3,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { Eye, Zap, Tag, Play, Square, Clock } from 'lucide-react';
 import { ROIBadge } from './ROIBadge';
 import { StreakBadge } from './StreakBadge';
+import { UsageGoalProgress } from './UsageGoalProgress';
 import { calculateStreak } from '@/lib/streaks';
 import { useTimer } from '@/hooks/useTimer';
 import { Button } from '@/components/ui/button';
@@ -86,6 +87,13 @@ export function ToolCard({ tool, onViewDetails, onMarkAsUsed, onLogTimerUsage }:
               +{tool.tags.length - 3} more
             </span>
           )}
+        </div>
+      )}
+
+      {/* Usage Goal Progress */}
+      {tool.usageGoal && (
+        <div className="mb-3">
+          <UsageGoalProgress tool={tool} compact />
         </div>
       )}
 
