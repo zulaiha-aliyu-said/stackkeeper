@@ -27,6 +27,9 @@ export function AddToolModal({ isOpen, onClose, onAdd, editTool, onUpdate, exist
     notes: '',
     tags: [] as string[],
     toolUrl: '',
+    usageGoal: '',
+    usageGoalPeriod: 'weekly' as 'weekly' | 'monthly',
+    annualValue: '',
   });
 
   useEffect(() => {
@@ -43,6 +46,9 @@ export function AddToolModal({ isOpen, onClose, onAdd, editTool, onUpdate, exist
         notes: editTool.notes || '',
         tags: editTool.tags || [],
         toolUrl: editTool.toolUrl || '',
+        usageGoal: editTool.usageGoal?.toString() || '',
+        usageGoalPeriod: editTool.usageGoalPeriod || 'weekly',
+        annualValue: editTool.annualValue?.toString() || '',
       });
     } else {
       setFormData({
@@ -57,6 +63,9 @@ export function AddToolModal({ isOpen, onClose, onAdd, editTool, onUpdate, exist
         notes: '',
         tags: [],
         toolUrl: '',
+        usageGoal: '',
+        usageGoalPeriod: 'weekly',
+        annualValue: '',
       });
     }
   }, [editTool, isOpen]);
@@ -106,6 +115,9 @@ export function AddToolModal({ isOpen, onClose, onAdd, editTool, onUpdate, exist
           notes: formData.notes || undefined,
           tags: formData.tags.length > 0 ? formData.tags : undefined,
           toolUrl: formData.toolUrl || undefined,
+          usageGoal: formData.usageGoal ? parseInt(formData.usageGoal) : undefined,
+          usageGoalPeriod: formData.usageGoal ? formData.usageGoalPeriod : undefined,
+          annualValue: formData.annualValue ? parseFloat(formData.annualValue) : undefined,
         });
         toast.success('Tool updated successfully!');
       } else {
@@ -121,6 +133,9 @@ export function AddToolModal({ isOpen, onClose, onAdd, editTool, onUpdate, exist
           notes: formData.notes || undefined,
           tags: formData.tags.length > 0 ? formData.tags : undefined,
           toolUrl: formData.toolUrl || undefined,
+          usageGoal: formData.usageGoal ? parseInt(formData.usageGoal) : undefined,
+          usageGoalPeriod: formData.usageGoal ? formData.usageGoalPeriod : undefined,
+          annualValue: formData.annualValue ? parseFloat(formData.annualValue) : undefined,
         });
         toast.success('Tool added to your vault!');
       }
@@ -274,6 +289,59 @@ export function AddToolModal({ isOpen, onClose, onAdd, editTool, onUpdate, exist
                 className="input-field w-full"
               />
             </div>
+          </div>
+
+          {/* Usage Goals Section */}
+          <div className="space-y-3 pt-4 border-t border-border">
+            <label className="text-sm font-medium text-foreground flex items-center gap-2">
+              🎯 Usage Goal
+              <span className="text-xs text-muted-foreground font-normal">(optional)</span>
+            </label>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <label className="text-xs text-muted-foreground">Target uses</label>
+                <input
+                  type="number"
+                  value={formData.usageGoal}
+                  onChange={(e) => setFormData(prev => ({ ...prev, usageGoal: e.target.value }))}
+                  placeholder="e.g., 5"
+                  min="1"
+                  className="input-field w-full"
+                />
+              </div>
+              <div className="space-y-2">
+                <label className="text-xs text-muted-foreground">Period</label>
+                <select
+                  value={formData.usageGoalPeriod}
+                  onChange={(e) => setFormData(prev => ({ ...prev, usageGoalPeriod: e.target.value as 'weekly' | 'monthly' }))}
+                  className="input-field w-full"
+                  disabled={!formData.usageGoal}
+                >
+                  <option value="weekly">Per Week</option>
+                  <option value="monthly">Per Month</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Annual Value Section */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-foreground flex items-center gap-2">
+              💰 Annual Subscription Value
+              <span className="text-xs text-muted-foreground font-normal">(for portfolio appraisal)</span>
+            </label>
+            <input
+              type="number"
+              value={formData.annualValue}
+              onChange={(e) => setFormData(prev => ({ ...prev, annualValue: e.target.value }))}
+              placeholder="What this tool would cost per year as subscription (e.g., 240)"
+              min="0"
+              step="1"
+              className="input-field w-full"
+            />
+            <p className="text-xs text-muted-foreground">
+              Leave blank to use estimated category value
+            </p>
           </div>
 
           {/* Tags Section */}

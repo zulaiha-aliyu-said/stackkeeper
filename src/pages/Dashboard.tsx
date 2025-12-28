@@ -11,6 +11,8 @@ import { ShareStackModal } from '@/components/ShareStackModal';
 import { WeeklyUsageSummary } from '@/components/WeeklyUsageSummary';
 import { DailyUsagePrompt } from '@/components/DailyUsagePrompt';
 import { ActiveTimersIndicator } from '@/components/UsageTimer';
+import { GoalsOverview } from '@/components/UsageGoalProgress';
+import { PortfolioAppraisal } from '@/components/PortfolioAppraisal';
 import { useTools } from '@/hooks/useTools';
 import { Tool } from '@/types/tool';
 import { formatDistanceToNow } from 'date-fns';
@@ -143,6 +145,12 @@ export default function Dashboard() {
 
         {/* Weekly Usage Summary */}
         <WeeklyUsageSummary tools={tools} />
+
+        {/* Portfolio Appraisal */}
+        <PortfolioAppraisal tools={tools} totalInvestment={totalInvestment} />
+
+        {/* Goals Overview */}
+        <GoalsOverview tools={tools} />
 
         {/* Two Column Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
