@@ -9,7 +9,7 @@ export function useTools() {
   const [tools, setTools] = useState<Tool[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
+  const loadFromStorage = useCallback(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
       try {
@@ -22,10 +22,19 @@ export function useTools() {
   }, []);
 
   useEffect(() => {
+    loadFromStorage();
+  }, [loadFromStorage]);
+
+  useEffect(() => {
     if (!isLoading) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(tools));
     }
   }, [tools, isLoading]);
+
+  // Set tools directly (for demo data loading)
+  const setToolsDirectly = useCallback((newTools: Tool[]) => {
+    setTools(newTools);
+  }, []);
 
   const addTool = (tool: Omit<Tool, 'id' | 'addedDate' | 'lastUsed' | 'timesUsed'>) => {
     const newTool: Tool = {
@@ -293,5 +302,6 @@ export function useTools() {
     getToolGraveyard,
     getCategoryBreakdown,
     getPlatformBreakdown,
+    setToolsDirectly,
   };
 }
