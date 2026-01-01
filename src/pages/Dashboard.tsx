@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Package, DollarSign, TrendingUp, AlertTriangle, Plus, Zap, Ghost, Share2 } from 'lucide-react';
+import { Package, DollarSign, TrendingUp, AlertTriangle, Plus, Zap, Ghost, Share2, Play } from 'lucide-react';
 import { Layout } from '@/components/Layout';
 import { MetricCard } from '@/components/MetricCard';
 import { RefundTimer } from '@/components/RefundTimer';
@@ -16,6 +16,7 @@ import { PortfolioAppraisal } from '@/components/PortfolioAppraisal';
 import { useTools } from '@/hooks/useTools';
 import { Tool } from '@/types/tool';
 import { formatDistanceToNow } from 'date-fns';
+import { generateDemoTools, DEMO_TOOLS_COUNT } from '@/lib/demoData';
 
 export default function Dashboard() {
   const { 
@@ -38,6 +39,7 @@ export default function Dashboard() {
   const [editTool, setEditTool] = useState<Tool | null>(null);
   const [dismissedDuplicates, setDismissedDuplicates] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [demoLoading, setDemoLoading] = useState(false);
   const refundAlerts = getRefundAlerts();
   const recentTools = getRecentlyAdded();
   const graveyardTools = getToolGraveyard();
@@ -49,16 +51,30 @@ export default function Dashboard() {
     return '🚨';
   };
 
+  const handleLoadDemo = () => {
+    setDemoLoading(true);
+    setTimeout(() => {
+      const demoTools = generateDemoTools();
+      localStorage.setItem('stackvault-tools', JSON.stringify(demoTools));
+      window.location.reload();
+    }, 1500);
+  };
+
   if (tools.length === 0) {
     return (
       <Layout>
         <EmptyState
           icon={Package}
           title="Your vault is empty"
-          description="Start tracking your lifetime deals by adding your first tool. Never forget what you own again!"
+          description="Start tracking your lifetime deals by adding your first tool. Or try the demo with 47 pre-loaded tools to explore all features!"
           action={{
             label: 'Add Your First Tool',
             onClick: () => setIsAddModalOpen(true)
+          }}
+          secondaryAction={{
+            label: `Load Demo (${DEMO_TOOLS_COUNT} tools)`,
+            onClick: handleLoadDemo,
+            loading: demoLoading
           }}
         />
         <AddToolModal
