@@ -31,7 +31,8 @@ export default function Dashboard() {
     getRefundAlerts,
     getRecentlyAdded,
     getToolGraveyard,
-    getDuplicates
+    getDuplicates,
+    setToolsDirectly
   } = useTools();
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -55,9 +56,9 @@ export default function Dashboard() {
     setDemoLoading(true);
     setTimeout(() => {
       const demoTools = generateDemoTools();
-      localStorage.setItem('stackvault-tools', JSON.stringify(demoTools));
-      window.location.reload();
-    }, 1500);
+      setToolsDirectly(demoTools);
+      setDemoLoading(false);
+    }, 1000);
   };
 
   if (tools.length === 0) {

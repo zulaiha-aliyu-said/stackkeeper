@@ -59,7 +59,7 @@ export default function Landing() {
     setDemoLoading(true);
     setTimeout(() => {
       const demoTools = generateDemoTools();
-      localStorage.setItem('stackvault-tools', JSON.stringify(demoTools));
+      localStorage.setItem('stackvault_tools', JSON.stringify(demoTools));
       setDemoLoading(false);
       setDemoLoaded(true);
     }, 1500);
@@ -76,7 +76,7 @@ export default function Landing() {
 
   const handleImportNow = () => {
     const demoTools = generateDemoTools();
-    localStorage.setItem('stackvault-tools', JSON.stringify(demoTools));
+    localStorage.setItem('stackvault_tools', JSON.stringify(demoTools));
     navigate('/dashboard');
   };
 
