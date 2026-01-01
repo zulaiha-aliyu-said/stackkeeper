@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { 
   Package, 
   Shield, 
@@ -32,15 +32,56 @@ import {
   Play,
   Users,
   Rocket,
-  Heart
+  Heart,
+  Database,
+  Upload,
+  Lightbulb
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { Input } from '@/components/ui/input';
+import { generateDemoTools, DEMO_TOOLS_COUNT } from '@/lib/demoData';
 
 export default function Landing() {
+  const navigate = useNavigate();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [demoLoading, setDemoLoading] = useState(false);
+  const [demoLoaded, setDemoLoaded] = useState(false);
+  
+  // Onboarding state
+  const [userGuess, setUserGuess] = useState('');
+  const [showResult, setShowResult] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+
+  const handleLoadDemo = () => {
+    setDemoLoading(true);
+    setTimeout(() => {
+      const demoTools = generateDemoTools();
+      localStorage.setItem('stackvault-tools', JSON.stringify(demoTools));
+      setDemoLoading(false);
+      setDemoLoaded(true);
+    }, 1500);
+  };
+
+  const handleGuessSubmit = () => {
+    if (!userGuess) return;
+    setIsAnalyzing(true);
+    setTimeout(() => {
+      setIsAnalyzing(false);
+      setShowResult(true);
+    }, 2000);
+  };
+
+  const handleImportNow = () => {
+    const demoTools = generateDemoTools();
+    localStorage.setItem('stackvault-tools', JSON.stringify(demoTools));
+    navigate('/dashboard');
+  };
+
+  const guessedCount = parseInt(userGuess) || 20;
+  const underestimatePercent = Math.round(((DEMO_TOOLS_COUNT - guessedCount) / guessedCount) * 100);
 
   const features = [
     {
@@ -289,6 +330,228 @@ export default function Landing() {
               Open Source
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Try Demo Section */}
+      <section className="py-20 px-4">
+        <div className="container mx-auto">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Demo Option */}
+            <div className="text-center lg:text-left">
+              <Badge variant="secondary" className="mb-4">
+                <Database className="h-3 w-3 mr-1" />
+                Try Before You Add
+              </Badge>
+              <h2 className="text-3xl sm:text-4xl font-bold mb-4">
+                See StackVault in Action with{' '}
+                <span className="text-gradient">Sample Data</span>
+              </h2>
+              <p className="text-muted-foreground text-lg mb-6">
+                Not ready to add your own tools? Load our demo stack with {DEMO_TOOLS_COUNT} pre-loaded lifetime deals 
+                and explore every feature instantly.
+              </p>
+              
+              {!demoLoaded ? (
+                <div className="space-y-4">
+                  <Button 
+                    size="lg" 
+                    onClick={handleLoadDemo}
+                    disabled={demoLoading}
+                    className="gap-2 text-lg px-8"
+                  >
+                    {demoLoading ? (
+                      <>
+                        <div className="h-5 w-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+                        Loading Demo...
+                      </>
+                    ) : (
+                      <>
+                        <Play className="h-5 w-5" />
+                        Load Demo Stack
+                      </>
+                    )}
+                  </Button>
+                  
+                  <div className="flex flex-wrap gap-3 justify-center lg:justify-start text-sm text-muted-foreground">
+                    <span className="flex items-center gap-1">
+                      <CheckCircle2 className="h-4 w-4 text-success" />
+                      {DEMO_TOOLS_COUNT} pre-loaded tools
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <CheckCircle2 className="h-4 w-4 text-success" />
+                      All features working
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="p-4 rounded-xl bg-success/10 border border-success/20">
+                    <p className="text-success font-medium flex items-center gap-2">
+                      <CheckCircle2 className="h-5 w-5" />
+                      Demo loaded! {DEMO_TOOLS_COUNT} tools ready to explore
+                    </p>
+                  </div>
+                  
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <Link to="/dashboard">
+                      <Button size="lg" className="gap-2 w-full sm:w-auto">
+                        <Rocket className="h-5 w-5" />
+                        Explore Dashboard
+                      </Button>
+                    </Link>
+                    <Button 
+                      size="lg" 
+                      variant="outline" 
+                      onClick={handleImportNow}
+                      className="gap-2"
+                    >
+                      <Upload className="h-5 w-5" />
+                      Import MY Stack Now
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Mini Preview Cards */}
+            <div className="grid grid-cols-2 gap-4">
+              <Card className="border-primary/20 bg-primary/5">
+                <CardContent className="pt-6 text-center">
+                  <p className="text-4xl font-bold text-primary mb-1">{DEMO_TOOLS_COUNT}</p>
+                  <p className="text-sm text-muted-foreground">Tools Loaded</p>
+                </CardContent>
+              </Card>
+              <Card className="border-success/20 bg-success/5">
+                <CardContent className="pt-6 text-center">
+                  <p className="text-4xl font-bold text-success mb-1">$2,847</p>
+                  <p className="text-sm text-muted-foreground">Total Invested</p>
+                </CardContent>
+              </Card>
+              <Card className="border-info/20 bg-info/5">
+                <CardContent className="pt-6 text-center">
+                  <p className="text-4xl font-bold text-info mb-1">$8,400</p>
+                  <p className="text-sm text-muted-foreground">Annual Value</p>
+                </CardContent>
+              </Card>
+              <Card className="border-warning/20 bg-warning/5">
+                <CardContent className="pt-6 text-center">
+                  <p className="text-4xl font-bold text-warning mb-1">53%</p>
+                  <p className="text-sm text-muted-foreground">Stack Score</p>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* One-Question Onboarding */}
+      <section className="py-20 px-4 bg-gradient-to-br from-primary/5 via-background to-success/5">
+        <div className="container mx-auto max-w-3xl">
+          <div className="text-center mb-8">
+            <Badge variant="secondary" className="mb-4">
+              <Lightbulb className="h-3 w-3 mr-1" />
+              Quick Discovery
+            </Badge>
+            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
+              How Many LTD Tools Do You{' '}
+              <span className="text-gradient">Think</span> You Own?
+            </h2>
+            <p className="text-muted-foreground text-lg">
+              Most people underestimate by 50-200%. Let's find out your real number.
+            </p>
+          </div>
+
+          {!showResult ? (
+            <Card className="border-primary/20">
+              <CardContent className="pt-8 pb-8">
+                {!isAnalyzing ? (
+                  <div className="space-y-6">
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                      <span className="text-lg text-muted-foreground">I think I own about</span>
+                      <Input
+                        type="number"
+                        placeholder="20"
+                        value={userGuess}
+                        onChange={(e) => setUserGuess(e.target.value)}
+                        className="w-24 text-center text-2xl font-bold h-14"
+                      />
+                      <span className="text-lg text-muted-foreground">tools</span>
+                    </div>
+                    
+                    <div className="flex justify-center">
+                      <Button 
+                        size="lg" 
+                        onClick={handleGuessSubmit}
+                        disabled={!userGuess}
+                        className="gap-2"
+                      >
+                        <Sparkles className="h-5 w-5" />
+                        Let's Find Out!
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <div className="h-16 w-16 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-4" />
+                    <p className="text-lg font-medium">Scanning your typical LTD collector profile...</p>
+                    <p className="text-muted-foreground text-sm mt-2">Checking AppSumo, PitchGround, DealFuel...</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          ) : (
+            <Card className="border-destructive/30 bg-gradient-to-br from-destructive/5 to-warning/5">
+              <CardContent className="pt-8 pb-8">
+                <div className="text-center space-y-6">
+                  <div className="text-6xl">😱</div>
+                  
+                  <div>
+                    <p className="text-lg text-muted-foreground mb-2">You guessed <span className="font-bold text-foreground">{guessedCount}</span> tools...</p>
+                    <p className="text-4xl sm:text-5xl font-bold text-primary mb-2">
+                      We found {DEMO_TOOLS_COUNT}!
+                    </p>
+                    {underestimatePercent > 0 && (
+                      <Badge variant="destructive" className="text-lg py-1 px-4">
+                        You underestimated by {underestimatePercent}%!
+                      </Badge>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-4 max-w-md mx-auto">
+                    <div className="p-3 rounded-lg bg-background/50 text-center">
+                      <p className="text-2xl font-bold text-destructive">12</p>
+                      <p className="text-xs text-muted-foreground">AI Writers</p>
+                    </div>
+                    <div className="p-3 rounded-lg bg-background/50 text-center">
+                      <p className="text-2xl font-bold text-warning">22</p>
+                      <p className="text-xs text-muted-foreground">Never Used</p>
+                    </div>
+                    <div className="p-3 rounded-lg bg-background/50 text-center">
+                      <p className="text-2xl font-bold text-success">$8,400</p>
+                      <p className="text-xs text-muted-foreground">/year Value</p>
+                    </div>
+                  </div>
+
+                  <div className="pt-4">
+                    <p className="text-muted-foreground mb-4">Ready to see exactly what you own?</p>
+                    <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                      <Button size="lg" onClick={handleImportNow} className="gap-2">
+                        <Upload className="h-5 w-5" />
+                        Import My Real Stack
+                      </Button>
+                      <Link to="/dashboard">
+                        <Button size="lg" variant="outline" className="gap-2 w-full sm:w-auto">
+                          <Eye className="h-5 w-5" />
+                          Explore Demo First
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </section>
 
