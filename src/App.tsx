@@ -10,6 +10,8 @@ import Analytics from "./pages/Analytics";
 import Insights from "./pages/Insights";
 import Network from "./pages/Network";
 import Extension from "./pages/Extension";
+import Battles from "./pages/Battles";
+import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -37,6 +39,8 @@ const App = () => (
           <Route path="/insights" element={<Insights />} />
           <Route path="/network" element={<Network />} />
           <Route path="/extension" element={<Extension />} />
+          <Route path="/battles" element={<Battles />} />
+          <Route path="/profile/:username" element={<Profile />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

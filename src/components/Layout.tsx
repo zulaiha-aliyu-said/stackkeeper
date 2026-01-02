@@ -1,6 +1,6 @@
 import { ReactNode, useState, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Library, BarChart3, Vault, Command, Chrome, Clock, Network } from 'lucide-react';
+import { LayoutDashboard, Library, BarChart3, Vault, Command, Chrome, Clock, Network, Swords } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { CommandPalette } from '@/components/CommandPalette';
 import { KeyboardShortcutsModal } from '@/components/KeyboardShortcutsModal';
@@ -53,6 +53,7 @@ export function Layout({ children }: LayoutProps) {
     { path: '/analytics', label: 'Analytics', icon: BarChart3 },
     { path: '/insights', label: 'Insights', icon: Clock },
     { path: '/network', label: 'Network', icon: Network },
+    { path: '/battles', label: 'Battles', icon: Swords },
     { path: '/extension', label: 'Extension', icon: Chrome },
   ];
 
