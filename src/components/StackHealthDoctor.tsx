@@ -3,6 +3,7 @@ import { Tool } from '@/types/tool';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
+import { Button } from '@/components/ui/button';
 import { 
   Stethoscope, 
   CheckCircle2, 
@@ -11,11 +12,28 @@ import {
   TrendingUp,
   Pill,
   Heart,
-  Activity
+  Activity,
+  Zap,
+  Trash2,
+  Layers,
+  ExternalLink
 } from 'lucide-react';
 
 interface StackHealthDoctorProps {
   tools: Tool[];
+  onMarkAsUsed?: (toolId: string) => void;
+  onDeleteTool?: (toolId: string) => void;
+  onViewTool?: (tool: Tool) => void;
+}
+
+interface Prescription {
+  action: string;
+  impact: string;
+  priority: 'high' | 'medium' | 'low';
+  actionType?: 'refund' | 'use' | 'consolidate' | 'none';
+  toolId?: string;
+  tool?: Tool;
+  category?: string;
 }
 
 interface HealthDiagnosis {
@@ -23,10 +41,10 @@ interface HealthDiagnosis {
   status: 'excellent' | 'healthy' | 'warning' | 'critical';
   strengths: { area: string; detail: string }[];
   warnings: { area: string; detail: string; value?: number }[];
-  prescriptions: { action: string; impact: string; priority: 'high' | 'medium' | 'low' }[];
+  prescriptions: Prescription[];
 }
 
-export function StackHealthDoctor({ tools }: StackHealthDoctorProps) {
+export function StackHealthDoctor({ tools, onMarkAsUsed, onDeleteTool, onViewTool }: StackHealthDoctorProps) {
   const diagnosis = useMemo((): HealthDiagnosis => {
     if (tools.length === 0) {
       return {
@@ -146,8 +164,8 @@ export function StackHealthDoctor({ tools }: StackHealthDoctorProps) {
       });
     });
     
-    // Build prescriptions
-    const prescriptions: { action: string; impact: string; priority: 'high' | 'medium' | 'low' }[] = [];
+    // Build prescriptions with actionable data
+    const prescriptions: Prescription[] = [];
     
     if (expensiveUnused.length > 0) {
       const topUnused = expensiveUnused[0];
@@ -155,6 +173,9 @@ export function StackHealthDoctor({ tools }: StackHealthDoctorProps) {
         action: `Refund ${topUnused.name} ($${topUnused.price})`,
         impact: 'Recover your investment',
         priority: 'high',
+        actionType: 'refund',
+        toolId: topUnused.id,
+        tool: topUnused,
       });
     }
     
@@ -164,6 +185,8 @@ export function StackHealthDoctor({ tools }: StackHealthDoctorProps) {
         action: `Consolidate ${worstDupe.count} ${worstDupe.category} tools`,
         impact: `Keep the best, refund the rest`,
         priority: 'medium',
+        actionType: 'consolidate',
+        category: worstDupe.category,
       });
     }
     
@@ -173,6 +196,9 @@ export function StackHealthDoctor({ tools }: StackHealthDoctorProps) {
         action: `Try using ${cheapestUnused.name}`,
         impact: 'You already paid for it!',
         priority: 'low',
+        actionType: 'use',
+        toolId: cheapestUnused.id,
+        tool: cheapestUnused,
       });
     }
     
@@ -181,6 +207,7 @@ export function StackHealthDoctor({ tools }: StackHealthDoctorProps) {
         action: 'Keep up the great work!',
         impact: 'Your stack is well-optimized',
         priority: 'low',
+        actionType: 'none',
       });
     }
     
@@ -305,7 +332,7 @@ export function StackHealthDoctor({ tools }: StackHealthDoctorProps) {
           )}
         </div>
 
-        {/* Prescriptions */}
+        {/* Prescriptions with One-Click Actions */}
         <div className="space-y-3 pt-4 border-t border-border">
           <h4 className="font-medium text-foreground flex items-center gap-2">
             <Pill className="h-4 w-4 text-primary" />
@@ -329,16 +356,67 @@ export function StackHealthDoctor({ tools }: StackHealthDoctorProps) {
                 }`}>
                   {i + 1}.
                 </div>
-                <div className="flex-1">
+                <div className="flex-1 min-w-0">
                   <p className="font-medium text-foreground">{rx.action}</p>
                   <p className="text-sm text-muted-foreground">{rx.impact}</p>
                 </div>
-                <Badge 
-                  variant={rx.priority === 'high' ? 'default' : 'secondary'}
-                  className="shrink-0"
-                >
-                  {rx.priority}
-                </Badge>
+                <div className="flex items-center gap-2 shrink-0">
+                  {/* One-Click Action Buttons */}
+                  {rx.actionType === 'refund' && rx.toolId && onDeleteTool && (
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => onDeleteTool(rx.toolId!)}
+                      className="gap-1.5"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                      Refund
+                    </Button>
+                  )}
+                  {rx.actionType === 'use' && rx.toolId && onMarkAsUsed && (
+                    <Button
+                      variant="default"
+                      size="sm"
+                      onClick={() => onMarkAsUsed(rx.toolId!)}
+                      className="gap-1.5"
+                    >
+                      <Zap className="h-3.5 w-3.5" />
+                      Use Now
+                    </Button>
+                  )}
+                  {rx.actionType === 'consolidate' && rx.category && onViewTool && (
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => {
+                        // Find the first tool in that category to view
+                        const categoryTool = tools.find(t => t.category === rx.category);
+                        if (categoryTool) onViewTool(categoryTool);
+                      }}
+                      className="gap-1.5"
+                    >
+                      <Layers className="h-3.5 w-3.5" />
+                      Review
+                    </Button>
+                  )}
+                  {rx.tool && onViewTool && rx.actionType !== 'none' && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onViewTool(rx.tool!)}
+                      className="gap-1.5"
+                    >
+                      <ExternalLink className="h-3.5 w-3.5" />
+                      View
+                    </Button>
+                  )}
+                  <Badge 
+                    variant={rx.priority === 'high' ? 'default' : 'secondary'}
+                    className="shrink-0"
+                  >
+                    {rx.priority}
+                  </Badge>
+                </div>
               </div>
             ))}
           </div>
