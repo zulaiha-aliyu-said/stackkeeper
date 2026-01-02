@@ -7,6 +7,8 @@ import Landing from "./pages/Landing";
 import Dashboard from "./pages/Dashboard";
 import Library from "./pages/Library";
 import Analytics from "./pages/Analytics";
+import Insights from "./pages/Insights";
+import Network from "./pages/Network";
 import Extension from "./pages/Extension";
 import NotFound from "./pages/NotFound";
 
@@ -32,6 +34,8 @@ const App = () => (
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/library" element={<Library />} />
           <Route path="/analytics" element={<Analytics />} />
+          <Route path="/insights" element={<Insights />} />
+          <Route path="/network" element={<Network />} />
           <Route path="/extension" element={<Extension />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
