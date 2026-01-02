@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Package, DollarSign, TrendingUp, AlertTriangle, Plus, Zap, Ghost, Share2, Play } from 'lucide-react';
+import { Package, DollarSign, TrendingUp, AlertTriangle, Plus, Zap, Ghost, Share2 } from 'lucide-react';
 import { Layout } from '@/components/Layout';
 import { MetricCard } from '@/components/MetricCard';
 import { RefundTimer } from '@/components/RefundTimer';
@@ -13,6 +13,7 @@ import { DailyUsagePrompt } from '@/components/DailyUsagePrompt';
 import { ActiveTimersIndicator } from '@/components/UsageTimer';
 import { GoalsOverview } from '@/components/UsageGoalProgress';
 import { PortfolioAppraisal } from '@/components/PortfolioAppraisal';
+import { StackHealthDoctor } from '@/components/StackHealthDoctor';
 import { useTools } from '@/hooks/useTools';
 import { Tool } from '@/types/tool';
 import { formatDistanceToNow } from 'date-fns';
@@ -168,6 +169,9 @@ export default function Dashboard() {
 
         {/* Goals Overview */}
         <GoalsOverview tools={tools} />
+
+        {/* Stack Health Doctor */}
+        <StackHealthDoctor tools={tools} />
 
         {/* Two Column Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
