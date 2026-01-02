@@ -14,6 +14,7 @@ import { ActiveTimersIndicator } from '@/components/UsageTimer';
 import { GoalsOverview } from '@/components/UsageGoalProgress';
 import { PortfolioAppraisal } from '@/components/PortfolioAppraisal';
 import { StackHealthDoctor } from '@/components/StackHealthDoctor';
+import { DemoModeBanner } from '@/components/DemoModeBanner';
 import { useTools } from '@/hooks/useTools';
 import { Tool } from '@/types/tool';
 import { formatDistanceToNow } from 'date-fns';
@@ -42,6 +43,7 @@ export default function Dashboard() {
   const [dismissedDuplicates, setDismissedDuplicates] = useState(false);
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [demoLoading, setDemoLoading] = useState(false);
+  const [demoBannerDismissed, setDemoBannerDismissed] = useState(false);
   const refundAlerts = getRefundAlerts();
   const recentTools = getRecentlyAdded();
   const graveyardTools = getToolGraveyard();
@@ -61,6 +63,14 @@ export default function Dashboard() {
       setDemoLoading(false);
     }, 1000);
   };
+
+  const handleClearDemo = () => {
+    setToolsDirectly([]);
+    setDemoBannerDismissed(false);
+  };
+
+  // Check if using demo data (all tools have 'demo-' prefix)
+  const isUsingDemoData = tools.length > 0 && tools.every(t => t.id.startsWith('demo-'));
 
   if (tools.length === 0) {
     return (
@@ -91,6 +101,15 @@ export default function Dashboard() {
   return (
     <Layout>
       <div className="space-y-8">
+        {/* Demo Mode Banner */}
+        {isUsingDemoData && !demoBannerDismissed && (
+          <DemoModeBanner
+            onClearDemo={handleClearDemo}
+            onDismiss={() => setDemoBannerDismissed(true)}
+            toolCount={tools.length}
+          />
+        )}
+
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
@@ -171,7 +190,12 @@ export default function Dashboard() {
         <GoalsOverview tools={tools} />
 
         {/* Stack Health Doctor */}
-        <StackHealthDoctor tools={tools} />
+        <StackHealthDoctor 
+          tools={tools} 
+          onMarkAsUsed={markAsUsed}
+          onDeleteTool={deleteTool}
+          onViewTool={(tool) => setSelectedTool(tool)}
+        />
 
         {/* Two Column Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
