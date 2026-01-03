@@ -12,6 +12,7 @@ import Network from "./pages/Network";
 import Extension from "./pages/Extension";
 import Battles from "./pages/Battles";
 import Profile from "./pages/Profile";
+import BattleChallenge from "./pages/BattleChallenge";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -40,6 +41,7 @@ const App = () => (
           <Route path="/network" element={<Network />} />
           <Route path="/extension" element={<Extension />} />
           <Route path="/battles" element={<Battles />} />
+          <Route path="/battle" element={<BattleChallenge />} />
           <Route path="/profile/:username" element={<Profile />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
