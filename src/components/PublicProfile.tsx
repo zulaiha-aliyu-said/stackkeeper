@@ -164,6 +164,17 @@ export function PublicProfile({ tools, onStealStack }: PublicProfileProps) {
                   {profile.username && (
                     <p className="text-muted-foreground">@{profile.username}</p>
                   )}
+                  {profile.username && profile.isPublic && (
+                    <div className="flex items-center gap-2 mt-2 p-2 rounded-lg bg-muted/50 max-w-fit">
+                      <Globe className="h-4 w-4 text-primary" />
+                      <code className="text-sm text-muted-foreground">
+                        {window.location.origin}/profile/{profile.username}
+                      </code>
+                      <Button variant="ghost" size="sm" onClick={handleCopyLink} className="h-7 px-2">
+                        {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+                      </Button>
+                    </div>
+                  )}
                 </>
               )}
             </div>
