@@ -1,6 +1,6 @@
 import { ReactNode, useState, useCallback } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Library, BarChart3, Vault, Command, Chrome, Clock, Network, Swords } from 'lucide-react';
+import { LayoutDashboard, Library, BarChart3, Vault, Command, Chrome, Clock, Network, Swords, Settings } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { CommandPalette } from '@/components/CommandPalette';
 import { KeyboardShortcutsModal } from '@/components/KeyboardShortcutsModal';
@@ -10,6 +10,8 @@ import { ShareStackModal } from '@/components/ShareStackModal';
 import { useTools } from '@/hooks/useTools';
 import { useTheme } from '@/hooks/useTheme';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import { useBranding } from '@/hooks/useBranding';
+import { useTier } from '@/hooks/useTier';
 import { Tool } from '@/types/tool';
 import { toast } from 'sonner';
 
@@ -21,6 +23,8 @@ export function Layout({ children }: LayoutProps) {
   const location = useLocation();
   const { tools, addTool, updateTool, deleteTool, markAsUsed, exportToCSV, totalInvestment, stackScore, getAllTags } = useTools();
   const { theme, toggleTheme } = useTheme();
+  const { branding, canCustomizeBranding } = useBranding();
+  const { isAgency } = useTier();
 
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
@@ -55,7 +59,13 @@ export function Layout({ children }: LayoutProps) {
     { path: '/network', label: 'Network', icon: Network },
     { path: '/battles', label: 'Battles', icon: Swords },
     { path: '/extension', label: 'Extension', icon: Chrome },
+    { path: '/settings', label: 'Settings', icon: Settings },
   ];
+
+  // Determine logo and name based on branding
+  const showCustomBranding = isAgency && canCustomizeBranding;
+  const displayName = showCustomBranding && branding.appName ? branding.appName : 'StackVault';
+  const displayLogo = showCustomBranding && branding.logo ? branding.logo : null;
 
   return (
     <div className="min-h-screen bg-background">
@@ -63,10 +73,14 @@ export function Layout({ children }: LayoutProps) {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
             <Link to="/" className="flex items-center gap-3 group">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors">
-                <Vault className="h-5 w-5 text-primary" />
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 group-hover:bg-primary/20 transition-colors overflow-hidden">
+                {displayLogo ? (
+                  <img src={displayLogo} alt="Logo" className="h-5 w-5 object-contain" />
+                ) : (
+                  <Vault className="h-5 w-5 text-primary" />
+                )}
               </div>
-              <span className="text-xl font-bold text-foreground">StackVault</span>
+              <span className="text-xl font-bold text-foreground">{displayName}</span>
             </Link>
 
             <div className="flex items-center gap-1">
