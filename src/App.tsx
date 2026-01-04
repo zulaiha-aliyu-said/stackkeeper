@@ -13,6 +13,7 @@ import Extension from "./pages/Extension";
 import Battles from "./pages/Battles";
 import Profile from "./pages/Profile";
 import BattleChallenge from "./pages/BattleChallenge";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -43,6 +44,7 @@ const App = () => (
           <Route path="/battles" element={<Battles />} />
           <Route path="/battle" element={<BattleChallenge />} />
           <Route path="/profile/:username" element={<Profile />} />
+          <Route path="/settings" element={<Settings />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
