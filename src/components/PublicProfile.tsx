@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { Tool } from '@/types/tool';
 import { UserProfile } from '@/types/profile';
+import { useSocialSettings } from '@/hooks/useSocialSettings';
 import { toast } from 'sonner';
 
 interface PublicProfileProps {
@@ -33,6 +34,7 @@ const defaultProfile: UserProfile = {
 };
 
 export function PublicProfile({ tools, onStealStack }: PublicProfileProps) {
+  const { enablePublicProfile, enableStealMyStack } = useSocialSettings();
   const [profile, setProfile] = useState<UserProfile>(defaultProfile);
   const [isEditing, setIsEditing] = useState(false);
   const [editedProfile, setEditedProfile] = useState<UserProfile>(defaultProfile);
@@ -319,15 +321,17 @@ export function PublicProfile({ tools, onStealStack }: PublicProfileProps) {
         </CardContent>
       </Card>
 
-      {/* Tool List Preview (Public View) */}
-      {profile.isPublic && (
+      {/* Tool List Preview (Public View) - Only if public profile is enabled */}
+      {profile.isPublic && enablePublicProfile && (
         <Card>
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-lg">My Stack</CardTitle>
-            <Button onClick={handleStealStack} className="gap-2">
-              <Sparkles className="h-4 w-4" />
-              Steal My Stack
-            </Button>
+            {enableStealMyStack && (
+              <Button onClick={handleStealStack} className="gap-2">
+                <Sparkles className="h-4 w-4" />
+                Steal My Stack
+              </Button>
+            )}
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -355,8 +359,8 @@ export function PublicProfile({ tools, onStealStack }: PublicProfileProps) {
         </Card>
       )}
 
-      {/* Shareable Link Section */}
-      {profile.username && profile.isPublic && (
+      {/* Shareable Link Section - Only if public profile enabled */}
+      {profile.username && profile.isPublic && enablePublicProfile && (
         <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
           <CardContent className="pt-6">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4">
