@@ -16,6 +16,7 @@ import { PortfolioAppraisal } from '@/components/PortfolioAppraisal';
 import { StackHealthDoctor } from '@/components/StackHealthDoctor';
 import { DemoModeBanner } from '@/components/DemoModeBanner';
 import { useTools } from '@/hooks/useTools';
+import { useInterfaceMode } from '@/hooks/useInterfaceMode';
 import { Tool } from '@/types/tool';
 import { formatDistanceToNow } from 'date-fns';
 import { generateDemoTools, DEMO_TOOLS_COUNT } from '@/lib/demoData';
@@ -36,6 +37,8 @@ export default function Dashboard() {
     getDuplicates,
     setToolsDirectly
   } = useTools();
+  
+  const { features } = useInterfaceMode();
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [selectedTool, setSelectedTool] = useState<Tool | null>(null);
@@ -180,22 +183,24 @@ export default function Dashboard() {
           onViewTool={(tool) => setSelectedTool(tool)} 
         />
 
-        {/* Weekly Usage Summary */}
-        <WeeklyUsageSummary tools={tools} />
+        {/* Weekly Usage Summary - Power Mode only */}
+        {features.showWeeklySummary && <WeeklyUsageSummary tools={tools} />}
 
-        {/* Portfolio Appraisal */}
-        <PortfolioAppraisal tools={tools} totalInvestment={totalInvestment} />
+        {/* Portfolio Appraisal - Power Mode only */}
+        {features.showPortfolioAppraisal && <PortfolioAppraisal tools={tools} totalInvestment={totalInvestment} />}
 
-        {/* Goals Overview */}
-        <GoalsOverview tools={tools} />
+        {/* Goals Overview - Power Mode only */}
+        {features.showGoalsOverview && <GoalsOverview tools={tools} />}
 
-        {/* Stack Health Doctor */}
-        <StackHealthDoctor 
-          tools={tools} 
-          onMarkAsUsed={markAsUsed}
-          onDeleteTool={deleteTool}
-          onViewTool={(tool) => setSelectedTool(tool)}
-        />
+        {/* Stack Health Doctor - Power Mode only */}
+        {features.showStackHealthDoctor && (
+          <StackHealthDoctor 
+            tools={tools} 
+            onMarkAsUsed={markAsUsed}
+            onDeleteTool={deleteTool}
+            onViewTool={(tool) => setSelectedTool(tool)}
+          />
+        )}
 
         {/* Two Column Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -298,11 +303,11 @@ export default function Dashboard() {
         stackScore={stackScore}
       />
 
-      {/* Daily Usage Prompt */}
-      <DailyUsagePrompt tools={tools} onMarkAsUsed={bulkMarkAsUsed} />
+      {/* Daily Usage Prompt - Power Mode only */}
+      {features.showDailyUsagePrompt && <DailyUsagePrompt tools={tools} onMarkAsUsed={bulkMarkAsUsed} />}
 
-      {/* Active Timers Indicator */}
-      <ActiveTimersIndicator />
+      {/* Active Timers Indicator - Power Mode only */}
+      {features.showActiveTimers && <ActiveTimersIndicator />}
     </Layout>
   );
 }

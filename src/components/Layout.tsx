@@ -1,4 +1,4 @@
-import { ReactNode, useState, useCallback } from 'react';
+import { ReactNode, useState, useCallback, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { LayoutDashboard, Library, BarChart3, Vault, Command, Chrome, Clock, Network, Swords, Settings } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -7,11 +7,14 @@ import { KeyboardShortcutsModal } from '@/components/KeyboardShortcutsModal';
 import { AddToolModal } from '@/components/AddToolModal';
 import { ToolDetailModal } from '@/components/ToolDetailModal';
 import { ShareStackModal } from '@/components/ShareStackModal';
+import { ModeSwitcher } from '@/components/ModeSwitcher';
 import { useTools } from '@/hooks/useTools';
 import { useTheme } from '@/hooks/useTheme';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useBranding } from '@/hooks/useBranding';
 import { useTier } from '@/hooks/useTier';
+import { useInterfaceMode } from '@/hooks/useInterfaceMode';
+import { useSocialSettings } from '@/hooks/useSocialSettings';
 import { Tool } from '@/types/tool';
 import { toast } from 'sonner';
 
@@ -25,6 +28,8 @@ export function Layout({ children }: LayoutProps) {
   const { theme, toggleTheme } = useTheme();
   const { branding, canCustomizeBranding } = useBranding();
   const { isAgency } = useTier();
+  const { isSimpleMode } = useInterfaceMode();
+  const { enableBattles } = useSocialSettings();
 
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
@@ -51,16 +56,28 @@ export function Layout({ children }: LayoutProps) {
     onShowShortcuts: () => setIsShortcutsOpen(true),
   });
 
-  const navLinks = [
-    { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { path: '/library', label: 'Tool Library', icon: Library },
-    { path: '/analytics', label: 'Analytics', icon: BarChart3 },
-    { path: '/insights', label: 'Insights', icon: Clock },
-    { path: '/network', label: 'Network', icon: Network },
-    { path: '/battles', label: 'Battles', icon: Swords },
-    { path: '/extension', label: 'Extension', icon: Chrome },
-    { path: '/settings', label: 'Settings', icon: Settings },
+  // All available nav links
+  const allNavLinks = [
+    { path: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, mode: 'all' as const },
+    { path: '/library', label: 'Tool Library', icon: Library, mode: 'all' as const },
+    { path: '/analytics', label: 'Analytics', icon: BarChart3, mode: 'power' as const },
+    { path: '/insights', label: 'Insights', icon: Clock, mode: 'power' as const },
+    { path: '/network', label: 'Network', icon: Network, mode: 'power' as const },
+    { path: '/battles', label: 'Battles', icon: Swords, mode: 'power' as const, requiresSocial: true },
+    { path: '/extension', label: 'Extension', icon: Chrome, mode: 'power' as const },
+    { path: '/settings', label: 'Settings', icon: Settings, mode: 'all' as const },
   ];
+
+  // Filter nav links based on mode and social settings
+  const navLinks = useMemo(() => {
+    return allNavLinks.filter(link => {
+      // Check mode
+      if (isSimpleMode && link.mode === 'power') return false;
+      // Check social settings for Battles
+      if (link.requiresSocial && !enableBattles) return false;
+      return true;
+    });
+  }, [isSimpleMode, enableBattles]);
 
   // Determine logo and name based on branding
   const showCustomBranding = isAgency && canCustomizeBranding;
@@ -110,6 +127,7 @@ export function Layout({ children }: LayoutProps) {
                   ⌘K
                 </kbd>
               </button>
+              <ModeSwitcher />
               <ThemeToggle />
             </div>
           </div>

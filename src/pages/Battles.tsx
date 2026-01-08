@@ -3,10 +3,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { StackBattle } from '@/components/StackBattle';
 import { PublicProfile } from '@/components/PublicProfile';
 import { useTools } from '@/hooks/useTools';
-import { Swords, User } from 'lucide-react';
+import { useSocialSettings } from '@/hooks/useSocialSettings';
+import { useTier } from '@/hooks/useTier';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Swords, User, Shield, Crown } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function Battles() {
   const { tools, setToolsDirectly } = useTools();
+  const { enableBattles, enablePublicProfile, canConfigureSocial } = useSocialSettings();
+  const { setTier, isAgency } = useTier();
   
   // Get username from localStorage profile
   const getUsername = () => {
@@ -24,6 +31,64 @@ export default function Battles() {
   const handleStealStack = (newTools: typeof tools) => {
     setToolsDirectly([...tools, ...newTools]);
   };
+
+  // Show upgrade prompt if not Agency
+  if (!isAgency) {
+    return (
+      <Layout>
+        <div className="p-6">
+          <Card className="max-w-lg mx-auto">
+            <CardHeader className="text-center">
+              <Shield className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <CardTitle>Stack Battles - Agency Only</CardTitle>
+              <CardDescription>
+                Upgrade to Agency to challenge friends and share your stack publicly.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="text-center">
+              <Button 
+                className="gap-2"
+                onClick={() => {
+                  setTier('agency');
+                  toast.success('Upgraded to Agency plan');
+                }}
+              >
+                <Crown className="h-4 w-4" />
+                Upgrade to Agency
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </Layout>
+    );
+  }
+
+  // Show opt-in prompt if battles not enabled
+  if (!enableBattles) {
+    return (
+      <Layout>
+        <div className="p-6">
+          <Card className="max-w-lg mx-auto">
+            <CardHeader className="text-center">
+              <Swords className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <CardTitle>Stack Battles Disabled</CardTitle>
+              <CardDescription>
+                Enable Stack Battles in Settings → Privacy to challenge friends and compete.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="text-center">
+              <Button 
+                variant="outline"
+                onClick={() => window.location.href = '/settings'}
+              >
+                Go to Privacy Settings
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
