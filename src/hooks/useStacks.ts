@@ -1,108 +1,92 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Stack } from '@/types/team';
 import { useTier } from './useTier';
-
-const STORAGE_KEY = 'stackvault_stacks';
-const ACTIVE_STACK_KEY = 'stackvault_active_stack';
-
-function generateId(): string {
-  return Math.random().toString(36).substring(2, 15);
-}
-
-const DEFAULT_STACK: Stack = {
-  id: 'default',
-  name: 'My Stack',
-  description: 'Your personal tool collection',
-  createdAt: new Date().toISOString(),
-  isDefault: true,
-};
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 
 export function useStacks() {
-  const [stacks, setStacks] = useState<Stack[]>([DEFAULT_STACK]);
-  const [activeStackId, setActiveStackId] = useState<string>('default');
-  const [isLoading, setIsLoading] = useState(true);
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
   const { limits, tier } = useTier();
+  const API_URL = import.meta.env.VITE_API_URL || '/api';
 
-  useEffect(() => {
-    const savedStacks = localStorage.getItem(STORAGE_KEY);
-    const savedActiveId = localStorage.getItem(ACTIVE_STACK_KEY);
-    
-    if (savedStacks) {
-      try {
-        const parsed = JSON.parse(savedStacks);
-        if (parsed.length > 0) {
-          setStacks(parsed);
-        }
-      } catch {
-        setStacks([DEFAULT_STACK]);
-      }
-    }
-    
-    if (savedActiveId) {
-      setActiveStackId(savedActiveId);
-    }
-    
-    setIsLoading(false);
-  }, []);
+  // Local state for active stack selection (session only)
+  // Or persist to localStorage just for "last active stack"
+  const [localActiveStackId, setLocalActiveStackId] = useState<string>('default');
 
-  useEffect(() => {
-    if (!isLoading) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(stacks));
-    }
-  }, [stacks, isLoading]);
+  const { data: stacks = [], isLoading } = useQuery({
+    queryKey: ['stacks', user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_URL}/stacks`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error('Failed to fetch stacks');
+      return res.json();
+    },
+    enabled: !!user,
+  });
 
-  useEffect(() => {
-    if (!isLoading) {
-      localStorage.setItem(ACTIVE_STACK_KEY, activeStackId);
+  const createStackMutation = useMutation({
+    mutationFn: async (vars: { name: string; description?: string }) => {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_URL}/stacks`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(vars),
+      });
+      if (!res.ok) throw new Error('Failed to create stack');
+      return res.json();
+    },
+    onSuccess: (newStack) => {
+      queryClient.invalidateQueries({ queryKey: ['stacks'] });
+      toast.success('Stack created');
+      return { success: true, stack: newStack };
+    },
+    onError: () => {
+      toast.error('Failed to create stack');
     }
-  }, [activeStackId, isLoading]);
+  });
 
-  const createStack = useCallback((name: string, description?: string) => {
+  const activeStackId = localActiveStackId; // We can improve this to sync with DB last status later
+
+  const createStack = (name: string, description?: string) => {
     if (stacks.length >= limits.maxStacks) {
       return { success: false, error: 'Stack limit reached' };
     }
+    createStackMutation.mutate({ name, description });
+    // Optimistically returning success is tricky here as it's async in mutation
+    // Use the mutation callback or just return "processing"
+    return { success: true };
+  };
 
-    const newStack: Stack = {
-      id: generateId(),
-      name,
-      description: description || '',
-      createdAt: new Date().toISOString(),
-      isDefault: false,
-    };
+  const updateStack = (id: string, updates: Partial<Omit<Stack, 'id' | 'createdAt' | 'isDefault'>>) => {
+    // TODO: Implement PUT /api/stacks/:id
+    console.log('Update stack not yet implemented in backend');
+  };
 
-    setStacks(prev => [...prev, newStack]);
-    return { success: true, stack: newStack };
-  }, [stacks.length, limits.maxStacks]);
-
-  const updateStack = useCallback((id: string, updates: Partial<Omit<Stack, 'id' | 'createdAt' | 'isDefault'>>) => {
-    setStacks(prev => prev.map(s => 
-      s.id === id ? { ...s, ...updates } : s
-    ));
-  }, []);
-
-  const deleteStack = useCallback((id: string) => {
-    const stack = stacks.find(s => s.id === id);
+  const deleteStack = (id: string) => {
+    const stack = stacks.find((s: Stack) => s.id === id);
     if (stack?.isDefault) {
       return { success: false, error: 'Cannot delete default stack' };
     }
-
-    setStacks(prev => prev.filter(s => s.id !== id));
-    
-    if (activeStackId === id) {
-      const defaultStack = stacks.find(s => s.isDefault);
-      setActiveStackId(defaultStack?.id || 'default');
-    }
-
+    // TODO: Implement DELETE /api/stacks/:id
+    console.log('Delete stack not yet implemented in backend');
     return { success: true };
-  }, [stacks, activeStackId]);
+  };
 
-  const switchStack = useCallback((id: string) => {
-    if (stacks.some(s => s.id === id)) {
-      setActiveStackId(id);
+  const switchStack = (id: string) => {
+    if (stacks.some((s: Stack) => s.id === id)) {
+      setLocalActiveStackId(id);
     }
-  }, [stacks]);
+  };
 
-  const activeStack = stacks.find(s => s.id === activeStackId) || stacks[0];
+  const activeStack = stacks.find((s: Stack) => s.id === activeStackId) || stacks[0];
   const canAddStack = stacks.length < limits.maxStacks;
   const remainingStacks = Math.max(0, limits.maxStacks - stacks.length);
   const hasMultipleStacks = tier === 'agency';

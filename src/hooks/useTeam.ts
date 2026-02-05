@@ -1,81 +1,90 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { TeamMember, TeamRole } from '@/types/team';
 import { useTier } from './useTier';
-
-const STORAGE_KEY = 'stackvault_team';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 
 function generateId(): string {
   return Math.random().toString(36).substring(2, 15);
 }
 
 export function useTeam() {
-  const [members, setMembers] = useState<TeamMember[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
   const { limits, tier } = useTier();
+  const API_URL = import.meta.env.VITE_API_URL || '/api';
 
-  useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      try {
-        setMembers(JSON.parse(saved));
-      } catch {
-        setMembers([]);
+  const { data: members = [], isLoading } = useQuery({
+    queryKey: ['team', user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_URL}/team`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!res.ok) throw new Error('Failed to fetch team');
+      return res.json();
+    },
+    enabled: !!user,
+  });
+
+  const inviteMemberMutation = useMutation({
+    mutationFn: async (vars: { email: string; role: TeamRole; name?: string }) => {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_URL}/team/invite`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(vars),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || 'Failed to invite member');
       }
+      return res.json();
+    },
+    onSuccess: (newMember) => {
+      queryClient.invalidateQueries({ queryKey: ['team'] });
+      toast.success('Member invited');
+      return { success: true, member: newMember };
+    },
+    onError: (err: any) => {
+      toast.error(err.message || 'Failed to invite member');
     }
-    setIsLoading(false);
-  }, []);
+  });
 
-  useEffect(() => {
-    if (!isLoading) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(members));
-    }
-  }, [members, isLoading]);
-
-  const inviteMember = useCallback((email: string, role: TeamRole, name?: string) => {
+  const inviteMember = (email: string, role: TeamRole, name?: string) => {
     if (members.length >= limits.maxTeamMembers) {
       return { success: false, error: 'Team member limit reached' };
     }
-
-    if (members.some(m => m.email.toLowerCase() === email.toLowerCase())) {
+    if (members.some((m: TeamMember) => m.email.toLowerCase() === email.toLowerCase())) {
       return { success: false, error: 'Member already exists' };
     }
+    inviteMemberMutation.mutate({ email, role, name });
+    return { success: true, member: { email, role, name, status: 'pending' } as TeamMember };
+  };
 
-    const newMember: TeamMember = {
-      id: generateId(),
-      email: email.toLowerCase(),
-      name: name || email.split('@')[0],
-      role,
-      status: 'pending',
-      invitedAt: new Date().toISOString(),
-      joinedAt: null,
-    };
+  const removeMember = (id: string) => {
+    // TODO: Implement DELETE /api/team/:id
+  };
 
-    setMembers(prev => [...prev, newMember]);
-    return { success: true, member: newMember };
-  }, [members, limits.maxTeamMembers]);
+  const updateMemberRole = (id: string, role: TeamRole) => {
+    // TODO: Implement PUT /api/team/:id/role
+  };
 
-  const removeMember = useCallback((id: string) => {
-    setMembers(prev => prev.filter(m => m.id !== id));
-  }, []);
-
-  const updateMemberRole = useCallback((id: string, role: TeamRole) => {
-    setMembers(prev => prev.map(m => 
-      m.id === id ? { ...m, role } : m
-    ));
-  }, []);
-
-  const acceptInvite = useCallback((id: string) => {
-    setMembers(prev => prev.map(m => 
-      m.id === id ? { ...m, status: 'active', joinedAt: new Date().toISOString() } : m
-    ));
-  }, []);
+  const acceptInvite = (id: string) => {
+    // TODO: Implement /api/team/accept-invite
+  };
 
   const getPendingInvites = useCallback(() => {
-    return members.filter(m => m.status === 'pending');
+    return members.filter((m: TeamMember) => m.status === 'pending');
   }, [members]);
 
   const getActiveMembers = useCallback(() => {
-    return members.filter(m => m.status === 'active');
+    return members.filter((m: TeamMember) => m.status === 'active');
   }, [members]);
 
   const canAddMember = members.length < limits.maxTeamMembers;

@@ -1,41 +1,65 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { SocialSettings, DEFAULT_SOCIAL_SETTINGS } from '@/types/settings';
 import { useTier } from '@/hooks/useTier';
-
-const STORAGE_KEY = 'stackvault_social_settings';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 
 export function useSocialSettings() {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
   const { isAgency } = useTier();
-  const [settings, setSettingsState] = useState<SocialSettings>(DEFAULT_SOCIAL_SETTINGS);
+  const API_URL = import.meta.env.VITE_API_URL || '/api';
 
-  useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        setSettingsState({ ...DEFAULT_SOCIAL_SETTINGS, ...parsed });
-      } catch {
-        // Use defaults
-      }
+  const { data: settings = DEFAULT_SOCIAL_SETTINGS } = useQuery({
+    queryKey: ['settings', 'social', user?.id],
+    queryFn: async () => {
+      if (!user) return DEFAULT_SOCIAL_SETTINGS;
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_URL}/settings/social`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (!res.ok) return DEFAULT_SOCIAL_SETTINGS;
+      const data = await res.json();
+      return { ...DEFAULT_SOCIAL_SETTINGS, ...data };
+    },
+    enabled: !!user,
+  });
+
+  const updateSettingsMutation = useMutation({
+    mutationFn: async (updates: Partial<SocialSettings>) => {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${API_URL}/settings/social`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ ...settings, ...updates }),
+      });
+      if (!res.ok) throw new Error('Failed to update settings');
+      return res.json();
+    },
+    onSuccess: (newData) => {
+      queryClient.setQueryData(['settings', 'social', user?.id], newData);
+      toast.success('Social settings updated');
+    },
+    onError: () => {
+      toast.error('Failed to update settings');
     }
-  }, []);
+  });
 
   const updateSettings = useCallback((updates: Partial<SocialSettings>) => {
-    setSettingsState(prev => {
-      const newSettings = { ...prev, ...updates };
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newSettings));
-      return newSettings;
-    });
+    updateSettingsMutation.mutate(updates);
   }, []);
 
   const resetSettings = useCallback(() => {
-    setSettingsState(DEFAULT_SOCIAL_SETTINGS);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_SOCIAL_SETTINGS));
+    updateSettingsMutation.mutate(DEFAULT_SOCIAL_SETTINGS);
   }, []);
 
   // If not Agency, all social features are disabled
-  const effectiveSettings: SocialSettings = isAgency 
-    ? settings 
+  const effectiveSettings: SocialSettings = isAgency
+    ? settings
     : DEFAULT_SOCIAL_SETTINGS;
 
   return {
