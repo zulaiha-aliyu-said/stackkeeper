@@ -1,43 +1,65 @@
-import { useState, useMemo, useCallback } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Tool, SortOption, Category } from '@/types/tool';
-import { calculateROI } from '@/lib/roi';
-import { useAuth } from '@/contexts/AuthContext';
-import { toast } from 'sonner';
+ import { useMemo, useCallback } from 'react';
+ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+ import { Tool, SortOption, Category, UsageEntry } from '@/types/tool';
+ import { calculateROI } from '@/lib/roi';
+ import { useAuth } from '@/contexts/AuthContext';
+ import { toast } from 'sonner';
+ import { supabase } from '@/integrations/supabase/client';
+ import type { Database } from '@/integrations/supabase/database.types';
 
 export function useTools() {
-  const { user } = useAuth();
+   const { user, session } = useAuth();
   const queryClient = useQueryClient();
-  // API URL is handled by proxy in dev, but generally relative path is best
-  const API_URL = import.meta.env.VITE_API_URL || '/api';
 
   const { data: tools = [], isLoading } = useQuery({
     queryKey: ['tools', user?.id],
     queryFn: async () => {
       if (!user) return [];
-      const token = localStorage.getItem('token');
-      const res = await fetch(`${API_URL}/tools`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (!res.ok) throw new Error('Failed to fetch tools');
-      return res.json();
+       
+       const { data, error } = await supabase
+         .from('tools')
+         .select('*')
+         .eq('user_id', user.id)
+         .order('added_date', { ascending: false });
+ 
+       if (error) throw error;
+ 
+       // Transform database columns to camelCase for frontend
+       return (data || []).map(transformToolFromDb);
     },
-    enabled: !!user,
+     enabled: !!user && !!session,
   });
 
   const addToolMutation = useMutation({
     mutationFn: async (newTool: any) => {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`${API_URL}/tools`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify(newTool),
-      });
-      if (!res.ok) throw new Error('Failed to add tool');
-      return res.json();
+       if (!user) throw new Error('Not authenticated');
+ 
+       const dbTool = {
+         user_id: user.id,
+         name: newTool.name,
+         category: newTool.category,
+         platform: newTool.platform,
+         price: newTool.price,
+         purchase_date: newTool.purchaseDate || null,
+         login: newTool.login || null,
+         password: newTool.password || null,
+         redemption_code: newTool.redemptionCode || null,
+         notes: newTool.notes || null,
+         tags: newTool.tags || null,
+         tool_url: newTool.toolUrl || null,
+         usage_goal: newTool.usageGoal || null,
+         usage_goal_period: newTool.usageGoalPeriod || null,
+         annual_value: newTool.annualValue || null,
+       };
+ 
+       const { data, error } = await supabase
+         .from('tools')
+         .insert(dbTool)
+         .select()
+         .single();
+ 
+       if (error) throw error;
+       return transformToolFromDb(data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tools'] });
@@ -50,17 +72,37 @@ export function useTools() {
 
   const updateToolMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: Partial<Tool> }) => {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`${API_URL}/tools/${id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify(updates),
-      });
-      if (!res.ok) throw new Error('Failed to update tool');
-      return res.json();
+       const dbUpdates: any = {};
+       if (updates.name !== undefined) dbUpdates.name = updates.name;
+       if (updates.category !== undefined) dbUpdates.category = updates.category;
+       if (updates.platform !== undefined) dbUpdates.platform = updates.platform;
+       if (updates.price !== undefined) dbUpdates.price = updates.price;
+       if (updates.purchaseDate !== undefined) dbUpdates.purchase_date = updates.purchaseDate;
+       if (updates.login !== undefined) dbUpdates.login = updates.login;
+       if (updates.password !== undefined) dbUpdates.password = updates.password;
+       if (updates.redemptionCode !== undefined) dbUpdates.redemption_code = updates.redemptionCode;
+       if (updates.notes !== undefined) dbUpdates.notes = updates.notes;
+       if (updates.lastUsed !== undefined) dbUpdates.last_used = updates.lastUsed;
+       if (updates.timesUsed !== undefined) dbUpdates.times_used = updates.timesUsed;
+       if (updates.tags !== undefined) dbUpdates.tags = updates.tags;
+       if (updates.toolUrl !== undefined) dbUpdates.tool_url = updates.toolUrl;
+       if (updates.usageHistory !== undefined) dbUpdates.usage_history = updates.usageHistory;
+       if (updates.currentStreak !== undefined) dbUpdates.current_streak = updates.currentStreak;
+       if (updates.longestStreak !== undefined) dbUpdates.longest_streak = updates.longestStreak;
+       if (updates.usageGoal !== undefined) dbUpdates.usage_goal = updates.usageGoal;
+       if (updates.usageGoalPeriod !== undefined) dbUpdates.usage_goal_period = updates.usageGoalPeriod;
+       if (updates.annualValue !== undefined) dbUpdates.annual_value = updates.annualValue;
+       dbUpdates.updated_at = new Date().toISOString();
+ 
+       const { data, error } = await supabase
+         .from('tools')
+         .update(dbUpdates)
+         .eq('id', id)
+         .select()
+         .single();
+ 
+       if (error) throw error;
+       return transformToolFromDb(data);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tools'] });
@@ -73,13 +115,13 @@ export function useTools() {
 
   const deleteToolMutation = useMutation({
     mutationFn: async (id: string) => {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`${API_URL}/tools/${id}`, {
-        method: 'DELETE',
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (!res.ok) throw new Error('Failed to delete tool');
-      return res.json();
+       const { error } = await supabase
+         .from('tools')
+         .delete()
+         .eq('id', id);
+ 
+       if (error) throw error;
+       return { id };
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tools'] });
@@ -113,17 +155,43 @@ export function useTools() {
 
   const markAsUsedMutation = useMutation({
     mutationFn: async ({ id, source, duration }: { id: string; source: string; duration?: number }) => {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`${API_URL}/tools/${id}/usage`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ source, duration }),
-      });
-      if (!res.ok) throw new Error('Failed to log usage');
-      return res.json();
+       // First get current tool data
+        const { data: currentToolData, error: fetchError } = await supabase
+         .from('tools')
+         .select('*')
+         .eq('id', id)
+         .single();
+ 
+       if (fetchError) throw fetchError;
+        if (!currentToolData) throw new Error('Tool not found');
+ 
+        const currentTool = currentToolData as Database['public']['Tables']['tools']['Row'];
+ 
+       const now = new Date().toISOString();
+       const usageEntry: UsageEntry = {
+         id: crypto.randomUUID(),
+         timestamp: now,
+         duration,
+         source: source as UsageEntry['source'],
+       };
+ 
+        const existingHistory = (currentTool.usage_history as unknown as UsageEntry[]) || [];
+       const newHistory = [...existingHistory, usageEntry];
+ 
+        const { data: updatedData, error } = await supabase
+         .from('tools')
+         .update({
+           last_used: now,
+           times_used: (currentTool.times_used || 0) + 1,
+           usage_history: newHistory as any,
+           updated_at: now,
+         })
+         .eq('id', id)
+         .select()
+         .single();
+ 
+       if (error) throw error;
+        return transformToolFromDb(updatedData);
     },
     onSuccess: (updatedTool) => {
       // Update the tool in the cache
@@ -324,3 +392,30 @@ export function useTools() {
     setToolsDirectly,
   };
 }
+ 
+ // Helper function to transform database snake_case to camelCase
+ function transformToolFromDb(dbTool: any): Tool {
+   return {
+     id: dbTool.id,
+     name: dbTool.name,
+     category: dbTool.category,
+     platform: dbTool.platform,
+     price: dbTool.price,
+     purchaseDate: dbTool.purchase_date || '',
+     login: dbTool.login || undefined,
+     password: dbTool.password || undefined,
+     redemptionCode: dbTool.redemption_code || undefined,
+     notes: dbTool.notes || undefined,
+     addedDate: dbTool.added_date,
+     lastUsed: dbTool.last_used,
+     timesUsed: dbTool.times_used || 0,
+     tags: dbTool.tags || undefined,
+     toolUrl: dbTool.tool_url || undefined,
+     usageHistory: dbTool.usage_history || undefined,
+     currentStreak: dbTool.current_streak || 0,
+     longestStreak: dbTool.longest_streak || 0,
+     usageGoal: dbTool.usage_goal || undefined,
+     usageGoalPeriod: dbTool.usage_goal_period || undefined,
+     annualValue: dbTool.annual_value || undefined,
+   };
+ }
