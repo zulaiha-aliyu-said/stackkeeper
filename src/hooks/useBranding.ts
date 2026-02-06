@@ -1,11 +1,8 @@
-
-
 import { useState, useCallback } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { BrandingSettings } from '@/types/team';
 import { useTier } from './useTier';
-import { useAuth } from '@/contexts/AuthContext';
-import { toast } from 'sonner';
+
+const STORAGE_KEY = 'stackvault_branding';
 
 const DEFAULT_BRANDING: BrandingSettings = {
   logo: null,
@@ -15,91 +12,48 @@ const DEFAULT_BRANDING: BrandingSettings = {
   showPoweredBy: true,
 };
 
+function loadBranding(): BrandingSettings {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) return { ...DEFAULT_BRANDING, ...JSON.parse(saved) };
+  } catch {}
+  return DEFAULT_BRANDING;
+}
+
 export function useBranding() {
-  const { user } = useAuth();
-  const queryClient = useQueryClient();
   const { tier } = useTier();
-  const API_URL = import.meta.env.VITE_API_URL || '/api';
+  const [branding, setBrandingState] = useState<BrandingSettings>(loadBranding);
 
-  const { data: branding = DEFAULT_BRANDING, isLoading } = useQuery({
-    queryKey: ['branding', user?.id],
-    queryFn: async () => {
-      if (!user) return DEFAULT_BRANDING;
-      const token = localStorage.getItem('token');
-      const res = await fetch(`${API_URL}/settings/branding`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      if (!res.ok) throw new Error('Failed to fetch branding');
-      const data = await res.json();
-      return { ...DEFAULT_BRANDING, ...data }; // Merge with defaults
-    },
-    enabled: !!user,
-  });
+  const updateBranding = useCallback((updates: Partial<BrandingSettings>) => {
+    setBrandingState(prev => {
+      const next = { ...prev, ...updates };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
 
-  const updateBrandingMutation = useMutation({
-    mutationFn: async (updates: Partial<BrandingSettings>) => {
-      const token = localStorage.getItem('token');
-      const res = await fetch(`${API_URL}/settings/branding`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ ...branding, ...updates }),
-      });
-      if (!res.ok) throw new Error('Failed to save branding');
-      return res.json();
-    },
-    onSuccess: (newData) => {
-      queryClient.setQueryData(['branding', user?.id], newData);
-
-      // Apply branding to CSS variables immediately
       if (tier === 'agency') {
-        document.documentElement.style.setProperty('--primary', newData.primaryColor || DEFAULT_BRANDING.primaryColor);
-        document.documentElement.style.setProperty('--ring', newData.primaryColor || DEFAULT_BRANDING.primaryColor);
+        document.documentElement.style.setProperty('--primary', next.primaryColor);
+        document.documentElement.style.setProperty('--ring', next.primaryColor);
       }
-      toast.success('Branding updated');
-    },
-    onError: () => {
-      toast.error('Failed to update branding');
-    }
-  });
-
-  const updateBranding = (updates: Partial<BrandingSettings>) => {
-    updateBrandingMutation.mutate(updates);
-  };
+      return next;
+    });
+  }, [tier]);
 
   const resetBranding = useCallback(() => {
     updateBranding(DEFAULT_BRANDING);
     document.documentElement.style.setProperty('--primary', DEFAULT_BRANDING.primaryColor);
     document.documentElement.style.setProperty('--ring', DEFAULT_BRANDING.primaryColor);
-  }, []);
+  }, [updateBranding]);
 
-  const setLogo = useCallback((logoUrl: string | null) => {
-    updateBranding({ logo: logoUrl });
-  }, []);
-
-  const setAppName = useCallback((name: string) => {
-    updateBranding({ appName: name || 'StackVault' });
-  }, []);
-
-  const setPrimaryColor = useCallback((color: string) => {
-    updateBranding({ primaryColor: color });
-  }, []);
-
-  const setAccentColor = useCallback((color: string) => {
-    updateBranding({ accentColor: color });
-  }, []);
-
-  const togglePoweredBy = useCallback(() => {
-    updateBranding({ showPoweredBy: !branding.showPoweredBy });
-  }, [branding.showPoweredBy]);
+  const setLogo = useCallback((logoUrl: string | null) => updateBranding({ logo: logoUrl }), [updateBranding]);
+  const setAppName = useCallback((name: string) => updateBranding({ appName: name || 'StackVault' }), [updateBranding]);
+  const setPrimaryColor = useCallback((color: string) => updateBranding({ primaryColor: color }), [updateBranding]);
+  const setAccentColor = useCallback((color: string) => updateBranding({ accentColor: color }), [updateBranding]);
+  const togglePoweredBy = useCallback(() => updateBranding({ showPoweredBy: !branding.showPoweredBy }), [branding.showPoweredBy, updateBranding]);
 
   const canCustomizeBranding = tier === 'agency';
 
   return {
     branding,
-    isLoading,
+    isLoading: false,
     updateBranding,
     resetBranding,
     setLogo,

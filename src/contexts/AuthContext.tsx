@@ -1,8 +1,8 @@
- import React, { createContext, useContext, useState, useEffect } from 'react';
- import { useNavigate } from 'react-router-dom';
- import { toast } from 'sonner';
- import { supabase } from '@/integrations/supabase/client';
- import type { User, Session } from '@supabase/supabase-js';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
+import { supabase, supabaseConfigured } from '@/integrations/supabase/client';
+import type { User, Session } from '@supabase/supabase-js';
  
  interface Profile {
      id: string;
@@ -44,36 +44,41 @@
          return data as Profile;
      };
  
-     useEffect(() => {
-         // Set up auth state listener FIRST
-         const { data: { subscription } } = supabase.auth.onAuthStateChange(
-             (event, session) => {
-                 setSession(session);
-                 setUser(session?.user ?? null);
- 
-                 // Defer profile fetch to avoid deadlock
-                 if (session?.user) {
-                     setTimeout(() => {
-                         fetchProfile(session.user.id).then(setProfile);
-                     }, 0);
-                 } else {
-                     setProfile(null);
-                 }
-             }
-         );
- 
-         // THEN check for existing session
-         supabase.auth.getSession().then(({ data: { session } }) => {
-             setSession(session);
-             setUser(session?.user ?? null);
-             if (session?.user) {
-                 fetchProfile(session.user.id).then(setProfile);
-             }
-             setIsLoading(false);
-         });
- 
-         return () => subscription.unsubscribe();
-     }, []);
+    useEffect(() => {
+        if (!supabaseConfigured) {
+            setIsLoading(false);
+            return;
+        }
+
+        // Set up auth state listener FIRST
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(
+            (event, session) => {
+                setSession(session);
+                setUser(session?.user ?? null);
+
+                // Defer profile fetch to avoid deadlock
+                if (session?.user) {
+                    setTimeout(() => {
+                        fetchProfile(session.user.id).then(setProfile);
+                    }, 0);
+                } else {
+                    setProfile(null);
+                }
+            }
+        );
+
+        // THEN check for existing session
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            setSession(session);
+            setUser(session?.user ?? null);
+            if (session?.user) {
+                fetchProfile(session.user.id).then(setProfile);
+            }
+            setIsLoading(false);
+        });
+
+        return () => subscription.unsubscribe();
+    }, []);
  
      const login = async (email: string, password: string) => {
          const { data, error } = await supabase.auth.signInWithPassword({
