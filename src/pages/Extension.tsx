@@ -17,14 +17,45 @@ import {
   AlertTriangle,
   Zap,
   Package,
-  Loader2
+  Loader2,
+  Copy,
+  Key
 } from 'lucide-react';
 import { generateExtensionZip } from '@/lib/extensionFiles';
 import { saveAs } from 'file-saver';
 import { toast } from 'sonner';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 const Extension: React.FC = () => {
   const [isDownloading, setIsDownloading] = useState(false);
+  const [connectionToken, setConnectionToken] = useState<string | null>(null);
+  const { session } = useAuth();
+
+  const generateConnectionToken = async () => {
+    if (!session) {
+      toast.error('Please log in first to connect the extension.');
+      return;
+    }
+
+    const tokenData = {
+      supabaseUrl: import.meta.env.VITE_SUPABASE_URL || 'https://wfbrmywecdrtidcbnxoe.supabase.co',
+      supabaseKey: import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndmYnJteXdlY2RydGlkY2JueG9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzAyNzEwNTYsImV4cCI6MjA4NTg0NzA1Nn0.Nd2Zep47PS-2UauasYJIhFKSIq-YkW_Y-HwVc9GzMd4',
+      accessToken: session.access_token,
+      refreshToken: session.refresh_token,
+    };
+
+    const token = btoa(JSON.stringify(tokenData));
+    setConnectionToken(token);
+    toast.success('Connection token generated!');
+  };
+
+  const copyToken = () => {
+    if (connectionToken) {
+      navigator.clipboard.writeText(connectionToken);
+      toast.success('Token copied to clipboard!');
+    }
+  };
 
   const handleDownloadExtension = async () => {
     setIsDownloading(true);
@@ -294,6 +325,54 @@ const Extension: React.FC = () => {
           </CardContent>
         </Card>
 
+        {/* Connect Extension */}
+        <Card className="mt-8 border-primary/20">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Key className="h-5 w-5 text-primary" />
+              Connect Your Extension
+            </CardTitle>
+            <CardDescription>
+              Generate a token to link the Guardian extension to your account. This enables automatic usage syncing.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {!connectionToken ? (
+              <Button onClick={generateConnectionToken} className="gap-2" disabled={!session}>
+                <Key className="h-4 w-4" />
+                Generate Connection Token
+              </Button>
+            ) : (
+              <div className="space-y-3">
+                <div className="p-3 bg-muted rounded-lg">
+                  <p className="text-xs text-muted-foreground mb-2 font-medium">YOUR TOKEN (click to copy):</p>
+                  <div
+                    onClick={copyToken}
+                    className="text-xs font-mono break-all cursor-pointer bg-background p-3 rounded border border-border hover:border-primary/50 transition-colors max-h-24 overflow-y-auto"
+                  >
+                    {connectionToken}
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={copyToken} className="gap-1">
+                    <Copy className="h-3 w-3" />
+                    Copy Token
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={generateConnectionToken}>
+                    Regenerate
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Open the Guardian extension popup → paste this token → click Connect. Your tools will sync automatically!
+                </p>
+              </div>
+            )}
+            {!session && (
+              <p className="text-xs text-destructive">Please log in to generate a connection token.</p>
+            )}
+          </CardContent>
+        </Card>
+
         {/* Privacy Note */}
         <Card className="bg-muted/30 border-muted">
           <CardContent className="py-6">
@@ -302,8 +381,8 @@ const Extension: React.FC = () => {
               <div>
                 <h4 className="font-medium mb-1">Privacy First</h4>
                 <p className="text-sm text-muted-foreground">
-                  The Guardian only tracks domains you've explicitly added to your tool library. We never track browsing history, 
-                  personal data, or any websites outside your LTD tools. All data stays on your device unless you choose to sync.
+                  The Guardian only tracks domains matching your tool URLs. No browsing history is collected. 
+                  Usage data syncs only to your StackVault account via your secure connection.
                 </p>
               </div>
             </div>
