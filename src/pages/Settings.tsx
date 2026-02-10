@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 import { 
   Settings as SettingsIcon, 
   Users, 
@@ -26,12 +27,17 @@ import {
   Shield,
   Swords,
   Globe,
-  Copy
+  Copy,
+  Ticket,
+  Loader2
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useState } from 'react';
 
 export default function Settings() {
-  const { tier, setTier, limits, isAgency } = useTier();
+  const { tier, setTier, limits, isAgency, redeemCode } = useTier();
+  const [redeemInput, setRedeemInput] = useState('');
+  const [redeeming, setRedeeming] = useState(false);
   const { stacks, activeStack, deleteStack, hasMultipleStacks } = useStacks();
   const { mode, setMode, isSimpleMode } = useInterfaceMode();
   const { 
@@ -40,25 +46,33 @@ export default function Settings() {
     canConfigureSocial
   } = useSocialSettings();
 
+  const handleRedeem = async () => {
+    if (!redeemInput.trim()) return;
+    setRedeeming(true);
+    const success = await redeemCode(redeemInput);
+    if (success) setRedeemInput('');
+    setRedeeming(false);
+  };
+
   const tiers = [
     {
       name: 'Starter',
       value: 'starter' as const,
-      price: '$29',
+      price: '$49',
       description: 'For casual LTD collectors',
       features: ['Up to 25 tools', 'Basic dashboard', 'Spending charts', 'Duplicate detection'],
     },
     {
       name: 'Pro',
       value: 'pro' as const,
-      price: '$59',
+      price: '$99',
       description: 'For serious collectors',
       features: ['Unlimited tools', 'ROI Calculator', 'Stack Health Doctor', 'Time Machine', 'Streaks & Achievements'],
     },
     {
       name: 'Agency',
       value: 'agency' as const,
-      price: '$99',
+      price: '$149',
       description: 'For agencies & power users',
       features: ['Everything in Pro', 'Up to 5 stacks', '3 team members', 'Custom branding', 'Stack Battles'],
     },
@@ -372,6 +386,34 @@ export default function Settings() {
                       )}
                     </div>
                   ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Redeem Code Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Ticket className="h-5 w-5" />
+                  Redeem a Code
+                </CardTitle>
+                <CardDescription>
+                  Have a lifetime deal code? Enter it below to unlock your plan.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="flex gap-3 max-w-md">
+                  <Input
+                    placeholder="SV-PRO-XXXXXXXX"
+                    value={redeemInput}
+                    onChange={(e) => setRedeemInput(e.target.value.toUpperCase())}
+                    className="font-mono"
+                    onKeyDown={(e) => e.key === 'Enter' && handleRedeem()}
+                  />
+                  <Button onClick={handleRedeem} disabled={redeeming || !redeemInput.trim()} className="gap-2">
+                    {redeeming ? <Loader2 className="h-4 w-4 animate-spin" /> : <Ticket className="h-4 w-4" />}
+                    Redeem
+                  </Button>
                 </div>
               </CardContent>
             </Card>

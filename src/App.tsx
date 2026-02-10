@@ -15,6 +15,7 @@ import Battles from "./pages/Battles";
 import Profile from "./pages/Profile";
 import BattleChallenge from "./pages/BattleChallenge";
 import Settings from "./pages/Settings";
+import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 import AuthPage from "./pages/Auth";
 
@@ -64,6 +65,7 @@ const App = () => (
             <Route path="/battle" element={<ProtectedRoute><BattleChallenge /></ProtectedRoute>} />
             <Route path="/profile/:username" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+            <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
 
             <Route path="*" element={<NotFound />} />
           </Routes>
