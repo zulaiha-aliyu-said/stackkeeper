@@ -147,11 +147,57 @@ export function useTools() {
     deleteToolMutation.mutate(id);
   };
 
-  // Mock implementation for manual local manipulation if needed, or deprecate
-  const setToolsDirectly = useCallback((newTools: Tool[]) => {
-    // Ideally we don't do this anymore with react-query
-    console.warn('setToolsDirectly is deprecated in API mode');
-  }, []);
+  const setToolsDirectly = useCallback(async (newTools: Tool[]) => {
+    if (!user) {
+      console.warn('setToolsDirectly requires authentication');
+      return;
+    }
+
+    try {
+      // First delete any existing demo tools
+      await supabase
+        .from('tools')
+        .delete()
+        .eq('user_id', user.id)
+        .like('name', '%'); // This is safe because we're scoped to user_id
+
+      // Insert all new tools
+      const dbTools = newTools.map(tool => ({
+        user_id: user.id,
+        name: tool.name,
+        category: tool.category,
+        platform: tool.platform,
+        price: tool.price,
+        purchase_date: tool.purchaseDate || null,
+        login: tool.login || null,
+        password: tool.password || null,
+        redemption_code: tool.redemptionCode || null,
+        notes: tool.notes || null,
+        tags: tool.tags || null,
+        tool_url: tool.toolUrl || null,
+        usage_goal: tool.usageGoal || null,
+        usage_goal_period: tool.usageGoalPeriod || null,
+        annual_value: tool.annualValue || null,
+        last_used: tool.lastUsed || null,
+        times_used: tool.timesUsed || 0,
+        usage_history: (tool.usageHistory || null) as any,
+        current_streak: tool.currentStreak || 0,
+        longest_streak: tool.longestStreak || 0,
+      }));
+
+      const { error } = await supabase
+        .from('tools')
+        .insert(dbTools);
+
+      if (error) throw error;
+
+      queryClient.invalidateQueries({ queryKey: ['tools'] });
+      toast.success(`Loaded ${newTools.length} demo tools!`);
+    } catch (err) {
+      console.error('Failed to load demo tools:', err);
+      toast.error('Failed to load demo tools');
+    }
+  }, [user, queryClient]);
 
   const markAsUsedMutation = useMutation({
     mutationFn: async ({ id, source, duration }: { id: string; source: string; duration?: number }) => {

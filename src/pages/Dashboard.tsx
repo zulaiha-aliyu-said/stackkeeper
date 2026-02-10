@@ -1,4 +1,8 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 import { Package, DollarSign, TrendingUp, AlertTriangle, Plus, Zap, Ghost, Share2 } from 'lucide-react';
 import { Layout } from '@/components/Layout';
 import { MetricCard } from '@/components/MetricCard';
@@ -39,6 +43,8 @@ export default function Dashboard() {
   } = useTools();
   
   const { features } = useInterfaceMode();
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [selectedTool, setSelectedTool] = useState<Tool | null>(null);
@@ -58,22 +64,37 @@ export default function Dashboard() {
     return '🚨';
   };
 
-  const handleLoadDemo = () => {
+  const handleLoadDemo = async () => {
     setDemoLoading(true);
-    setTimeout(() => {
-      const demoTools = generateDemoTools();
-      setToolsDirectly(demoTools);
-      setDemoLoading(false);
-    }, 1000);
+    const demoTools = generateDemoTools();
+    await setToolsDirectly(demoTools);
+    localStorage.setItem('stackvault_demo_loaded', 'true');
+    setDemoLoading(false);
   };
 
-  const handleClearDemo = () => {
-    setToolsDirectly([]);
+  const handleClearDemo = async () => {
+    setDemoLoading(true);
+    try {
+      // Delete all user's tools (demo data)
+      if (user) {
+        const { error } = await supabase
+          .from('tools')
+          .delete()
+          .eq('user_id', user.id);
+        if (error) throw error;
+        queryClient.invalidateQueries({ queryKey: ['tools'] });
+        toast.success('Demo data cleared!');
+      }
+    } catch (err) {
+      toast.error('Failed to clear demo data');
+    }
+    setDemoLoading(false);
     setDemoBannerDismissed(false);
+    localStorage.removeItem('stackvault_demo_loaded');
   };
 
-  // Check if using demo data (all tools have 'demo-' prefix)
-  const isUsingDemoData = tools.length > 0 && tools.every(t => t.id.startsWith('demo-'));
+  // Check if demo was loaded in this session
+  const isUsingDemoData = localStorage.getItem('stackvault_demo_loaded') === 'true' && tools.length > 0;
 
   if (tools.length === 0) {
     return (
