@@ -1,24 +1,82 @@
 import { useState, useEffect, useCallback } from 'react';
 import { UserTier, TIER_LIMITS } from '@/types/team';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
 
 const STORAGE_KEY = 'stackvault_tier';
 
 export function useTier() {
+  const { user } = useAuth();
   const [tier, setTierState] = useState<UserTier>('starter');
   const [isLoading, setIsLoading] = useState(true);
 
+  // Load tier from profile (Supabase) or fallback to localStorage
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved && ['starter', 'pro', 'agency'].includes(saved)) {
-      setTierState(saved as UserTier);
-    }
-    setIsLoading(false);
-  }, []);
+    const loadTier = async () => {
+      if (user) {
+        const { data, error } = await (supabase
+          .from('profiles')
+          .select('tier')
+          .eq('id', user.id)
+          .single() as any);
+
+        if (!error && data?.tier && ['starter', 'pro', 'agency'].includes(data.tier)) {
+          setTierState(data.tier as UserTier);
+          localStorage.setItem(STORAGE_KEY, data.tier);
+        } else {
+          // Fallback to localStorage
+          const saved = localStorage.getItem(STORAGE_KEY);
+          if (saved && ['starter', 'pro', 'agency'].includes(saved)) {
+            setTierState(saved as UserTier);
+          }
+        }
+      } else {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved && ['starter', 'pro', 'agency'].includes(saved)) {
+          setTierState(saved as UserTier);
+        }
+      }
+      setIsLoading(false);
+    };
+    loadTier();
+  }, [user]);
 
   const setTier = useCallback((newTier: UserTier) => {
     setTierState(newTier);
     localStorage.setItem(STORAGE_KEY, newTier);
   }, []);
+
+  const redeemCode = useCallback(async (code: string): Promise<boolean> => {
+    if (!user) {
+      toast.error('You must be logged in to redeem a code');
+      return false;
+    }
+
+    const { data, error } = await (supabase.rpc as any)('redeem_code', {
+      _code: code.trim().toUpperCase(),
+      _user_id: user.id,
+    });
+
+    if (error) {
+      const msg = error.message.includes('Invalid') 
+        ? 'Invalid or already redeemed code' 
+        : error.message;
+      toast.error(msg);
+      return false;
+    }
+
+    const newTier = data as string;
+    if (newTier && ['starter', 'pro', 'agency'].includes(newTier)) {
+      setTierState(newTier as UserTier);
+      localStorage.setItem(STORAGE_KEY, newTier);
+      toast.success(`🎉 Code redeemed! You're now on the ${newTier.charAt(0).toUpperCase() + newTier.slice(1)} plan!`);
+      return true;
+    }
+
+    toast.error('Something went wrong');
+    return false;
+  }, [user]);
 
   const limits = TIER_LIMITS[tier];
 
@@ -51,6 +109,7 @@ export function useTier() {
     canAccessFeature,
     isFeatureLocked,
     getUpgradeMessage,
+    redeemCode,
     isStarter: tier === 'starter',
     isPro: tier === 'pro',
     isAgency: tier === 'agency',
