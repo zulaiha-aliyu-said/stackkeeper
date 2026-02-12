@@ -56,6 +56,13 @@ export default function Settings() {
 
   const tiers = [
     {
+      name: 'Free',
+      value: 'free' as const,
+      price: '$0',
+      description: 'Basic entry for evaluation',
+      features: ['Up to 5 tools', 'Basic dashboard'],
+    },
+    {
       name: 'Starter',
       value: 'starter' as const,
       price: '$49',
