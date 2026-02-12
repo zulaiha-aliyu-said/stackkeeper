@@ -196,7 +196,7 @@ export default function Landing() {
       avatar: "SK"
     },
     {
-      quote: "Finally stopped buying every AppSumo deal. The duplicate detection alone has saved me hundreds.",
+      quote: "Finally stopped buying every lifetime deal. The duplicate detection alone has saved me hundreds.",
       author: "Mike R.",
       role: "Digital Marketer",
       avatar: "MR"
@@ -212,7 +212,7 @@ export default function Landing() {
   const faqs = [
     {
       question: "What is a lifetime deal (LTD)?",
-      answer: "A lifetime deal is a one-time payment for software that would normally require monthly or annual subscriptions. Platforms like AppSumo, PitchGround, and others offer these deals, letting you pay once and use the tool forever."
+      answer: "A lifetime deal is a one-time payment for software that would normally require monthly or annual subscriptions. Various marketplaces and platforms offer these deals, letting you pay once and use the tool forever."
     },
     {
       question: "How does Stack Score work?",
@@ -294,7 +294,7 @@ export default function Landing() {
           
           <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
             Track every LTD you own. Know what you're using. Stop buying duplicates. 
-            Finally get value from your AppSumo collection.
+            Finally get value from your lifetime deal collection.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
@@ -496,7 +496,7 @@ export default function Landing() {
                   <div className="text-center py-8">
                     <div className="h-16 w-16 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-4" />
                     <p className="text-lg font-medium">Scanning your typical LTD collector profile...</p>
-                    <p className="text-muted-foreground text-sm mt-2">Checking AppSumo, PitchGround, DealFuel...</p>
+                    <p className="text-muted-foreground text-sm mt-2">Checking popular deal marketplaces...</p>
                   </div>
                 )}
               </CardContent>
