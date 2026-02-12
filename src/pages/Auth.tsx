@@ -73,7 +73,7 @@ export default function AuthPage() {
             <Card className="w-full max-w-md border-border/40 bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
                 <CardHeader className="space-y-1">
                     <CardTitle className="text-2xl font-bold tracking-tight text-center">
-                        Welcome to DreamEra
+                        Welcome to StackVault
                     </CardTitle>
                     <CardDescription className="text-center">
                         Manage your stack, track expenses, and battle with friends.
