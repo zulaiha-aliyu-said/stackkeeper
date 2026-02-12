@@ -134,10 +134,11 @@ export function Layout({ children }: LayoutProps) {
               <ThemeToggle />
               <button
                 onClick={logout}
-                className="flex items-center justify-center h-9 w-9 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors text-muted-foreground hover:text-destructive"
+                className="flex items-center gap-2 h-9 px-3 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors text-sm text-muted-foreground hover:text-destructive"
                 title="Log out"
               >
                 <LogOut className="h-4 w-4" />
+                <span className="hidden lg:inline">Logout</span>
               </button>
             </div>
           </div>

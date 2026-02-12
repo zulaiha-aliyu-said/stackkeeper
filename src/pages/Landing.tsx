@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import { 
   Package, 
   Shield, 
@@ -46,6 +47,7 @@ import { generateDemoTools, DEMO_TOOLS_COUNT } from '@/lib/demoData';
 
 export default function Landing() {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [demoLoading, setDemoLoading] = useState(false);
   const [demoLoaded, setDemoLoaded] = useState(false);
@@ -263,12 +265,24 @@ export default function Landing() {
           </div>
           <div className="flex items-center gap-3">
             <ThemeToggle />
-            <Link to="/dashboard">
-              <Button className="gap-2">
-                <Rocket className="h-4 w-4" />
-                <span className="hidden sm:inline">Open App</span>
-              </Button>
-            </Link>
+            {user ? (
+              <>
+                <Button variant="ghost" onClick={logout} className="hidden sm:inline-flex">Logout</Button>
+                <Link to="/dashboard">
+                  <Button className="gap-2">
+                    <Rocket className="h-4 w-4" />
+                    <span className="hidden sm:inline">Open App</span>
+                  </Button>
+                </Link>
+              </>
+            ) : (
+              <Link to="/auth">
+                <Button className="gap-2">
+                  <Rocket className="h-4 w-4" />
+                  <span className="hidden sm:inline">Get Started</span>
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
       </nav>
