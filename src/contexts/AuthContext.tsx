@@ -134,7 +134,7 @@ import type { User, Session } from '@supabase/supabase-js';
              throw error;
          }
          toast.info('Logged out');
-         navigate('/');
+         navigate('/auth');
      };
  
      return (

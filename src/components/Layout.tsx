@@ -1,6 +1,6 @@
 import { ReactNode, useState, useCallback, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Library, BarChart3, Vault, Command, Chrome, Clock, Network, Swords, Settings, CreditCard } from 'lucide-react';
+import { LayoutDashboard, Library, BarChart3, Vault, Command, Chrome, Clock, Network, Swords, Settings, CreditCard, LogOut } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { CommandPalette } from '@/components/CommandPalette';
 import { KeyboardShortcutsModal } from '@/components/KeyboardShortcutsModal';
@@ -15,6 +15,7 @@ import { useBranding } from '@/hooks/useBranding';
 import { useTier } from '@/hooks/useTier';
 import { useInterfaceMode } from '@/hooks/useInterfaceMode';
 import { useSocialSettings } from '@/hooks/useSocialSettings';
+import { useAuth } from '@/contexts/AuthContext';
 import { Tool } from '@/types/tool';
 import { toast } from 'sonner';
 
@@ -30,6 +31,7 @@ export function Layout({ children }: LayoutProps) {
   const { isAgency } = useTier();
   const { isSimpleMode } = useInterfaceMode();
   const { enableBattles } = useSocialSettings();
+  const { logout } = useAuth();
 
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
@@ -130,6 +132,13 @@ export function Layout({ children }: LayoutProps) {
               </button>
               <ModeSwitcher />
               <ThemeToggle />
+              <button
+                onClick={logout}
+                className="flex items-center justify-center h-9 w-9 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors text-muted-foreground hover:text-destructive"
+                title="Log out"
+              >
+                <LogOut className="h-4 w-4" />
+              </button>
             </div>
           </div>
         </div>
