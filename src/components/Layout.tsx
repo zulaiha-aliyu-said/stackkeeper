@@ -1,6 +1,6 @@
 import { ReactNode, useState, useCallback, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Library, BarChart3, Vault, Command, Chrome, Clock, Network, Swords, Settings, CreditCard, LogOut } from 'lucide-react';
+import { LayoutDashboard, Library, BarChart3, Package, Command, Chrome, Clock, Network, Swords, Settings, CreditCard, LogOut } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { CommandPalette } from '@/components/CommandPalette';
 import { KeyboardShortcutsModal } from '@/components/KeyboardShortcutsModal';
@@ -97,7 +97,7 @@ export function Layout({ children }: LayoutProps) {
                 {displayLogo ? (
                   <img src={displayLogo} alt="Logo" className="h-5 w-5 object-contain" />
                 ) : (
-                  <Vault className="h-5 w-5 text-primary" />
+                  <Package className="h-5 w-5 text-primary" />
                 )}
               </div>
               <span className="text-xl font-bold text-foreground">{displayName}</span>

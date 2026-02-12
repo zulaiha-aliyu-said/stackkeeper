@@ -186,7 +186,7 @@ const Extension: React.FC = () => {
                 <div className="flex items-start gap-3">
                   <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
                   <p className="text-sm text-muted-foreground">
-                    Scans AppSumo, Dealify, and other deal sites
+                    Scans popular deal marketplaces
                   </p>
                 </div>
                 <div className="flex items-start gap-3">

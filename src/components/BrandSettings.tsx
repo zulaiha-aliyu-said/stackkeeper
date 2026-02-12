@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Palette, Upload, RotateCcw, Lock, Crown, Vault } from 'lucide-react';
+import { Palette, Upload, RotateCcw, Lock, Crown, Package } from 'lucide-react';
 import { toast } from 'sonner';
 
 export function BrandSettings() {
@@ -96,7 +96,7 @@ export function BrandSettings() {
                     className="h-full w-full object-contain"
                   />
                 ) : (
-                  <Vault className="h-8 w-8 text-muted-foreground" />
+                  <Package className="h-8 w-8 text-muted-foreground" />
                 )}
               </div>
               <div className="space-y-2">
@@ -185,7 +185,7 @@ export function BrandSettings() {
                   {branding.logo ? (
                     <img src={branding.logo} alt="" className="h-5 w-5 object-contain" />
                   ) : (
-                    <Vault className="h-5 w-5" style={{ color: `hsl(${branding.primaryColor})` }} />
+                    <Package className="h-5 w-5" style={{ color: `hsl(${branding.primaryColor})` }} />
                   )}
                 </div>
                 <span className="text-xl font-bold">{branding.appName || 'StackVault'}</span>

@@ -199,13 +199,17 @@ export default function Pricing() {
               </div>
               <span className="font-bold">StackVault</span>
             </div>
-            <div className="flex gap-8 text-sm text-muted-foreground">
-              <Link to="/" className="hover:text-foreground">Home</Link>
-              <Link to="/auth" className="hover:text-foreground">Login</Link>
-              <Link to="/auth" className="hover:text-foreground">Get Started</Link>
+
+            <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
+              <Link to="/" className="hover:text-foreground transition-colors">Home</Link>
+              <Link to="/dashboard" className="hover:text-foreground transition-colors">Dashboard</Link>
+              <Link to="/library" className="hover:text-foreground transition-colors">Library</Link>
+              <Link to="/analytics" className="hover:text-foreground transition-colors">Analytics</Link>
+              <Link to="/extension" className="hover:text-foreground transition-colors">Extension</Link>
             </div>
+
             <p className="text-sm text-muted-foreground">
-              © {new Date().getFullYear()} StackVault. All rights reserved.
+              Built with ❤️ for LTD collectors
             </p>
           </div>
         </div>

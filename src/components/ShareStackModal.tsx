@@ -61,7 +61,7 @@ export function ShareStackModal({ isOpen, onClose, tools, totalInvestment, stack
     if (showScore) {
       text += `, ${stackScore}% actually being used ${stackScore >= 50 ? '🔥' : '😅'}`;
     }
-    text += '\n\nOrganized with StackVault - finally stopped forgetting what I bought!\n\n#AppSumo #LTD #SaaS';
+    text += '\n\nOrganized with StackVault - finally stopped forgetting what I bought!\n\n#LifetimeDeals #LTD #SaaS';
     return encodeURIComponent(text);
   };
 
