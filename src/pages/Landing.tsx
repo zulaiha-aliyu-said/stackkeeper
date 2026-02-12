@@ -257,6 +257,7 @@ export default function Landing() {
           <div className="hidden md:flex items-center gap-8">
             <a href="#features" className="text-muted-foreground hover:text-foreground transition-colors">Features</a>
             <a href="#extension" className="text-muted-foreground hover:text-foreground transition-colors">Extension</a>
+            <Link to="/pricing" className="text-muted-foreground hover:text-foreground transition-colors">Pricing</Link>
             <a href="#testimonials" className="text-muted-foreground hover:text-foreground transition-colors">Testimonials</a>
             <a href="#faq" className="text-muted-foreground hover:text-foreground transition-colors">FAQ</a>
           </div>
@@ -939,6 +940,7 @@ export default function Landing() {
             <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
               <Link to="/dashboard" className="hover:text-foreground transition-colors">Dashboard</Link>
               <Link to="/library" className="hover:text-foreground transition-colors">Library</Link>
+              <Link to="/pricing" className="hover:text-foreground transition-colors">Pricing</Link>
               <Link to="/analytics" className="hover:text-foreground transition-colors">Analytics</Link>
               <Link to="/extension" className="hover:text-foreground transition-colors">Extension</Link>
             </div>

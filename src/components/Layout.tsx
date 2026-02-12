@@ -1,6 +1,6 @@
 import { ReactNode, useState, useCallback, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Library, BarChart3, Vault, Command, Chrome, Clock, Network, Swords, Settings } from 'lucide-react';
+import { LayoutDashboard, Library, BarChart3, Vault, Command, Chrome, Clock, Network, Swords, Settings, CreditCard } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { CommandPalette } from '@/components/CommandPalette';
 import { KeyboardShortcutsModal } from '@/components/KeyboardShortcutsModal';
@@ -65,6 +65,7 @@ export function Layout({ children }: LayoutProps) {
     { path: '/network', label: 'Network', icon: Network, mode: 'power' as const },
     { path: '/battles', label: 'Battles', icon: Swords, mode: 'power' as const, requiresSocial: true },
     { path: '/extension', label: 'Extension', icon: Chrome, mode: 'power' as const },
+    { path: '/pricing', label: 'Pricing', icon: CreditCard, mode: 'all' as const },
     { path: '/settings', label: 'Settings', icon: Settings, mode: 'all' as const },
   ];
 
