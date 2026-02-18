@@ -307,8 +307,8 @@ export default function Landing() {
           </h1>
           
           <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-            Track every LTD you own. Know what you're using. Stop buying duplicates. 
-            Finally get value from your lifetime deal collection.
+            Track every tool you own. Know what you're using. Stop buying duplicates.
+            Finally get value from your software collection.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
