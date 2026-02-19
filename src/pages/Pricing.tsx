@@ -12,7 +12,7 @@ const tiers = [
   {
     name: 'Starter',
     price: '$49',
-    description: 'For casual LTD collectors',
+    description: 'For casual ltd collectors',
     features: ['Up to 25 tools', 'Basic dashboard', 'Spending charts', 'Duplicate detection'],
     buttonText: 'Get Started',
     link: '/auth?plan=starter',
@@ -39,7 +39,7 @@ const tiers = [
 const faqs = [
   {
     question: "Is it really a one-time payment?",
-    answer: "Yes! We believe in the LTD model. You pay once and get access to the features in your plan forever. No hidden fees or recurring subscriptions."
+    answer: "Yes! We believe in the ltd model. You pay once and get access to the features in your plan forever. No hidden fees or recurring subscriptions."
   },
   {
     question: "Can I upgrade later?",
@@ -68,7 +68,7 @@ function PricingContent() {
           Simple, <span className="text-gradient">Lifetime</span> Pricing
         </h1>
         <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-          No subscriptions. Pay once, use forever. Choose the plan that fits your LTD collection.
+          No subscriptions. Pay once, use forever. Choose the plan that fits your ltd collection.
         </p>
       </div>
 
@@ -115,7 +115,7 @@ function PricingContent() {
       <div className="max-w-3xl mx-auto text-center">
         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-secondary text-sm font-medium mb-6">
           <Star className="h-4 w-4 text-warning fill-warning" />
-          Join 2,000+ LTD collectors
+          Join 2,000+ ltd collectors
         </div>
         <h2 className="text-3xl font-bold mb-12">Frequently Asked Questions</h2>
         <div className="space-y-4 text-left">

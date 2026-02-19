@@ -81,6 +81,6 @@ export const PLATFORMS: Platform[] = [
 ];
 
 export const getPlatformLabel = (platform: Platform): string => {
-  if (platform === 'AppSumo') return 'LTD';
+  if (platform === 'AppSumo') return 'ltd';
   return platform;
 };

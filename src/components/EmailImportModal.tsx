@@ -278,7 +278,7 @@ export function EmailImportModal({ isOpen, onClose, onImport }: EmailImportModal
                   >
                     <option value="">Select platform</option>
                     {PLATFORMS.map(plat => (
-                  <option key={plat} value={plat}>{getPlatformLabel(plat)}</option>
+                      <option key={plat} value={plat}>{getPlatformLabel(plat)}</option>
                     ))}
                   </select>
                 </div>

@@ -84,7 +84,7 @@ const Extension: React.FC = () => {
             The Guardian Extension
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Your personal LTD watchdog. Automatically tracks usage and stops impulse purchases before they happen.
+            Your personal ltd watchdog. Automatically tracks usage and stops impulse purchases before they happen.
           </p>
           <Button 
             size="lg" 
@@ -121,7 +121,7 @@ const Extension: React.FC = () => {
               </div>
               <CardTitle>Passive Usage Tracking</CardTitle>
               <CardDescription>
-                Automatically logs time spent on your LTD tools
+                Automatically logs time spent on your ltd tools
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -135,7 +135,7 @@ const Extension: React.FC = () => {
                 <div className="flex items-start gap-3">
                   <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
                   <p className="text-sm text-muted-foreground">
-                    Recognizes domains linked to your LTD tools
+                    Recognizes domains linked to your ltd tools
                   </p>
                 </div>
                 <div className="flex items-start gap-3">
@@ -186,7 +186,7 @@ const Extension: React.FC = () => {
                 <div className="flex items-start gap-3">
                   <CheckCircle2 className="h-5 w-5 text-green-500 mt-0.5 shrink-0" />
                   <p className="text-sm text-muted-foreground">
-                    Scans LTD marketplaces, Dealify, and other deal sites
+                    Scans ltd marketplaces, Dealify, and other deal sites
                   </p>
                 </div>
                 <div className="flex items-start gap-3">
@@ -317,7 +317,7 @@ const Extension: React.FC = () => {
                 <div>
                   <h4 className="font-medium">Add Your Tool Domains</h4>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Click the Guardian icon and add domains for your LTD tools (e.g., <code className="bg-muted px-2 py-0.5 rounded text-xs">relayter.com</code>). The extension will now track your usage automatically!
+                    Click the Guardian icon and add domains for your ltd tools (e.g., <code className="bg-muted px-2 py-0.5 rounded text-xs">relayter.com</code>). The extension will now track your usage automatically!
                   </p>
                 </div>
               </div>

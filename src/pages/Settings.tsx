@@ -59,7 +59,7 @@ export default function Settings() {
       name: 'Starter',
       value: 'starter' as const,
       price: '$49',
-      description: 'For casual LTD collectors',
+      description: 'For casual ltd collectors',
       features: ['Up to 25 tools', 'Basic dashboard', 'Spending charts', 'Duplicate detection'],
     },
     {

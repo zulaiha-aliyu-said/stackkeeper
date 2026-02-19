@@ -52,7 +52,7 @@ export function StackHealthDoctor({ tools, onMarkAsUsed, onDeleteTool, onViewToo
         status: 'critical',
         strengths: [],
         warnings: [{ area: 'Empty Stack', detail: 'No tools to analyze' }],
-        prescriptions: [{ action: 'Add your first tool', impact: 'Start tracking your LTDs', priority: 'high' }],
+        prescriptions: [{ action: 'Add your first tool', impact: 'Start tracking your ltds', priority: 'high' }],
       };
     }
 

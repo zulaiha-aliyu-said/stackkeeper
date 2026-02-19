@@ -166,7 +166,7 @@ export default function Admin() {
             <Shield className="h-8 w-8 text-primary" />
             Admin Panel
           </h1>
-          <p className="text-muted-foreground mt-1">Generate and manage LTD redemption codes</p>
+          <p className="text-muted-foreground mt-1">Generate and manage ltd redemption codes</p>
         </div>
 
         {/* Generate Codes */}
@@ -176,7 +176,7 @@ export default function Admin() {
               <Plus className="h-5 w-5" />
               Generate Codes
             </CardTitle>
-            <CardDescription>Create new redemption codes for LTD plans</CardDescription>
+            <CardDescription>Create new redemption codes for ltd plans</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid gap-4 md:grid-cols-4">
@@ -206,7 +206,7 @@ export default function Admin() {
               <div className="space-y-2">
                 <Label>Notes (optional)</Label>
                 <Textarea
-                  placeholder="e.g. LTD batch #1"
+                  placeholder="e.g. ltd batch #1"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   className="h-10 min-h-[40px]"

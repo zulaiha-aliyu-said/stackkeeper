@@ -5,7 +5,7 @@ export const extensionFiles = {
   "manifest_version": 3,
   "name": "StackVault Guardian",
   "version": "2.0.0",
-  "description": "Track your LTD tool usage automatically and sync with StackVault",
+  "description": "Track your ltd tool usage automatically and sync with StackVault",
   "permissions": [
     "storage",
     "tabs",

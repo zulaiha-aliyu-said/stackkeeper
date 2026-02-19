@@ -190,13 +190,13 @@ export default function Landing() {
 
   const testimonials = [
     {
-      quote: "I had $2,000+ in LTDs I forgot about. StackVault helped me realize I was sitting on tools worth $15k/year in subscriptions.",
+      quote: "I had $2,000+ in ltds I forgot about. StackVault helped me realize I was sitting on tools worth $15k/year in subscriptions.",
       author: "Sarah K.",
       role: "SaaS Founder",
       avatar: "SK"
     },
     {
-      quote: "Finally stopped buying every LTD deal. The duplicate detection alone has saved me hundreds.",
+      quote: "Finally stopped buying every ltd deal. The duplicate detection alone has saved me hundreds.",
       author: "Mike R.",
       role: "Digital Marketer",
       avatar: "MR"
@@ -211,8 +211,8 @@ export default function Landing() {
 
   const faqs = [
     {
-      question: "What is a lifetime deal (LTD)?",
-      answer: "A lifetime deal is a one-time payment for software that would normally require monthly or annual subscriptions. Platforms like LTD sites, PitchGround, and others offer these deals, letting you pay once and use the tool forever."
+      question: "What is a lifetime deal (ltd)?",
+      answer: "A lifetime deal is a one-time payment for software that would normally require monthly or annual subscriptions. Platforms like ltd sites, PitchGround, and others offer these deals, letting you pay once and use the tool forever."
     },
     {
       question: "How does Stack Score work?",
@@ -224,7 +224,7 @@ export default function Landing() {
     },
     {
       question: "How does the Chrome extension work?",
-      answer: "The Guardian extension runs silently in the background. When you visit domains linked to your LTD tools, it automatically logs usage. When you browse deal sites, it checks if you already own similar tools and shows a warning before impulse buying."
+      answer: "The Guardian extension runs silently in the background. When you visit domains linked to your ltd tools, it automatically logs usage. When you browse deal sites, it checks if you already own similar tools and shows a warning before impulse buying."
     },
     {
       question: "Is my data private?",
@@ -293,8 +293,8 @@ export default function Landing() {
           </h1>
           
           <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-            Track every LTD you own. Know what you're using. Stop buying duplicates. 
-            Finally get value from your LTD collection.
+            Track every ltd you own. Know what you're using. Stop buying duplicates.
+            Finally get value from your ltd collection.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
@@ -455,7 +455,7 @@ export default function Landing() {
               Quick Discovery
             </Badge>
             <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-              How Many LTD Tools Do You{' '}
+              How Many ltd Tools Do You{' '}
               <span className="text-gradient">Think</span> You Own?
             </h2>
             <p className="text-muted-foreground text-lg">
@@ -495,8 +495,8 @@ export default function Landing() {
                 ) : (
                   <div className="text-center py-8">
                     <div className="h-16 w-16 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-4" />
-                    <p className="text-lg font-medium">Scanning your typical LTD collector profile...</p>
-                    <p className="text-muted-foreground text-sm mt-2">Checking LTD sites, PitchGround, DealFuel...</p>
+                    <p className="text-lg font-medium">Scanning your typical ltd collector profile...</p>
+                    <p className="text-muted-foreground text-sm mt-2">Checking ltd sites, PitchGround, DealFuel...</p>
                   </div>
                 )}
               </CardContent>
@@ -564,7 +564,7 @@ export default function Landing() {
               Sound Familiar?
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              LTD collectors share the same struggles. You're not alone.
+              ltd collectors share the same struggles. You're not alone.
             </p>
           </div>
 
@@ -712,7 +712,7 @@ export default function Landing() {
               Everything You Need to Manage Your Stack
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
-              From tracking to analytics to gamification - we've built every feature LTD collectors actually need.
+              From tracking to analytics to gamification - we've built every feature ltd collectors actually need.
             </p>
           </div>
 
@@ -783,7 +783,7 @@ export default function Landing() {
                 The Guardian Extension
               </h2>
               <p className="text-muted-foreground text-lg mb-6">
-                Your personal LTD watchdog. Runs silently in Chrome, tracks usage automatically, 
+                Your personal ltd watchdog. Runs silently in Chrome, tracks usage automatically,
                 and stops you before impulse buying duplicates on deal sites.
               </p>
               
@@ -818,7 +818,7 @@ export default function Landing() {
           <div className="text-center mb-16">
             <Badge variant="secondary" className="mb-4">
               <Heart className="h-3 w-3 mr-1" />
-              Loved by LTD Collectors
+              Loved by ltd Collectors
             </Badge>
             <h2 className="text-3xl sm:text-4xl font-bold mb-4">
               What Our Users Say
@@ -899,7 +899,7 @@ export default function Landing() {
             Ready to Take Control of Your Stack?
           </h2>
           <p className="text-muted-foreground text-lg max-w-xl mx-auto mb-8">
-            Join thousands of LTD collectors who finally know what they own, what it's worth, and what they're actually using.
+            Join thousands of ltd collectors who finally know what they own, what it's worth, and what they're actually using.
           </p>
           
           <Link to="/dashboard">
@@ -946,7 +946,7 @@ export default function Landing() {
             </div>
             
             <p className="text-sm text-muted-foreground">
-              Built with ❤️ for LTD collectors
+              Built with ❤️ for ltd collectors
             </p>
           </div>
         </div>
