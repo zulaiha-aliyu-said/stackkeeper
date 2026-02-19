@@ -206,7 +206,7 @@ export default function Admin() {
               <div className="space-y-2">
                 <Label>Notes (optional)</Label>
                 <Textarea
-                  placeholder="e.g. AppSumo batch #1"
+                  placeholder="e.g. LTD batch #1"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   className="h-10 min-h-[40px]"

@@ -14,7 +14,7 @@ import {
   Settings,
   Keyboard
 } from 'lucide-react';
-import { Tool } from '@/types/tool';
+import { Tool, getPlatformLabel } from '@/types/tool';
 
 interface CommandPaletteProps {
   isOpen: boolean;
@@ -142,7 +142,12 @@ export function CommandPalette({
       icon: <Library className="h-4 w-4" />,
       action: () => { onViewTool(tool); onClose(); },
       category: 'tools' as const,
-      keywords: [tool.category.toLowerCase(), tool.platform.toLowerCase(), ...(tool.tags || [])],
+      keywords: [
+        tool.category.toLowerCase(),
+        tool.platform.toLowerCase(),
+        getPlatformLabel(tool.platform).toLowerCase(),
+        ...(tool.tags || [])
+      ],
     }));
 
     return [...baseCommands, ...toolCommands];

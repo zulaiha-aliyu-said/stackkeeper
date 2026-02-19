@@ -1,6 +1,6 @@
  import { useMemo, useCallback } from 'react';
  import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
- import { Tool, SortOption, Category, UsageEntry } from '@/types/tool';
+ import { Tool, SortOption, Category, UsageEntry, getPlatformLabel } from '@/types/tool';
  import { calculateROI } from '@/lib/roi';
  import { useAuth } from '@/contexts/AuthContext';
  import { toast } from 'sonner';
@@ -319,7 +319,7 @@ export function useTools() {
         return [
           `"${tool.name.replace(/"/g, '""')}"`,
           tool.category,
-          tool.platform,
+          getPlatformLabel(tool.platform),
           tool.price,
           tool.purchaseDate ? tool.purchaseDate.split('T')[0] : '',
           `"${(tool.login || '').replace(/"/g, '""')}"`,
@@ -394,7 +394,8 @@ export function useTools() {
   const getPlatformBreakdown = () => {
     const breakdown: Record<string, number> = {};
     tools.forEach((tool: Tool) => {
-      breakdown[tool.platform] = (breakdown[tool.platform] || 0) + 1;
+      const label = getPlatformLabel(tool.platform);
+      breakdown[label] = (breakdown[label] || 0) + 1;
     });
     return breakdown;
   };

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { X, Copy, Check, Edit2, Trash2, Zap, Eye, EyeOff, Calendar, DollarSign, Tag, ExternalLink, Globe } from 'lucide-react';
-import { Tool } from '@/types/tool';
+import { Tool, getPlatformLabel } from '@/types/tool';
 import { format, differenceInDays, addDays } from 'date-fns';
 import { toast } from 'sonner';
 import { ROISection } from './ROISection';
@@ -62,7 +62,7 @@ export function ToolDetailModal({
           {/* Badges */}
           <div className="flex flex-wrap gap-2">
             <span className="badge-category">{tool.category}</span>
-            <span className="badge-platform">{tool.platform}</span>
+            <span className="badge-platform">{getPlatformLabel(tool.platform)}</span>
             <span className={tool.lastUsed ? 'badge-used' : 'badge-unused'}>
               {tool.timesUsed > 0 ? `Used ${tool.timesUsed}x` : 'Never used'}
             </span>

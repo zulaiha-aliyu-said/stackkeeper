@@ -19,7 +19,7 @@ const toolNames = [
   { name: 'Murf AI', category: 'AI' as Category, annualValue: 228, price: 59 },
   
   // Marketing (8)
-  { name: 'Appsumo Plus', category: 'Marketing' as Category, annualValue: 99, price: 99 },
+  { name: 'LTD Plus', category: 'Marketing' as Category, annualValue: 99, price: 99 },
   { name: 'TubeBuddy', category: 'Marketing' as Category, annualValue: 108, price: 49 },
   { name: 'VidIQ', category: 'Marketing' as Category, annualValue: 90, price: 39 },
   { name: 'Missinglettr', category: 'Marketing' as Category, annualValue: 228, price: 59 },

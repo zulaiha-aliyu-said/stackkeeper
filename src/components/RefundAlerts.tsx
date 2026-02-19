@@ -1,5 +1,5 @@
 import { AlertTriangle, Clock } from 'lucide-react';
-import { Tool } from '@/types/tool';
+import { Tool, getPlatformLabel } from '@/types/tool';
 
 interface RefundAlertsProps {
   alerts: { tool: Tool; daysRemaining: number }[];
@@ -31,7 +31,7 @@ export function RefundAlerts({ alerts }: RefundAlertsProps) {
           >
             <div>
               <p className="font-medium text-foreground">{tool.name}</p>
-              <p className="text-sm text-muted-foreground">${tool.price} • {tool.platform}</p>
+              <p className="text-sm text-muted-foreground">${tool.price} • {getPlatformLabel(tool.platform)}</p>
             </div>
             <div className="text-right">
               <p className="text-lg font-bold text-warning">{daysRemaining}</p>

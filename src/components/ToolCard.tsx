@@ -1,4 +1,4 @@
-import { Tool } from '@/types/tool';
+import { Tool, getPlatformLabel } from '@/types/tool';
 import { formatDistanceToNow } from 'date-fns';
 import { Eye, Zap, Tag, Play, Square, Clock } from 'lucide-react';
 import { ROIBadge } from './ROIBadge';
@@ -43,7 +43,7 @@ export function ToolCard({ tool, onViewDetails, onMarkAsUsed, onLogTimerUsage }:
           <h3 className="text-lg font-semibold text-foreground mb-2">{tool.name}</h3>
           <div className="flex flex-wrap gap-2">
             <span className="badge-category">{tool.category}</span>
-            <span className="badge-platform">{tool.platform}</span>
+            <span className="badge-platform">{getPlatformLabel(tool.platform)}</span>
           </div>
         </div>
         <div className="flex flex-col items-end gap-1">

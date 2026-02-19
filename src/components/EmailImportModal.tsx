@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { X, Mail, Sparkles, AlertCircle } from 'lucide-react';
-import { Tool, CATEGORIES, PLATFORMS, Category, Platform } from '@/types/tool';
+import { Tool, CATEGORIES, PLATFORMS, Category, Platform, getPlatformLabel } from '@/types/tool';
 import { toast } from 'sonner';
 
 interface ParsedToolData {
@@ -198,7 +198,7 @@ export function EmailImportModal({ isOpen, onClose, onImport }: EmailImportModal
                   <div className="text-sm text-muted-foreground">
                     <p className="font-medium text-foreground mb-1">How it works:</p>
                     <ol className="list-decimal list-inside space-y-1">
-                      <li>Paste your AppSumo/PitchGround confirmation email below</li>
+                      <li>Paste your marketplace confirmation email below</li>
                       <li>We'll extract tool name, price, date, and redemption code</li>
                       <li>Review and confirm the extracted data</li>
                     </ol>
@@ -278,7 +278,7 @@ export function EmailImportModal({ isOpen, onClose, onImport }: EmailImportModal
                   >
                     <option value="">Select platform</option>
                     {PLATFORMS.map(plat => (
-                      <option key={plat} value={plat}>{plat}</option>
+                  <option key={plat} value={plat}>{getPlatformLabel(plat)}</option>
                     ))}
                   </select>
                 </div>
