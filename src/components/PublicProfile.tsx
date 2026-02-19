@@ -10,7 +10,7 @@ import {
   User, Edit2, Save, Globe, Lock, Copy, ExternalLink, 
   Trophy, Package, DollarSign, Check, X, Sparkles
 } from 'lucide-react';
-import { Tool } from '@/types/tool';
+import { Tool, getPlatformLabel } from '@/types/tool';
 import { UserProfile } from '@/types/profile';
 import { useSocialSettings } from '@/hooks/useSocialSettings';
 import { toast } from 'sonner';
@@ -344,7 +344,7 @@ export function PublicProfile({ tools, onStealStack }: PublicProfileProps) {
                   <div className="text-sm text-muted-foreground flex items-center justify-between">
                     <span>{tool.category}</span>
                     <Badge variant="outline" className="text-xs">
-                      {tool.platform}
+                      {getPlatformLabel(tool.platform)}
                     </Badge>
                   </div>
                 </div>

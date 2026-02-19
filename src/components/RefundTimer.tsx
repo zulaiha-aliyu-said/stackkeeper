@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Clock, AlertTriangle } from 'lucide-react';
-import { Tool } from '@/types/tool';
+import { Tool, getPlatformLabel } from '@/types/tool';
 import { differenceInDays, differenceInHours, differenceInMinutes, addDays, parseISO } from 'date-fns';
 
 interface RefundTimerProps {
@@ -97,7 +97,7 @@ export function RefundTimer({ alerts, onViewTool }: RefundTimerProps) {
                     {isUrgent && <span className="animate-pulse">🔥</span>}
                     <p className="font-semibold text-foreground truncate">{tool.name}</p>
                   </div>
-                  <p className="text-sm text-muted-foreground">${tool.price} • {tool.platform}</p>
+                  <p className="text-sm text-muted-foreground">${tool.price} • {getPlatformLabel(tool.platform)}</p>
                 </div>
                 
                 <div className="flex items-center gap-2">

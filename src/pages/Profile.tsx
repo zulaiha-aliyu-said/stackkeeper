@@ -9,7 +9,7 @@ import {
   Copy, Check, ArrowLeft
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { Tool } from '@/types/tool';
+import { Tool, getPlatformLabel } from '@/types/tool';
 import { UserProfile } from '@/types/profile';
 import { useTools } from '@/hooks/useTools';
 import { toast } from 'sonner';
@@ -275,7 +275,7 @@ export default function Profile() {
                     <div className="text-sm text-muted-foreground flex items-center justify-between mt-1">
                       <span>{tool.category}</span>
                       <Badge variant="outline" className="text-xs">
-                        {tool.platform}
+                        {getPlatformLabel(tool.platform)}
                       </Badge>
                     </div>
                   </div>

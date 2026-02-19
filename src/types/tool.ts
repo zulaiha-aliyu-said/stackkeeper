@@ -79,3 +79,8 @@ export const PLATFORMS: Platform[] = [
   'StackSocial',
   'Other'
 ];
+
+export const getPlatformLabel = (platform: Platform): string => {
+  if (platform === 'AppSumo') return 'LTD';
+  return platform;
+};

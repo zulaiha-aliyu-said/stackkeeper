@@ -1,5 +1,5 @@
 import { X, Trophy, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
-import { Tool } from '@/types/tool';
+import { Tool, getPlatformLabel } from '@/types/tool';
 import { calculateROI, ROIMetrics } from '@/lib/roi';
 import { format, formatDistanceToNow } from 'date-fns';
 
@@ -179,7 +179,7 @@ export function CompareToolsModal({ isOpen, onClose, tools }: CompareToolsModalP
                   <td className="py-3 px-4 text-sm text-muted-foreground">Platform</td>
                   {tools.map(tool => (
                     <td key={tool.id} className="py-3 px-4 text-center text-sm text-foreground">
-                      {tool.platform}
+                      {getPlatformLabel(tool.platform)}
                     </td>
                   ))}
                 </tr>

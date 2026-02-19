@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { X, Plus, Tag } from 'lucide-react';
-import { Tool, CATEGORIES, PLATFORMS, Category, Platform } from '@/types/tool';
+import { Tool, CATEGORIES, PLATFORMS, Category, Platform, getPlatformLabel } from '@/types/tool';
 import { toast } from 'sonner';
 
 interface AddToolModalProps {
@@ -209,7 +209,7 @@ export function AddToolModal({ isOpen, onClose, onAdd, editTool, onUpdate, exist
               >
                 <option value="">Select platform</option>
                 {PLATFORMS.map(plat => (
-                  <option key={plat} value={plat}>{plat}</option>
+                  <option key={plat} value={plat}>{getPlatformLabel(plat)}</option>
                 ))}
               </select>
             </div>
