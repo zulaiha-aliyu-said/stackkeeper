@@ -8,7 +8,7 @@ const STORAGE_KEY = 'stackvault_tier';
 
 export function useTier() {
   const { user } = useAuth();
-  const [tier, setTierState] = useState<UserTier>('starter');
+  const [tier, setTierState] = useState<UserTier>('free');
   const [isLoading, setIsLoading] = useState(true);
 
   // Load tier from profile (Supabase) or fallback to localStorage
@@ -21,19 +21,19 @@ export function useTier() {
           .eq('id', user.id)
           .single() as any);
 
-        if (!error && data?.tier && ['starter', 'pro', 'agency'].includes(data.tier)) {
+        if (!error && data?.tier && ['free', 'starter', 'pro', 'agency'].includes(data.tier)) {
           setTierState(data.tier as UserTier);
           localStorage.setItem(STORAGE_KEY, data.tier);
         } else {
           // Fallback to localStorage
           const saved = localStorage.getItem(STORAGE_KEY);
-          if (saved && ['starter', 'pro', 'agency'].includes(saved)) {
+          if (saved && ['free', 'starter', 'pro', 'agency'].includes(saved)) {
             setTierState(saved as UserTier);
           }
         }
       } else {
         const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved && ['starter', 'pro', 'agency'].includes(saved)) {
+        if (saved && ['free', 'starter', 'pro', 'agency'].includes(saved)) {
           setTierState(saved as UserTier);
         }
       }
@@ -67,7 +67,7 @@ export function useTier() {
     }
 
     const newTier = data as string;
-    if (newTier && ['starter', 'pro', 'agency'].includes(newTier)) {
+    if (newTier && ['free', 'starter', 'pro', 'agency'].includes(newTier)) {
       setTierState(newTier as UserTier);
       localStorage.setItem(STORAGE_KEY, newTier);
       toast.success(`🎉 Code redeemed! You're now on the ${newTier.charAt(0).toUpperCase() + newTier.slice(1)} plan!`);
@@ -92,11 +92,14 @@ export function useTier() {
   }, [limits]);
 
   const getUpgradeMessage = useCallback((feature: string) => {
+    if (tier === 'free') {
+      return `Redeem a code to unlock ${feature}`;
+    }
     if (tier === 'starter') {
-      return `Upgrade to Pro or Agency to unlock ${feature}`;
+      return `Redeem a Pro or Agency code to unlock ${feature}`;
     }
     if (tier === 'pro') {
-      return `Upgrade to Agency to unlock ${feature}`;
+      return `Redeem an Agency code to unlock ${feature}`;
     }
     return null;
   }, [tier]);
@@ -110,6 +113,7 @@ export function useTier() {
     isFeatureLocked,
     getUpgradeMessage,
     redeemCode,
+    isFree: tier === 'free',
     isStarter: tier === 'starter',
     isPro: tier === 'pro',
     isAgency: tier === 'agency',
