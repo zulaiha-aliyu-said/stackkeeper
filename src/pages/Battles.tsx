@@ -7,13 +7,12 @@ import { useSocialSettings } from '@/hooks/useSocialSettings';
 import { useTier } from '@/hooks/useTier';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Swords, User, Shield, Crown } from 'lucide-react';
-import { toast } from 'sonner';
+import { Swords, User, Shield } from 'lucide-react';
 
 export default function Battles() {
   const { tools, setToolsDirectly } = useTools();
   const { enableBattles, enablePublicProfile, canConfigureSocial } = useSocialSettings();
-  const { setTier, isAgency } = useTier();
+  const { isAgency } = useTier();
   
   // Get username from localStorage profile
   const getUsername = () => {
@@ -32,7 +31,7 @@ export default function Battles() {
     setToolsDirectly([...tools, ...newTools]);
   };
 
-  // Show upgrade prompt if not Agency
+  // Show locked prompt if not Agency
   if (!isAgency) {
     return (
       <Layout>
@@ -42,21 +41,9 @@ export default function Battles() {
               <Shield className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
               <CardTitle>Stack Battles - Agency Only</CardTitle>
               <CardDescription>
-                Upgrade to Agency to challenge friends and share your stack publicly.
+                Redeem an Agency code in Settings → Billing to unlock Stack Battles.
               </CardDescription>
             </CardHeader>
-            <CardContent className="text-center">
-              <Button 
-                className="gap-2"
-                onClick={() => {
-                  setTier('agency');
-                  toast.success('Upgraded to Agency plan');
-                }}
-              >
-                <Crown className="h-4 w-4" />
-                Upgrade to Agency
-              </Button>
-            </CardContent>
           </Card>
         </div>
       </Layout>

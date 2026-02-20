@@ -6,12 +6,25 @@ import { toast } from 'sonner';
 
 const STORAGE_KEY = 'stackvault_tier';
 
+const VALID_TIERS = ['starter', 'pro', 'agency'];
+
+const FREE_LIMITS = {
+  maxTools: 5,
+  maxStacks: 1,
+  maxTeamMembers: 0,
+  hasAdvancedAnalytics: false,
+  hasTeamFeatures: false,
+  hasBranding: false,
+  hasPublicProfile: false,
+  hasBattles: false,
+  hasEmailImport: false,
+} as const;
+
 export function useTier() {
   const { user } = useAuth();
-  const [tier, setTierState] = useState<UserTier>('free');
+  const [tier, setTierState] = useState<UserTier | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Load tier from profile (Supabase) or fallback to localStorage
   useEffect(() => {
     const loadTier = async () => {
       if (user) {
@@ -21,19 +34,18 @@ export function useTier() {
           .eq('id', user.id)
           .single() as any);
 
-        if (!error && data?.tier && ['free', 'starter', 'pro', 'agency'].includes(data.tier)) {
+        if (!error && data?.tier && VALID_TIERS.includes(data.tier)) {
           setTierState(data.tier as UserTier);
           localStorage.setItem(STORAGE_KEY, data.tier);
         } else {
-          // Fallback to localStorage
           const saved = localStorage.getItem(STORAGE_KEY);
-          if (saved && ['free', 'starter', 'pro', 'agency'].includes(saved)) {
+          if (saved && VALID_TIERS.includes(saved)) {
             setTierState(saved as UserTier);
           }
         }
       } else {
         const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved && ['free', 'starter', 'pro', 'agency'].includes(saved)) {
+        if (saved && VALID_TIERS.includes(saved)) {
           setTierState(saved as UserTier);
         }
       }
@@ -67,7 +79,7 @@ export function useTier() {
     }
 
     const newTier = data as string;
-    if (newTier && ['free', 'starter', 'pro', 'agency'].includes(newTier)) {
+    if (newTier && VALID_TIERS.includes(newTier)) {
       setTierState(newTier as UserTier);
       localStorage.setItem(STORAGE_KEY, newTier);
       toast.success(`🎉 Code redeemed! You're now on the ${newTier.charAt(0).toUpperCase() + newTier.slice(1)} plan!`);
@@ -78,7 +90,7 @@ export function useTier() {
     return false;
   }, [user]);
 
-  const limits = TIER_LIMITS[tier];
+  const limits = tier ? TIER_LIMITS[tier] : FREE_LIMITS;
 
   const canAccessFeature = useCallback((feature: keyof typeof TIER_LIMITS['starter']) => {
     return limits[feature];
@@ -92,7 +104,7 @@ export function useTier() {
   }, [limits]);
 
   const getUpgradeMessage = useCallback((feature: string) => {
-    if (tier === 'free') {
+    if (!tier) {
       return `Redeem a code to unlock ${feature}`;
     }
     if (tier === 'starter') {
@@ -113,7 +125,7 @@ export function useTier() {
     isFeatureLocked,
     getUpgradeMessage,
     redeemCode,
-    isFree: tier === 'free',
+    hasNoPlan: tier === null,
     isStarter: tier === 'starter',
     isPro: tier === 'pro',
     isAgency: tier === 'agency',

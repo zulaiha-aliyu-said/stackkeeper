@@ -19,7 +19,6 @@ import {
   Palette, 
   CreditCard, 
   Layers,
-  Crown,
   Check,
   Trash2,
   Zap,
@@ -35,7 +34,7 @@ import { toast } from 'sonner';
 import { useState } from 'react';
 
 export default function Settings() {
-  const { tier, setTier, limits, isAgency, redeemCode } = useTier();
+  const { tier, limits, isAgency, redeemCode } = useTier();
   const [redeemInput, setRedeemInput] = useState('');
   const [redeeming, setRedeeming] = useState(false);
   const { stacks, activeStack, deleteStack, hasMultipleStacks } = useStacks();
@@ -248,18 +247,8 @@ export default function Settings() {
                     <Shield className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                     <h3 className="font-semibold mb-2">Social Features - Agency Only</h3>
                     <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                      Upgrade to Agency to access social features like Stack Battles, public profiles, and stack sharing.
+                      Redeem an Agency code in the Billing tab to access social features like Stack Battles, public profiles, and stack sharing.
                     </p>
-                    <Button 
-                      className="mt-4 gap-2"
-                      onClick={() => {
-                        setTier('agency');
-                        toast.success('Upgraded to Agency plan');
-                      }}
-                    >
-                      <Crown className="h-4 w-4" />
-                      Upgrade to Agency
-                    </Button>
                   </div>
                 ) : (
                   <div className="space-y-6">
@@ -340,7 +329,7 @@ export default function Settings() {
               <CardHeader>
                 <CardTitle>Current Plan</CardTitle>
                 <CardDescription>
-                  You are currently on the <span className="font-semibold capitalize">{tier}</span> plan
+                  You are currently on the <span className="font-semibold capitalize">{tier ?? 'Free'}</span> plan. Redeem a code to activate a plan.
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -371,19 +360,6 @@ export default function Settings() {
                           </li>
                         ))}
                       </ul>
-                      {tier !== t.value && (
-                        <Button 
-                          className="w-full mt-4 gap-2"
-                          variant={t.value === 'agency' ? 'default' : 'outline'}
-                          onClick={() => {
-                            setTier(t.value);
-                            toast.success(`Switched to ${t.name} plan`);
-                          }}
-                        >
-                          {t.value === 'agency' && <Crown className="h-4 w-4" />}
-                          {tier === 'agency' ? 'Switch' : 'Upgrade'} to {t.name}
-                        </Button>
-                      )}
                     </div>
                   ))}
                 </div>
@@ -461,7 +437,7 @@ export default function Settings() {
                     <CardDescription>
                       {hasMultipleStacks 
                         ? 'Manage your tool stacks for different projects or clients'
-                        : 'Upgrade to Agency to manage multiple stacks'
+                        : 'Redeem an Agency code to manage multiple stacks'
                       }
                     </CardDescription>
                   </div>

@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 
 export function TeamManagement() {
   const { members, inviteMember, removeMember, updateMemberRole, remainingSeats, maxMembers, hasTeamFeatures } = useTeam();
-  const { tier, setTier } = useTier();
+  const { tier } = useTier();
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
 
   const handleInvite = (email: string, role: 'admin' | 'editor' | 'viewer', name?: string) => {
@@ -44,12 +44,8 @@ export function TeamManagement() {
           </div>
           <h3 className="text-lg font-semibold mb-2">Team Features Locked</h3>
           <p className="text-muted-foreground mb-4 max-w-sm">
-            Upgrade to the Agency plan to invite team members and collaborate on your tool stack.
+            Redeem an Agency code in Settings → Billing to invite team members and collaborate on your tool stack.
           </p>
-          <Button onClick={() => setTier('agency')} className="gap-2">
-            <Crown className="h-4 w-4" />
-            Upgrade to Agency
-          </Button>
         </CardContent>
       </Card>
     );
