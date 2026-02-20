@@ -43,15 +43,15 @@ const faqs = [
   },
   {
     question: "Can I upgrade later?",
-    answer: "Absolutely. You can upgrade from Starter to Pro or Agency at any time by just paying the difference."
+    answer: "Yes! Each plan is activated by redeeming a unique code. You can redeem a higher-tier code at any time to unlock more features."
   },
   {
     question: "What happens if I exceed my tool limit?",
-    answer: "If you're on the Starter plan and reach 25 tools, you'll need to upgrade to Pro to add more. All your existing data will remain safe."
+    answer: "If you're on the Starter plan and reach 25 tools, you'll need to redeem a Pro code to add more. All your existing data will remain safe."
   },
   {
     question: "Is there a free trial?",
-    answer: "We don't have a trial, but we have a 100% free mode that lets you manage up to 5 tools so you can try out the interface before buying."
+    answer: "You start with a free account that lets you manage up to 5 tools. Redeem a code to unlock a full plan."
   }
 ];
 

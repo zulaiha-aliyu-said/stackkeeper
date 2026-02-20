@@ -1,6 +1,6 @@
 export type TeamRole = 'owner' | 'admin' | 'editor' | 'viewer';
 export type MemberStatus = 'pending' | 'active';
-export type UserTier = 'free' | 'starter' | 'pro' | 'agency';
+export type UserTier = 'starter' | 'pro' | 'agency';
 
 export interface TeamMember {
   id: string;
@@ -93,17 +93,6 @@ export const TIER_LIMITS: Record<UserTier, {
   hasBattles: boolean;
   hasEmailImport: boolean;
 }> = {
-  free: {
-    maxTools: 5,
-    maxStacks: 1,
-    maxTeamMembers: 0,
-    hasAdvancedAnalytics: false,
-    hasTeamFeatures: false,
-    hasBranding: false,
-    hasPublicProfile: false,
-    hasBattles: false,
-    hasEmailImport: false,
-  },
   starter: {
     maxTools: 25,
     maxStacks: 1,

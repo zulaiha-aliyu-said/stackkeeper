@@ -1,13 +1,13 @@
 import { useState, useRef } from 'react';
 import { useBranding } from '@/hooks/useBranding';
-import { useTier } from '@/hooks/useTier';
+
 import { ColorPicker } from '@/components/ColorPicker';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
-import { Palette, Upload, RotateCcw, Lock, Crown, Vault } from 'lucide-react';
+import { Palette, Upload, RotateCcw, Lock, Vault } from 'lucide-react';
 import { toast } from 'sonner';
 
 export function BrandSettings() {
@@ -18,7 +18,7 @@ export function BrandSettings() {
     canCustomizeBranding,
     defaultBranding 
   } = useBranding();
-  const { setTier } = useTier();
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isResetting, setIsResetting] = useState(false);
 
@@ -60,12 +60,8 @@ export function BrandSettings() {
           </div>
           <h3 className="text-lg font-semibold mb-2">Brand Customization Locked</h3>
           <p className="text-muted-foreground mb-4 max-w-sm">
-            Upgrade to the Agency plan to customize your branding, including logo, colors, and remove the "Powered by" badge.
+            Redeem an Agency code in Settings → Billing to customize your branding, including logo, colors, and remove the "Powered by" badge.
           </p>
-          <Button onClick={() => setTier('agency')} className="gap-2">
-            <Crown className="h-4 w-4" />
-            Upgrade to Agency
-          </Button>
         </CardContent>
       </Card>
     );
