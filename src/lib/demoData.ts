@@ -1,7 +1,7 @@
 import { Tool, Category, Platform } from '@/types/tool';
 
 const categories: Category[] = ['Marketing', 'Design', 'Productivity', 'AI', 'Dev Tools', 'Analytics', 'Email', 'Video', 'Other'];
-const platforms: Platform[] = ['AppSumo', 'PitchGround', 'DealFuel', 'StackSocial', 'Other'];
+const platforms: Platform[] = ['LTD', 'PitchGround', 'DealFuel', 'StackSocial', 'Other'];
 
 const toolNames = [
   // AI Tools (12)

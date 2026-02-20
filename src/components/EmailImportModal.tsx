@@ -44,7 +44,7 @@ export function EmailImportModal({ isOpen, onClose, onImport }: EmailImportModal
     name = (welcomeMatch?.[1] || purchasedMatch?.[1] || thankYouMatch?.[1] || orderMatch?.[1] || subjectMatch?.[1] || '').trim();
     
     // Clean up common suffixes
-    name = name.replace(/(?:lifetime deal|ltd|appsumo|pitchground|lifetime|deal)$/i, '').trim();
+    name = name.replace(/(?:lifetime deal|ltd|pitchground|lifetime|deal)$/i, '').trim();
     name = name.replace(/^(?:the|your)\s+/i, '').trim();
 
     // Extract price
@@ -109,7 +109,7 @@ export function EmailImportModal({ isOpen, onClose, onImport }: EmailImportModal
 
     // Detect platform
     let platform: Platform | '' = '';
-    if (/appsumo/i.test(text)) platform = 'AppSumo';
+    if (/ltd/i.test(text)) platform = 'LTD';
     else if (/pitchground/i.test(text)) platform = 'PitchGround';
     else if (/dealfuel/i.test(text)) platform = 'DealFuel';
     else if (/stacksocial/i.test(text)) platform = 'StackSocial';

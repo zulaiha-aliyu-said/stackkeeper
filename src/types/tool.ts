@@ -54,7 +54,7 @@ export type Category =
   | 'Other';
 
 export type Platform = 
-  | 'AppSumo'
+  | 'LTD'
   | 'PitchGround'
   | 'DealFuel'
   | 'StackSocial'
@@ -73,7 +73,7 @@ export const CATEGORIES: Category[] = [
 ];
 
 export const PLATFORMS: Platform[] = [
-  'AppSumo',
+  'LTD',
   'PitchGround',
   'DealFuel',
   'StackSocial',
@@ -81,6 +81,5 @@ export const PLATFORMS: Platform[] = [
 ];
 
 export const getPlatformLabel = (platform: Platform): string => {
-  if (platform === 'AppSumo') return 'LTD';
   return platform;
 };
