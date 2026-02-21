@@ -6,6 +6,8 @@
 
 Update the 3 pricing tiers to $49 / $99 / $149 LTD plans, build a redemption code system backed by Supabase, and create a secure admin panel for generating codes.
 
+this is edit for teting deployment
+
 ---
 
 ## Pricing Tiers (Updated)
