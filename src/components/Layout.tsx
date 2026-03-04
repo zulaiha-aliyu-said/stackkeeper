@@ -142,6 +142,7 @@ export function Layout({ children }: LayoutProps) {
                   <span className="hidden md:inline">Logout</span>
                 </button>
               )}
+            </div>
           </div>
         </div>
       </nav>
