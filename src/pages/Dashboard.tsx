@@ -1,9 +1,10 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { Package, DollarSign, TrendingUp, AlertTriangle, Plus, Zap, Ghost, Share2 } from 'lucide-react';
+import { OnboardingWelcomeModal } from '@/components/OnboardingWelcomeModal';
 import { Layout } from '@/components/Layout';
 import { MetricCard } from '@/components/MetricCard';
 import { RefundTimer } from '@/components/RefundTimer';
@@ -43,7 +44,7 @@ export default function Dashboard() {
   } = useTools();
   
   const { features } = useInterfaceMode();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const queryClient = useQueryClient();
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -53,6 +54,14 @@ export default function Dashboard() {
   const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [demoLoading, setDemoLoading] = useState(false);
   const [demoBannerDismissed, setDemoBannerDismissed] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  // Show onboarding for new users who haven't seen it yet
+  useEffect(() => {
+    if (user && tools.length === 0 && !localStorage.getItem('stackvault_onboarding_done')) {
+      setShowOnboarding(true);
+    }
+  }, [user, tools.length]);
   const refundAlerts = getRefundAlerts();
   const recentTools = getRecentlyAdded();
   const graveyardTools = getToolGraveyard();
@@ -96,6 +105,11 @@ export default function Dashboard() {
   // Check if demo was loaded in this session
   const isUsingDemoData = localStorage.getItem('stackvault_demo_loaded') === 'true' && tools.length > 0;
 
+  const dismissOnboarding = () => {
+    setShowOnboarding(false);
+    localStorage.setItem('stackvault_onboarding_done', 'true');
+  };
+
   if (tools.length === 0) {
     return (
       <Layout>
@@ -117,6 +131,13 @@ export default function Dashboard() {
           isOpen={isAddModalOpen}
           onClose={() => setIsAddModalOpen(false)}
           onAdd={addTool}
+        />
+        <OnboardingWelcomeModal
+          isOpen={showOnboarding}
+          onClose={dismissOnboarding}
+          onAddFirstTool={() => setIsAddModalOpen(true)}
+          onLoadDemo={handleLoadDemo}
+          userName={profile?.full_name}
         />
       </Layout>
     );
