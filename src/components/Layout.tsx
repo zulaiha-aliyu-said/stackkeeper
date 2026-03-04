@@ -1,6 +1,6 @@
 import { ReactNode, useState, useCallback, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Library, BarChart3, Vault, Command, Chrome, Clock, Network, Swords, Settings, CreditCard } from 'lucide-react';
+import { LayoutDashboard, Library, BarChart3, Vault, Command, Chrome, Clock, Network, Swords, Settings, CreditCard, LogOut } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { CommandPalette } from '@/components/CommandPalette';
 import { KeyboardShortcutsModal } from '@/components/KeyboardShortcutsModal';
@@ -15,6 +15,7 @@ import { useBranding } from '@/hooks/useBranding';
 import { useTier } from '@/hooks/useTier';
 import { useInterfaceMode } from '@/hooks/useInterfaceMode';
 import { useSocialSettings } from '@/hooks/useSocialSettings';
+import { useAuth } from '@/contexts/AuthContext';
 import { Tool } from '@/types/tool';
 import { toast } from 'sonner';
 
@@ -30,6 +31,7 @@ export function Layout({ children }: LayoutProps) {
   const { isAgency } = useTier();
   const { isSimpleMode } = useInterfaceMode();
   const { enableBattles } = useSocialSettings();
+  const { user, logout } = useAuth();
 
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
@@ -130,7 +132,16 @@ export function Layout({ children }: LayoutProps) {
               </button>
               <ModeSwitcher />
               <ThemeToggle />
-            </div>
+              {user && (
+                <button
+                  onClick={logout}
+                  className="flex items-center gap-2 h-9 px-3 rounded-lg bg-secondary hover:bg-destructive/10 hover:text-destructive transition-colors text-sm text-muted-foreground"
+                  title="Logout"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span className="hidden md:inline">Logout</span>
+                </button>
+              )}
           </div>
         </div>
       </nav>
