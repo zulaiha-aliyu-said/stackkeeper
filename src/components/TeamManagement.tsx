@@ -6,33 +6,20 @@ import { InviteMemberModal } from '@/components/InviteMemberModal';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Users, UserPlus, Lock, Crown } from 'lucide-react';
-import { toast } from 'sonner';
+import { Users, UserPlus, Lock } from 'lucide-react';
 
 export function TeamManagement() {
-  const { members, inviteMember, removeMember, updateMemberRole, remainingSeats, maxMembers, hasTeamFeatures } = useTeam();
+  const { members, addMember, removeMember, updateMemberRole, remainingSeats, maxMembers, hasTeamFeatures } = useTeam();
   const { tier } = useTier();
   const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
-
-  const handleInvite = (email: string, role: 'admin' | 'editor' | 'viewer', name?: string) => {
-    const result = inviteMember(email, role, name);
-    if (result.success) {
-      toast.success(`Invitation sent to ${email}`);
-    } else {
-      toast.error(result.error || 'Failed to send invitation');
-    }
-    return result;
-  };
 
   const handleRemove = (id: string) => {
     const member = members.find(m => m.id === id);
     removeMember(id);
-    toast.success(`${member?.name || 'Member'} has been removed`);
   };
 
   const handleUpdateRole = (id: string, role: 'owner' | 'admin' | 'editor' | 'viewer') => {
     updateMemberRole(id, role);
-    toast.success('Role updated successfully');
   };
 
   if (!hasTeamFeatures) {
@@ -69,13 +56,13 @@ export function TeamManagement() {
               <Badge variant="outline" className="text-sm">
                 {members.length}/{maxMembers} seats used
               </Badge>
-              <Button 
+              <Button
                 onClick={() => setIsInviteModalOpen(true)}
                 disabled={remainingSeats === 0}
                 className="gap-2"
               >
                 <UserPlus className="h-4 w-4" />
-                Invite Member
+                Add Member
               </Button>
             </div>
           </div>
@@ -86,11 +73,11 @@ export function TeamManagement() {
               <Users className="h-12 w-12 text-muted-foreground mb-4" />
               <h4 className="font-medium mb-1">No team members yet</h4>
               <p className="text-sm text-muted-foreground mb-4">
-                Invite colleagues to collaborate on your tool stack
+                Add team members to collaborate on your tool stack
               </p>
               <Button onClick={() => setIsInviteModalOpen(true)} variant="outline" className="gap-2">
                 <UserPlus className="h-4 w-4" />
-                Send First Invite
+                Add First Member
               </Button>
             </div>
           ) : (
@@ -112,7 +99,7 @@ export function TeamManagement() {
       <InviteMemberModal
         isOpen={isInviteModalOpen}
         onClose={() => setIsInviteModalOpen(false)}
-        onInvite={handleInvite}
+        onAddMember={addMember}
         remainingSeats={remainingSeats}
       />
     </div>

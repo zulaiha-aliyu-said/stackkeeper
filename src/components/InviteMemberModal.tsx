@@ -23,13 +23,14 @@ import { UserPlus, Shield, Edit3, Eye } from 'lucide-react';
 interface InviteMemberModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onInvite: (email: string, role: TeamRole, name?: string) => { success: boolean; error?: string };
+  onAddMember: (data: { name: string; email: string; password: string; role: TeamRole }) => Promise<{ success: boolean; error?: string }>;
   remainingSeats: number;
 }
 
-export function InviteMemberModal({ isOpen, onClose, onInvite, remainingSeats }: InviteMemberModalProps) {
+export function InviteMemberModal({ isOpen, onClose, onAddMember, remainingSeats }: InviteMemberModalProps) {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
+  const [password, setPassword] = useState('');
   const [role, setRole] = useState<TeamRole>('editor');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -37,37 +38,48 @@ export function InviteMemberModal({ isOpen, onClose, onInvite, remainingSeats }:
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    setIsSubmitting(true);
 
+    if (!name.trim()) {
+      setError('Name is required');
+      return;
+    }
     if (!email.trim()) {
       setError('Email is required');
-      setIsSubmitting(false);
       return;
     }
-
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setError('Please enter a valid email address');
-      setIsSubmitting(false);
+      return;
+    }
+    if (!password.trim() || password.length < 6) {
+      setError('Password must be at least 6 characters');
       return;
     }
 
-    const result = onInvite(email.trim(), role, name.trim() || undefined);
-    
+    setIsSubmitting(true);
+    const result = await onAddMember({
+      name: name.trim(),
+      email: email.trim(),
+      password,
+      role,
+    });
+
     if (result.success) {
       setEmail('');
       setName('');
+      setPassword('');
       setRole('editor');
       onClose();
     } else {
-      setError(result.error || 'Failed to invite member');
+      setError(result.error || 'Failed to add member');
     }
-    
     setIsSubmitting(false);
   };
 
   const handleClose = () => {
     setEmail('');
     setName('');
+    setPassword('');
     setRole('editor');
     setError('');
     onClose();
@@ -79,17 +91,28 @@ export function InviteMemberModal({ isOpen, onClose, onInvite, remainingSeats }:
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <UserPlus className="h-5 w-5 text-primary" />
-            Invite Team Member
+            Add Team Member
           </DialogTitle>
           <DialogDescription>
-            {remainingSeats > 0 
-              ? `You have ${remainingSeats} seat${remainingSeats > 1 ? 's' : ''} remaining.`
-              : 'You have reached your team member limit.'
-            }
+            {remainingSeats > 0
+              ? `Create an account for a new team member. ${remainingSeats} seat${remainingSeats > 1 ? 's' : ''} remaining.`
+              : 'You have reached your team member limit.'}
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="name">Full Name *</Label>
+            <Input
+              id="name"
+              type="text"
+              placeholder="John Doe"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              disabled={remainingSeats === 0}
+            />
+          </div>
+
           <div className="space-y-2">
             <Label htmlFor="email">Email Address *</Label>
             <Input
@@ -103,13 +126,13 @@ export function InviteMemberModal({ isOpen, onClose, onInvite, remainingSeats }:
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="name">Name (optional)</Label>
+            <Label htmlFor="password">Password *</Label>
             <Input
-              id="name"
-              type="text"
-              placeholder="John Doe"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              id="password"
+              type="password"
+              placeholder="Min. 6 characters"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               disabled={remainingSeats === 0}
             />
           </div>
@@ -160,11 +183,11 @@ export function InviteMemberModal({ isOpen, onClose, onInvite, remainingSeats }:
             <Button type="button" variant="outline" onClick={handleClose}>
               Cancel
             </Button>
-            <Button 
-              type="submit" 
+            <Button
+              type="submit"
               disabled={isSubmitting || remainingSeats === 0}
             >
-              {isSubmitting ? 'Sending...' : 'Send Invitation'}
+              {isSubmitting ? 'Creating...' : 'Add Member'}
             </Button>
           </DialogFooter>
         </form>
