@@ -119,9 +119,40 @@
          };
          Relationships: [];
        };
-     };
-     Views: Record<string, never>;
-     Functions: Record<string, never>;
-     Enums: Record<string, never>;
+      };
+      team_members: {
+        Row: {
+          id: string;
+          owner_id: string;
+          member_user_id: string | null;
+          email: string;
+          name: string | null;
+          role: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          owner_id: string;
+          member_user_id?: string | null;
+          email: string;
+          name?: string | null;
+          role: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          owner_id?: string;
+          member_user_id?: string | null;
+          email?: string;
+          name?: string | null;
+          role?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+    };
+      Views: Record<string, never>;
+      Functions: Record<string, never>;
+      Enums: Record<string, never>;
    };
  }
