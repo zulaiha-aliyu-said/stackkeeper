@@ -41,6 +41,10 @@ export function useTeam() {
     mutationFn: async (vars: { name: string; email: string; password: string; role: TeamRole }) => {
       if (!user) throw new Error('Not authenticated');
 
+      // Save current session before creating new user
+      const { data: sessionData } = await supabase.auth.getSession();
+      const currentSession = sessionData.session;
+
       // Create Supabase auth account for the new member
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: vars.email,
@@ -49,6 +53,14 @@ export function useTeam() {
           data: { full_name: vars.name },
         },
       });
+
+      // Restore the original session immediately
+      if (currentSession) {
+        await supabase.auth.setSession({
+          access_token: currentSession.access_token,
+          refresh_token: currentSession.refresh_token,
+        });
+      }
 
       if (authError) throw authError;
       if (!authData.user) throw new Error('Failed to create user account');
