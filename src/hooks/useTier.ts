@@ -21,23 +21,33 @@ const FREE_LIMITS = {
 } as const;
 
 export function useTier() {
-  const { user } = useAuth();
+  const { user, isReady } = useAuth();
   const [tier, setTierState] = useState<UserTier | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    if (!isReady) return;
+
     const loadTier = async () => {
       if (user) {
-        const { data, error } = await (supabase
-          .from('profiles')
-          .select('tier')
-          .eq('id', user.id)
-          .single() as any);
+        try {
+          const { data, error } = await (supabase
+            .from('profiles')
+            .select('tier')
+            .eq('id', user.id)
+            .single() as any);
 
-        if (!error && data?.tier && VALID_TIERS.includes(data.tier)) {
-          setTierState(data.tier as UserTier);
-          localStorage.setItem(STORAGE_KEY, data.tier);
-        } else {
+          if (!error && data?.tier && VALID_TIERS.includes(data.tier)) {
+            setTierState(data.tier as UserTier);
+            localStorage.setItem(STORAGE_KEY, data.tier);
+          } else {
+            const saved = localStorage.getItem(STORAGE_KEY);
+            if (saved && VALID_TIERS.includes(saved)) {
+              setTierState(saved as UserTier);
+            }
+          }
+        } catch (err) {
+          console.error('Failed to load tier:', err);
           const saved = localStorage.getItem(STORAGE_KEY);
           if (saved && VALID_TIERS.includes(saved)) {
             setTierState(saved as UserTier);
@@ -52,7 +62,7 @@ export function useTier() {
       setIsLoading(false);
     };
     loadTier();
-  }, [user]);
+  }, [user, isReady]);
 
   const setTier = useCallback((newTier: UserTier) => {
     setTierState(newTier);

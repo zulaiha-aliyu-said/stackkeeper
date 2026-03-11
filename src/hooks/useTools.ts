@@ -8,7 +8,7 @@
  import type { Database } from '@/integrations/supabase/database.types';
 
 export function useTools() {
-   const { user, session } = useAuth();
+   const { user, session, isReady } = useAuth();
   const queryClient = useQueryClient();
 
   const { data: tools = [], isLoading } = useQuery({
@@ -24,10 +24,9 @@ export function useTools() {
  
        if (error) throw error;
  
-       // Transform database columns to camelCase for frontend
        return (data || []).map(transformToolFromDb);
     },
-     enabled: !!user && !!session,
+     enabled: isReady && !!user && !!session,
   });
 
   const addToolMutation = useMutation({
