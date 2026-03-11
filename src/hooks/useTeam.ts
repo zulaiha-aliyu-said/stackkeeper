@@ -11,6 +11,8 @@ export function useTeam() {
   const queryClient = useQueryClient();
   const { limits, tier } = useTier();
 
+  const { isReady } = useAuth();
+
   const { data: members = [], isLoading } = useQuery({
     queryKey: ['team', user?.id],
     queryFn: async (): Promise<TeamMember[]> => {
@@ -34,7 +36,7 @@ export function useTeam() {
         avatarUrl: undefined,
       }));
     },
-    enabled: !!user,
+    enabled: isReady && !!user,
   });
 
   const addMemberMutation = useMutation({
