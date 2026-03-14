@@ -18,7 +18,6 @@ serve(async (req) => {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    // Validate user auth
     const authHeader = req.headers.get("Authorization");
     if (!authHeader?.startsWith("Bearer ")) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
@@ -33,17 +32,15 @@ serve(async (req) => {
       { global: { headers: { Authorization: authHeader } } }
     );
 
-    const token = authHeader.replace("Bearer ", "");
-    const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
-    if (claimsError || !claimsData?.claims) {
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const userId = claimsData.claims.sub;
-
+    const userId = user.id;
     const { messages } = await req.json();
 
     // Fetch user's vault data for context
@@ -63,7 +60,7 @@ serve(async (req) => {
     const toolCount = tools?.length || 0;
     const totalSpend = tools?.reduce((sum: number, t: any) => sum + (Number(t.price) || 0), 0) || 0;
     const unusedTools = tools?.filter((t: any) => !t.last_used) || [];
-    const mostUsed = tools?.sort((a: any, b: any) => (b.times_used || 0) - (a.times_used || 0)).slice(0, 5) || [];
+    const mostUsed = [...(tools || [])].sort((a: any, b: any) => (b.times_used || 0) - (a.times_used || 0)).slice(0, 5);
 
     const vaultContext = `
 ## User's StackVault Data (live from database)
@@ -71,7 +68,7 @@ serve(async (req) => {
 **Overview:** ${toolCount} tools, $${totalSpend.toFixed(2)} total investment
 
 **All Tools:**
-${tools?.map((t: any) => `- ${t.name} (${t.category}, ${t.platform}) — $${t.price || 0}/${t.billing_cycle || 'one-time'}, used ${t.times_used || 0} times, last used: ${t.last_used ? new Date(t.last_used).toLocaleDateString() : 'never'}${t.tags?.length ? `, tags: ${t.tags.join(', ')}` : ''}`).join('\n') || 'No tools yet.'}
+${tools?.map((t: any) => `- ${t.name} (${t.category}, ${t.platform}) — $${t.price || 0}/${t.billing_cycle || 'one-time'}, used ${t.times_used || 0} times, last used: ${t.last_used ? new Date(t.last_used).toLocaleDateString() : 'never'}${t.tags?.length ? `, tags: ${t.tags.join(', ')}` : ''}`).join('\n') || 'No tools added yet.'}
 
 **Unused Tools (potential waste):** ${unusedTools.length > 0 ? unusedTools.map((t: any) => `${t.name} ($${t.price || 0})`).join(', ') : 'None — great job!'}
 
@@ -95,6 +92,7 @@ Rules:
 - Be specific — reference actual tool names, prices, and usage counts
 - Keep answers concise and actionable (use bullet points)
 - If asked about something not in their data, say so honestly
+- If the user has no tools yet, encourage them to add tools to their vault first
 - Format currency as USD
 - When suggesting actions, be direct: "Cancel X", "Use Y more", "Consider replacing A with B"
 
