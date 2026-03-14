@@ -18,6 +18,7 @@ import { useSocialSettings } from '@/hooks/useSocialSettings';
 import { useAuth } from '@/contexts/AuthContext';
 import { Tool } from '@/types/tool';
 import { toast } from 'sonner';
+import { VaultAssistant } from '@/components/VaultAssistant';
 
 interface LayoutProps {
   children: ReactNode;
@@ -266,6 +267,9 @@ export function Layout({ children }: LayoutProps) {
         totalInvestment={totalInvestment}
         stackScore={stackScore}
       />
+
+      {/* AI Vault Assistant */}
+      <VaultAssistant />
     </div>
   );
 }
