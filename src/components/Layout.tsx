@@ -267,6 +267,9 @@ export function Layout({ children }: LayoutProps) {
         totalInvestment={totalInvestment}
         stackScore={stackScore}
       />
+
+      {/* AI Vault Assistant */}
+      <VaultAssistant />
     </div>
   );
 }
