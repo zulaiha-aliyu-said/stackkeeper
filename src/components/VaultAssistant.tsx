@@ -105,7 +105,7 @@ export function VaultAssistant() {
       }
     } catch (e) {
       console.error('AI chat error:', e);
-      toast.error('Failed to get AI response');
+      toast.error(`Failed to get AI response: ${e instanceof Error ? e.message : 'Network error'}`);
     } finally {
       setIsLoading(false);
     }

@@ -105,17 +105,15 @@ ${vaultContext}`;
     // Convert messages to Gemini format
     const geminiContents = [];
 
-    // Add system instruction as the first user turn context
     geminiContents.push({
       role: "user",
       parts: [{ text: systemPrompt }],
     });
     geminiContents.push({
       role: "model",
-      parts: [{ text: "Understood. I'm the StackVault AI Assistant. I'll analyze your vault data and provide actionable insights. How can I help?" }],
+      parts: [{ text: "Understood. I'm the StackVault AI Assistant ready to help." }],
     });
 
-    // Add conversation messages
     for (const msg of messages) {
       geminiContents.push({
         role: msg.role === "user" ? "user" : "model",
@@ -154,7 +152,7 @@ ${vaultContext}`;
       );
     }
 
-    // Transform Gemini SSE stream to OpenAI-compatible SSE stream
+    // Transform Gemini SSE stream to OpenAI-compatible SSE format
     const { readable, writable } = new TransformStream();
     const writer = writable.getWriter();
     const encoder = new TextEncoder();
@@ -189,13 +187,13 @@ ${vaultContext}`;
                 await writer.write(encoder.encode(`data: ${chunk}\n\n`));
               }
             } catch {
-              // skip malformed JSON
+              // skip malformed chunks
             }
           }
         }
         await writer.write(encoder.encode("data: [DONE]\n\n"));
       } catch (e) {
-        console.error("Stream transform error:", e);
+        console.error("Stream error:", e);
       } finally {
         await writer.close();
       }
