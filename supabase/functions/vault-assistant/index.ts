@@ -15,7 +15,11 @@ serve(async (req) => {
   try {
     const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
     if (!GEMINI_API_KEY) {
-      throw new Error("GEMINI_API_KEY is not configured");
+      console.error("GEMINI_API_KEY is not configured");
+      return new Response(
+        JSON.stringify({ error: "AI service configuration error. GEMINI_API_KEY is missing." }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     const authHeader = req.headers.get("Authorization");
@@ -32,16 +36,15 @@ serve(async (req) => {
       { global: { headers: { Authorization: authHeader } } }
     );
 
-    const token = authHeader.replace("Bearer ", "");
-    const { data, error: claimsError } = await supabase.auth.getClaims(token);
-    if (claimsError || !data?.claims) {
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError || !user) {
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const userId = data.claims.sub;
+    const userId = user.id;
     const { messages } = await req.json();
 
     // Fetch user's vault data for context
@@ -101,7 +104,7 @@ ${vaultContext}`;
 
     // Convert messages to Gemini format
     const geminiContents = [];
-    
+
     // Add system instruction as the first user turn context
     geminiContents.push({
       role: "user",
@@ -138,7 +141,7 @@ ${vaultContext}`;
     if (!response.ok) {
       const errorText = await response.text();
       console.error("Gemini API error:", response.status, errorText);
-      
+
       if (response.status === 429) {
         return new Response(
           JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }),
@@ -146,7 +149,7 @@ ${vaultContext}`;
         );
       }
       return new Response(
-        JSON.stringify({ error: "AI service unavailable" }),
+        JSON.stringify({ error: `Gemini API error: ${response.status}` }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -180,7 +183,6 @@ ${vaultContext}`;
               const parsed = JSON.parse(jsonStr);
               const text = parsed.candidates?.[0]?.content?.parts?.[0]?.text;
               if (text) {
-                // Convert to OpenAI-compatible SSE format
                 const chunk = JSON.stringify({
                   choices: [{ delta: { content: text } }],
                 });
