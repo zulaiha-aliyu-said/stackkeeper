@@ -20,6 +20,7 @@ import { GoalsOverview } from '@/components/UsageGoalProgress';
 import { PortfolioAppraisal } from '@/components/PortfolioAppraisal';
 import { StackHealthDoctor } from '@/components/StackHealthDoctor';
 import { DemoModeBanner } from '@/components/DemoModeBanner';
+import { DashboardInsights } from '@/components/DashboardInsights';
 import { useTools } from '@/hooks/useTools';
 import { useInterfaceMode } from '@/hooks/useInterfaceMode';
 import { Tool } from '@/types/tool';
@@ -29,6 +30,7 @@ import { generateDemoTools, DEMO_TOOLS_COUNT } from '@/lib/demoData';
 export default function Dashboard() {
   const { 
     tools, 
+    isLoading,
     addTool, 
     updateTool,
     deleteTool,
@@ -109,6 +111,19 @@ export default function Dashboard() {
     setShowOnboarding(false);
     localStorage.setItem('stackvault_onboarding_done', 'true');
   };
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center py-24">
+          <div className="flex flex-col items-center gap-3">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+            <p className="text-muted-foreground text-sm">Loading your vault...</p>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   if (tools.length === 0) {
     return (
@@ -243,6 +258,9 @@ export default function Dashboard() {
             onViewTool={(tool) => setSelectedTool(tool)}
           />
         )}
+
+        {/* Insights Section */}
+        <DashboardInsights tools={tools} totalInvestment={totalInvestment} />
 
         {/* Two Column Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

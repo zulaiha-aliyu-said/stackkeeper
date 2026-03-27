@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Search, Plus, Filter, ArrowUpDown, Download, AlertTriangle, Tag, Mail, GitCompare, CheckSquare, Square } from 'lucide-react';
+import { Search, Plus, Filter, ArrowUpDown, Download, AlertTriangle, Tag, Mail, GitCompare, CheckSquare, Square, Upload } from 'lucide-react';
 import { Layout } from '@/components/Layout';
 import { ToolCard } from '@/components/ToolCard';
 import { EmptyState } from '@/components/EmptyState';
@@ -7,12 +7,13 @@ import { AddToolModal } from '@/components/AddToolModal';
 import { ToolDetailModal } from '@/components/ToolDetailModal';
 import { EmailImportModal } from '@/components/EmailImportModal';
 import { CompareToolsModal } from '@/components/CompareToolsModal';
+import { BulkImportModal } from '@/components/BulkImportModal';
 import { useTools } from '@/hooks/useTools';
 import { Tool, CATEGORIES, Category, SortOption, SORT_OPTIONS } from '@/types/tool';
 import { toast } from 'sonner';
 
 export default function Library() {
-  const { tools, addTool, updateTool, deleteTool, markAsUsed, logTimerUsage, sortTools, exportToCSV, getDuplicates, getAllTags } = useTools();
+  const { tools, isLoading, addTool, updateTool, deleteTool, markAsUsed, logTimerUsage, sortTools, exportToCSV, getDuplicates, getAllTags } = useTools();
   
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<Category | 'All'>('All');
@@ -23,6 +24,7 @@ export default function Library() {
   const [isCompareMode, setIsCompareMode] = useState(false);
   const [selectedForCompare, setSelectedForCompare] = useState<Tool[]>([]);
   const [isCompareModalOpen, setIsCompareModalOpen] = useState(false);
+  const [isBulkImportOpen, setIsBulkImportOpen] = useState(false);
   const [selectedTool, setSelectedTool] = useState<Tool | null>(null);
   const [editTool, setEditTool] = useState<Tool | null>(null);
 
@@ -46,6 +48,19 @@ export default function Library() {
     exportToCSV();
     toast.success('Tools exported to CSV');
   };
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center py-24">
+          <div className="flex flex-col items-center gap-3">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+            <p className="text-muted-foreground text-sm">Loading tools...</p>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
@@ -83,6 +98,14 @@ export default function Library() {
                 >
                   <GitCompare className="h-5 w-5" />
                   <span className="hidden sm:inline">Compare</span>
+                </button>
+                <button
+                  onClick={() => setIsBulkImportOpen(true)}
+                  className="btn-secondary flex items-center gap-2"
+                  title="Bulk Import (CSV)"
+                >
+                  <Upload className="h-5 w-5" />
+                  <span className="hidden sm:inline">Bulk Import</span>
                 </button>
                 <button
                   onClick={() => setIsImportModalOpen(true)}
@@ -285,6 +308,12 @@ export default function Library() {
         isOpen={isCompareModalOpen}
         onClose={() => { setIsCompareModalOpen(false); setIsCompareMode(false); setSelectedForCompare([]); }}
         tools={selectedForCompare}
+      />
+
+      <BulkImportModal
+        isOpen={isBulkImportOpen}
+        onClose={() => setIsBulkImportOpen(false)}
+        onImport={addTool}
       />
     </Layout>
   );
