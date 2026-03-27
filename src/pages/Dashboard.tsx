@@ -245,6 +245,9 @@ export default function Dashboard() {
           />
         )}
 
+        {/* Insights Section */}
+        <DashboardInsights tools={tools} totalInvestment={totalInvestment} />
+
         {/* Two Column Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Recently Added */}

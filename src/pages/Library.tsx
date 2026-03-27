@@ -296,6 +296,12 @@ export default function Library() {
         onClose={() => { setIsCompareModalOpen(false); setIsCompareMode(false); setSelectedForCompare([]); }}
         tools={selectedForCompare}
       />
+
+      <BulkImportModal
+        isOpen={isBulkImportOpen}
+        onClose={() => setIsBulkImportOpen(false)}
+        onImport={addTool}
+      />
     </Layout>
   );
 }
