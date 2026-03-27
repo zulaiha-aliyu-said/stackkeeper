@@ -30,6 +30,7 @@ import { generateDemoTools, DEMO_TOOLS_COUNT } from '@/lib/demoData';
 export default function Dashboard() {
   const { 
     tools, 
+    isLoading,
     addTool, 
     updateTool,
     deleteTool,
