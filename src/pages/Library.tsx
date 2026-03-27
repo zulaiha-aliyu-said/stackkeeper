@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Search, Plus, Filter, ArrowUpDown, Download, AlertTriangle, Tag, Mail, GitCompare, CheckSquare, Square } from 'lucide-react';
+import { Search, Plus, Filter, ArrowUpDown, Download, AlertTriangle, Tag, Mail, GitCompare, CheckSquare, Square, Upload } from 'lucide-react';
 import { Layout } from '@/components/Layout';
 import { ToolCard } from '@/components/ToolCard';
 import { EmptyState } from '@/components/EmptyState';
