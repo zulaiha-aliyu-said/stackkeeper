@@ -20,6 +20,7 @@ import { GoalsOverview } from '@/components/UsageGoalProgress';
 import { PortfolioAppraisal } from '@/components/PortfolioAppraisal';
 import { StackHealthDoctor } from '@/components/StackHealthDoctor';
 import { DemoModeBanner } from '@/components/DemoModeBanner';
+import { DashboardInsights } from '@/components/DashboardInsights';
 import { useTools } from '@/hooks/useTools';
 import { useInterfaceMode } from '@/hooks/useInterfaceMode';
 import { Tool } from '@/types/tool';
