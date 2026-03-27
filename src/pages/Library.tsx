@@ -87,6 +87,14 @@ export default function Library() {
                   <span className="hidden sm:inline">Compare</span>
                 </button>
                 <button
+                  onClick={() => setIsBulkImportOpen(true)}
+                  className="btn-secondary flex items-center gap-2"
+                  title="Bulk Import (CSV)"
+                >
+                  <Upload className="h-5 w-5" />
+                  <span className="hidden sm:inline">Bulk Import</span>
+                </button>
+                <button
                   onClick={() => setIsImportModalOpen(true)}
                   className="btn-secondary flex items-center gap-2"
                   title="Import from Email"
