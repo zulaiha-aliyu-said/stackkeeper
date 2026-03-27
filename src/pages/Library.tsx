@@ -7,6 +7,7 @@ import { AddToolModal } from '@/components/AddToolModal';
 import { ToolDetailModal } from '@/components/ToolDetailModal';
 import { EmailImportModal } from '@/components/EmailImportModal';
 import { CompareToolsModal } from '@/components/CompareToolsModal';
+import { BulkImportModal } from '@/components/BulkImportModal';
 import { useTools } from '@/hooks/useTools';
 import { Tool, CATEGORIES, Category, SortOption, SORT_OPTIONS } from '@/types/tool';
 import { toast } from 'sonner';
