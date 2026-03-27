@@ -24,6 +24,7 @@ export default function Library() {
   const [isCompareMode, setIsCompareMode] = useState(false);
   const [selectedForCompare, setSelectedForCompare] = useState<Tool[]>([]);
   const [isCompareModalOpen, setIsCompareModalOpen] = useState(false);
+  const [isBulkImportOpen, setIsBulkImportOpen] = useState(false);
   const [selectedTool, setSelectedTool] = useState<Tool | null>(null);
   const [editTool, setEditTool] = useState<Tool | null>(null);
 
