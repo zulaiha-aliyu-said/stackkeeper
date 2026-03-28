@@ -1,5 +1,22 @@
-# Welcome to your Lovable project
 
+# StackVault
+
+StackVault is a SaaS management platform designed to help users track, manage, and optimize their software tools and subscriptions.
+
+## 🚀 Features
+- Tool tracking and organization
+- Usage monitoring
+- AI-powered financial insights
+- Team collaboration
+
+## 🛠️ Development
+This project is fully developed and maintained by me. I built it using modern web technologies and continuously improve it based on user feedback.
+
+## 🌐 Live App
+(Add your live link here)
+
+## 📌 Status
+Actively under development and improving.
 ## Project info
 
 **URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
