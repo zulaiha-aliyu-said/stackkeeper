@@ -18,6 +18,7 @@ import BattleChallenge from "./pages/BattleChallenge";
 import Settings from "./pages/Settings";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
+import Contact from "./pages/Contact";
 import AuthPage from "./pages/Auth";
 
 const queryClient = new QueryClient({
@@ -70,6 +71,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Landing />} />
             <Route path="/pricing" element={<Pricing />} />
+            <Route path="/contact" element={<Contact />} />
             <Route path="/auth" element={<AuthPage />} />
 
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />

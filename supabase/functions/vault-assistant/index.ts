@@ -8,16 +8,18 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  console.log(`Vault Assistant request: ${req.method} ${new URL(req.url).pathname}`);
+
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
-    if (!GEMINI_API_KEY) {
-      console.error("GEMINI_API_KEY is not configured");
+    const GROQ_API_KEY = Deno.env.get("GROQ_API_KEY");
+    if (!GROQ_API_KEY) {
+      console.error("GROQ_API_KEY is not configured");
       return new Response(
-        JSON.stringify({ error: "AI service configuration error. GEMINI_API_KEY is missing." }),
+        JSON.stringify({ error: "AI service configuration error. GROQ_API_KEY is missing." }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -38,15 +40,15 @@ serve(async (req) => {
       { global: { headers: { Authorization: authHeader } } }
     );
 
-    const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
-    if (claimsError || !claimsData?.claims?.sub) {
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    if (authError || !user) {
       return new Response(JSON.stringify({ error: "Invalid authentication" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const userId = claimsData.claims.sub;
+    const userId = user.id;
     const { messages } = await req.json();
 
     // Fetch user's vault data for context
@@ -79,131 +81,98 @@ ${tools?.map((t: any) => `- ${t.name} (${t.category}, ${t.platform}) — $${t.pr
 **Unused Tools (potential waste):** ${unusedTools.length > 0 ? unusedTools.map((t: any) => `${t.name} ($${t.price || 0})`).join(', ') : 'None — great job!'}
 
 **Top 5 Most Used:** ${mostUsed.map((t: any) => `${t.name} (${t.times_used || 0} uses)`).join(', ') || 'N/A'}
+`;
 
-**Recent Activity (last 100 logs):** ${usageLogs?.length || 0} entries
+    const appKnowledge = `
+## App Knowledge Base (Step-by-Step Guides)
+
+### 🚀 Navigation & Stats
+- **Dashboard**: View high-level ROI and investment stats at [Dashboard](/dashboard).
+- **Tool Library**: Manage all your tools in one place at [Tool Library](/library).
+- **Analytics**: Deep dive into spending and usage charts at [Analytics](/analytics).
+- **Insights**: Historical trends and usage summaries at [Insights](/insights).
+- **Tool Network**: Visual graph of tool relationships at [Network](/network).
+
+### 🛠️ Common Tasks
+- **How to add a tool**:
+  1. Go to the [Tool Library](/library).
+  2. Click **Add Tool** (or press **⌘A**).
+  3. Enter name, category, and price, then click **Save**.
+- **How to bulk import**:
+  1. Go to the [Tool Library](/library).
+  2. Click **Bulk Import**.
+  3. Paste CSV data (Name, Category, Platform, Price) or upload a file.
+- **How to invite teammates**:
+  1. Go to [Settings](/settings).
+  2. Click the **Team** tab.
+  3. Enter an email address and click **Invite**.
+- **How to export data**:
+  1. Press **⌘E** anywhere in the app to download your vault as a CSV.
+
+### ⌨️ Main Shortcuts
+- **⌘K**: Search / Command Palette
+- **⌘A**: Add Tool
+- **⌘E**: Export CSV
+- **⌘S**: Share Stack
+- **⌘T**: Toggle Dark/Light Mode
+- **⌘/**: View all shortcuts
 `;
 
     const systemPrompt = `You are the StackVault AI Assistant — a smart, concise advisor for SaaS tool portfolio management.
 
-You have access to the user's live vault data below. Use it to answer questions about:
-- Underused or unused tools (waste detection)
-- ROI analysis and cost-per-use insights
-- Tool consolidation recommendations
-- Refund window alerts (60-day window from purchase)
-- Usage patterns and streak analysis
-- Category overlap and duplicate detection
-- Actionable suggestions to optimize their stack
+You have access to the user's live vault data and the application knowledge base below. 
 
-Rules:
-- Be specific — reference actual tool names, prices, and usage counts
-- Keep answers concise and actionable (use bullet points)
-- If asked about something not in their data, say so honestly
-- If the user has no tools yet, encourage them to add tools to their vault first
-- Format currency as USD
-- When suggesting actions, be direct: "Cancel X", "Use Y more", "Consider replacing A with B"
+${vaultContext}
 
-${vaultContext}`;
+${appKnowledge}
 
-    // Convert messages to Gemini format
-    const geminiContents = [];
+Rules for answering:
+1. When asked about app features, provide the **step-by-step guide** and the **direct link** from the Knowledge Base.
+2. For tool analysis, focus on:
+   - Underused or unused tools (waste detection)
+   - ROI analysis and cost-per-use insights
+   - Tool consolidation recommendations
+3. Be specific — reference actual tool names and prices from the user's data.
+4. Keep answers concise and actionable (use bullet points).
+5. If the user has no tools yet, encourage them to add tools to their vault first.
+6. Format currency as USD.
+7. Use the relative links provided (e.g., [Library](/library)) so they are clickable in the chat UI.`;
 
-    geminiContents.push({
-      role: "user",
-      parts: [{ text: systemPrompt }],
-    });
-    geminiContents.push({
-      role: "model",
-      parts: [{ text: "Understood. I'm the StackVault AI Assistant ready to help." }],
-    });
+    // Convert messages for Groq/OpenAI format
+    const groqMessages = [
+      { role: "system", content: systemPrompt },
+      ...messages
+    ];
 
-    for (const msg of messages) {
-      geminiContents.push({
-        role: msg.role === "user" ? "user" : "model",
-        parts: [{ text: msg.content }],
-      });
-    }
-
-    // Call Google Gemini API directly with streaming
-    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:streamGenerateContent?alt=sse&key=${GEMINI_API_KEY}`;
-
-    const response = await fetch(geminiUrl, {
+    // Call Groq API with streaming
+    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Authorization": `Bearer ${GROQ_API_KEY}`,
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({
-        contents: geminiContents,
-        generationConfig: {
-          temperature: 0.7,
-          maxOutputTokens: 2048,
-        },
+        model: "llama-3.3-70b-versatile",
+        messages: groqMessages,
+        stream: true,
+        temperature: 0.7,
+        max_tokens: 2048,
       }),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("Gemini API error:", response.status, errorText);
-
-      if (response.status === 429) {
-        return new Response(
-          JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }),
-          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
+      console.error("Groq API error:", response.status, errorText);
       return new Response(
-        JSON.stringify({ error: `Gemini API error: ${response.status}` }),
+        JSON.stringify({ error: `Groq API error: ${response.status}` }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Transform Gemini SSE stream to OpenAI-compatible SSE format
-    const { readable, writable } = new TransformStream();
-    const writer = writable.getWriter();
-    const encoder = new TextEncoder();
-
-    (async () => {
-      try {
-        const reader = response.body!.getReader();
-        const decoder = new TextDecoder();
-        let buffer = "";
-
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          buffer += decoder.decode(value, { stream: true });
-
-          let idx: number;
-          while ((idx = buffer.indexOf("\n")) !== -1) {
-            let line = buffer.slice(0, idx);
-            buffer = buffer.slice(idx + 1);
-            if (line.endsWith("\r")) line = line.slice(0, -1);
-            if (!line.startsWith("data: ")) continue;
-            const jsonStr = line.slice(6).trim();
-            if (!jsonStr || jsonStr === "[DONE]") continue;
-
-            try {
-              const parsed = JSON.parse(jsonStr);
-              const text = parsed.candidates?.[0]?.content?.parts?.[0]?.text;
-              if (text) {
-                const chunk = JSON.stringify({
-                  choices: [{ delta: { content: text } }],
-                });
-                await writer.write(encoder.encode(`data: ${chunk}\n\n`));
-              }
-            } catch {
-              // skip malformed chunks
-            }
-          }
-        }
-        await writer.write(encoder.encode("data: [DONE]\n\n"));
-      } catch (e) {
-        console.error("Stream error:", e);
-      } finally {
-        await writer.close();
-      }
-    })();
-
-    return new Response(readable, {
+    return new Response(response.body, {
       headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
     });
+
   } catch (e) {
     console.error("vault-assistant error:", e);
     return new Response(

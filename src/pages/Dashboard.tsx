@@ -21,6 +21,7 @@ import { PortfolioAppraisal } from '@/components/PortfolioAppraisal';
 import { StackHealthDoctor } from '@/components/StackHealthDoctor';
 import { DemoModeBanner } from '@/components/DemoModeBanner';
 import { DashboardInsights } from '@/components/DashboardInsights';
+import { AIInsightsCard } from '@/components/AIInsightsCard';
 import { useTools } from '@/hooks/useTools';
 import { useInterfaceMode } from '@/hooks/useInterfaceMode';
 import { Tool } from '@/types/tool';
@@ -193,6 +194,9 @@ export default function Dashboard() {
             </button>
           </div>
         </div>
+
+        {/* AI Insights */}
+        <AIInsightsCard />
 
         {/* Metrics Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

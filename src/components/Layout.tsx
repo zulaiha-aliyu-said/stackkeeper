@@ -1,6 +1,6 @@
 import { ReactNode, useState, useCallback, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Library, BarChart3, Vault, Command, Chrome, Clock, Network, Swords, Settings, CreditCard, LogOut, Menu, X } from 'lucide-react';
+import { LayoutDashboard, Library, BarChart3, Vault, Command, Chrome, Clock, Network, Swords, Settings, CreditCard, LogOut, Menu, X, Mail } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { CommandPalette } from '@/components/CommandPalette';
 import { KeyboardShortcutsModal } from '@/components/KeyboardShortcutsModal';
@@ -8,6 +8,7 @@ import { AddToolModal } from '@/components/AddToolModal';
 import { ToolDetailModal } from '@/components/ToolDetailModal';
 import { ShareStackModal } from '@/components/ShareStackModal';
 import { ModeSwitcher } from '@/components/ModeSwitcher';
+import { VaultAssistant } from '@/components/VaultAssistant';
 import { useTools } from '@/hooks/useTools';
 import { useTheme } from '@/hooks/useTheme';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
@@ -70,6 +71,7 @@ export function Layout({ children }: LayoutProps) {
     { path: '/extension', label: 'Extension', icon: Chrome, mode: 'power' as const },
     { path: '/pricing', label: 'Pricing', icon: CreditCard, mode: 'all' as const },
     { path: '/settings', label: 'Settings', icon: Settings, mode: 'all' as const },
+    { path: '/contact', label: 'Contact', icon: Mail, mode: 'all' as const },
   ];
 
   // Filter nav links based on mode and social settings
@@ -266,6 +268,8 @@ export function Layout({ children }: LayoutProps) {
         totalInvestment={totalInvestment}
         stackScore={stackScore}
       />
+
+      <VaultAssistant />
     </div>
   );
 }

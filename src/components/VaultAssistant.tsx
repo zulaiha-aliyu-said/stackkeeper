@@ -9,7 +9,8 @@ import ReactMarkdown from 'react-markdown';
 
 type Message = { role: 'user' | 'assistant'; content: string };
 
-const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/vault-assistant`;
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://wfbrmywecdrtidcbnxoe.supabase.co';
+const CHAT_URL = `${SUPABASE_URL}/functions/v1/vault-assistant`;
 
 const QUICK_PROMPTS = [
   '🔍 Which tools am I not using?',
@@ -21,7 +22,9 @@ const QUICK_PROMPTS = [
 export function VaultAssistant() {
   const { session } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<Message[]>([
+    { role: 'assistant', content: "Hi! I'm your StackVault AI Assistant. I have live access to your vault data. Ask me about underused tools, cost optimization, or ROI analysis!" }
+  ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -45,11 +48,21 @@ export function VaultAssistant() {
     let assistantContent = '';
 
     try {
+      const ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
+      const accessToken = session?.access_token;
+      
+      if (!accessToken) {
+        toast.error("You must be logged in to use the AI Assistant");
+        setIsLoading(false);
+        return;
+      }
+
       const resp = await fetch(CHAT_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${session.access_token}`,
+          'Authorization': `Bearer ${accessToken}`,
+          'apikey': ANON_KEY || '',
         },
         body: JSON.stringify({ messages: allMessages }),
       });
@@ -104,7 +117,12 @@ export function VaultAssistant() {
         }
       }
     } catch (e) {
-      console.error('AI chat error:', e);
+      console.error('AI chat connection error:', {
+        url: CHAT_URL,
+        error: e,
+        message: e instanceof Error ? e.message : 'Unknown error',
+        stack: e instanceof Error ? e.stack : undefined
+      });
       toast.error(`Failed to get AI response: ${e instanceof Error ? e.message : 'Network error'}`);
     } finally {
       setIsLoading(false);
@@ -188,11 +206,10 @@ export function VaultAssistant() {
               messages.map((msg, i) => (
                 <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                   <div
-                    className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm ${
-                      msg.role === 'user'
+                    className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm ${msg.role === 'user'
                         ? 'bg-primary text-primary-foreground rounded-br-md'
                         : 'bg-secondary text-secondary-foreground rounded-bl-md'
-                    }`}
+                      }`}
                   >
                     {msg.role === 'assistant' ? (
                       <div className="prose prose-sm dark:prose-invert max-w-none [&>*:first-child]:mt-0 [&>*:last-child]:mb-0">

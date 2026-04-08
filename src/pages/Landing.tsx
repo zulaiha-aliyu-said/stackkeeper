@@ -258,6 +258,7 @@ export default function Landing() {
             <a href="#features" className="text-muted-foreground hover:text-foreground transition-colors">Features</a>
             <a href="#extension" className="text-muted-foreground hover:text-foreground transition-colors">Extension</a>
             <Link to="/pricing" className="text-muted-foreground hover:text-foreground transition-colors">Pricing</Link>
+            <Link to="/contact" className="text-muted-foreground hover:text-foreground transition-colors">Contact</Link>
             <a href="#testimonials" className="text-muted-foreground hover:text-foreground transition-colors">Testimonials</a>
             <a href="#faq" className="text-muted-foreground hover:text-foreground transition-colors">FAQ</a>
           </div>
@@ -941,6 +942,7 @@ export default function Landing() {
               <Link to="/dashboard" className="hover:text-foreground transition-colors">Dashboard</Link>
               <Link to="/library" className="hover:text-foreground transition-colors">Library</Link>
               <Link to="/pricing" className="hover:text-foreground transition-colors">Pricing</Link>
+              <Link to="/contact" className="hover:text-foreground transition-colors">Contact</Link>
               <Link to="/analytics" className="hover:text-foreground transition-colors">Analytics</Link>
               <Link to="/extension" className="hover:text-foreground transition-colors">Extension</Link>
             </div>
