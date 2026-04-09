@@ -137,64 +137,6 @@ export default function Contact() {
               </p>
             </div>
 
-            <div className="grid sm:grid-cols-2 gap-8">
-              <div className="space-y-4">
-                <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                  <Mail className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-lg">Email us</h3>
-                  <p className="text-muted-foreground text-sm">Our friendly team is here to help.</p>
-                  <a href="mailto:support@stackvault.io" className="text-primary hover:underline text-sm font-medium mt-1 inline-block">
-                    support@stackvault.io
-                  </a>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div className="h-10 w-10 rounded-xl bg-success/10 flex items-center justify-center">
-                  <MessageSquare className="h-5 w-5 text-success" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-lg">Live Chat</h3>
-                  <p className="text-muted-foreground text-sm">Available Monday to Friday, 9am-5pm.</p>
-                  <button className="text-success hover:underline text-sm font-medium mt-1 inline-block">
-                    Start a conversation
-                  </button>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div className="h-10 w-10 rounded-xl bg-info/10 flex items-center justify-center">
-                  <Phone className="h-5 w-5 text-info" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-lg">Call us</h3>
-                  <p className="text-muted-foreground text-sm">Mon-Fri from 8am to 5pm.</p>
-                  <a href="tel:+1555000000" className="text-info hover:underline text-sm font-medium mt-1 inline-block">
-                    +1 (555) 000-0000
-                  </a>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div className="h-10 w-10 rounded-xl bg-warning/10 flex items-center justify-center">
-                  <Twitter className="h-5 w-5 text-warning" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-lg">Social</h3>
-                  <p className="text-muted-foreground text-sm">Follow us for updates and tips.</p>
-                  <div className="flex items-center gap-3 mt-2">
-                    <a href="#" className="h-8 w-8 rounded-full bg-secondary flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-all">
-                      <Twitter className="h-4 w-4" />
-                    </a>
-                    <a href="#" className="h-8 w-8 rounded-full bg-secondary flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-all">
-                      <Github className="h-4 w-4" />
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
 
           {/* Right Side: Form */}
