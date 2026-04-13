@@ -148,6 +148,28 @@ ${tools?.map((t: any) => `- ${t.name} (${t.category}, ${t.platform}) — $${t.pr
   - "What if I buy a new tool at $Y?" → shows projected impact on budget.
   - "What if I consolidate 3 tools into 1?" → shows potential savings.
 - Helps users make data-driven decisions about their stack.
+
+### 🔥 Usage Streaks
+- Each tool tracks **currentStreak** (consecutive days used) and **longestStreak** (all-time best).
+- Streaks reset if a tool isn't used for a day.
+- Streaks encourage consistent engagement and help identify which tools users truly rely on.
+- A streak badge appears on tools with active streaks.
+
+### 🏆 Stack Score™
+- A health percentage for the user's entire tool collection.
+- **Formula**: (Tools with at least one use / Total tools) × 100.
+- Ratings: 🏆 70%+ excellent, ✅ 50-69% good, ⚠️ 30-49% needs attention, 🚨 <30% critical.
+- Updates in real-time when a tool is marked as used.
+- Displayed on the Dashboard and Analytics page.
+- To improve Stack Score: use unused tools or remove tools you'll never use.
+
+### 🎖️ Achievement Badges
+- Gamification system that rewards good tool management habits.
+- **Collection badges**: Getting Started (1 tool), Collector (10), Whale (25), Kraken (50).
+- **Efficiency badges**: Optimizer (high Stack Score), Curator (organized tags), Active User (daily usage), Minimalist (lean stack).
+- **Savings badges**: Deal Hunter (great deals), Refund Master (timely refunds), Steals (tools under $20).
+- **Streak badges**: On Fire (7-day streak), Consistent (30-day), Marathon (90-day).
+- Badges unlock with toast notifications and are viewable in the achievements panel.
 `;
 
     const systemPrompt = `You are the StackVault AI Assistant — a smart, concise advisor for SaaS tool portfolio management.
