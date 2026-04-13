@@ -170,6 +170,24 @@ ${tools?.map((t: any) => `- ${t.name} (${t.category}, ${t.platform}) — $${t.pr
 - **Savings badges**: Deal Hunter (great deals), Refund Master (timely refunds), Steals (tools under $20).
 - **Streak badges**: On Fire (7-day streak), Consistent (30-day), Marathon (90-day).
 - Badges unlock with toast notifications and are viewable in the achievements panel.
+
+### 💰 ROI Calculator
+- **Cost-per-use**: Tool price ÷ times used. Lower is better.
+- **ROI Status Badges**: 🏆 Excellent (<$1/use), ✅ Good ($1-5/use), ⚠️ Fair ($5-10/use), 🚨 Poor (>$10/use or never used).
+- **Metrics shown**: Cost-per-use, days owned, average monthly uses, ROI status.
+- **Visible in 3 places**: Tool Detail modal (detailed), Tool cards (small badge), ROI Leaderboard on Analytics (best & worst ROI tools).
+- To improve ROI: use tools more frequently or refund tools with poor ROI.
+
+### 🔄 Tool Comparison
+- Select 2-3 tools from the [Library](/library) for side-by-side comparison.
+- Opens a full-screen modal comparing: price, purchase date, times used, last used, cost-per-use, days owned, category, platform, and ROI status.
+- Includes an AI recommendation (e.g., "Keep this tool, refund others" or "Compare features to decide").
+- Quick action buttons allow direct consolidation decisions.
+
+### 📦 Portfolio Appraisal
+- Calculates estimated **Resale Value** and **Market Value** (annual subscription equivalent) of the entire tool collection.
+- Helps users understand the total financial impact of their stack.
+- Identifies potential recovered value from selling unused tools.
 `;
 
     const systemPrompt = `You are the StackVault AI Assistant — a smart, concise advisor for SaaS tool portfolio management.
