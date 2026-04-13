@@ -129,6 +129,25 @@ ${tools?.map((t: any) => `- ${t.name} (${t.category}, ${t.platform}) — $${t.pr
 - **⌘S**: Share Stack
 - **⌘T**: Toggle Dark/Light Mode
 - **⌘/**: View all shortcuts
+
+### 📅 Weekly Usage Summary (Dashboard)
+- Displayed on the Dashboard showing this week's engagement stats.
+- **Total Sessions**: Number of tool usage sessions recorded this week.
+- **Week-over-Week Comparison**: Shows if sessions increased or decreased compared to last week (e.g., "+3 vs last week").
+- **Most Used Tool This Week**: The tool with the highest session count in the current week.
+- **Active Days**: How many days this week the user logged at least one session.
+- **Not Used This Week**: Lists tools that had zero sessions during the current week — a nudge to re-engage with neglected tools.
+
+### ⏳ Time Machine (Insights Page)
+- Located on the [Insights](/insights) page.
+- **Interactive Timeline Slider**: Drag to travel back in time and see how the stack looked at any past date.
+- **Stack Growth Visualization**: Shows how the number of tools and total spending evolved over time.
+- **Spending Over Time**: Charts cumulative investment growth from the first tool purchase to today.
+- **What-If Calculator**: Also on Insights — lets users simulate scenarios:
+  - "What if I refund Tool X?" → shows updated spend and Stack Score.
+  - "What if I buy a new tool at $Y?" → shows projected impact on budget.
+  - "What if I consolidate 3 tools into 1?" → shows potential savings.
+- Helps users make data-driven decisions about their stack.
 `;
 
     const systemPrompt = `You are the StackVault AI Assistant — a smart, concise advisor for SaaS tool portfolio management.
