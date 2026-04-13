@@ -188,6 +188,26 @@ ${tools?.map((t: any) => `- ${t.name} (${t.category}, ${t.platform}) — $${t.pr
 - Calculates estimated **Resale Value** and **Market Value** (annual subscription equivalent) of the entire tool collection.
 - Helps users understand the total financial impact of their stack.
 - Identifies potential recovered value from selling unused tools.
+
+### ⚔️ Stack Battles (Agency Tier)
+- Compare your stack efficiency against other users via challenge codes.
+- Go to [Battles](/battles) to create or join a battle.
+- Metrics compared: total tools, Stack Score, average ROI, total spend, and usage consistency.
+- Great for teams or communities to benchmark their tool management.
+- Agency-tier feature — available to Agency plan users.
+
+### 🕸️ Tool Relationship Network
+- Interactive visualization at [Network](/network) mapping connections between tools.
+- Tools are grouped into workflow clusters (e.g., Marketing, Design, Productivity).
+- Lines connect tools that belong to the same workflow or category.
+- **Orphan tools** are highlighted — these are disconnected from any active workflow, suggesting they may be redundant.
+- Helps users visualize their ecosystem and spot optimization opportunities.
+
+### 🌐 Public Stack Profiles (Agency Tier)
+- Share your tool collection publicly at a customizable URL.
+- Includes a "Steal My Stack" button so others can copy your setup.
+- Privacy settings allow toggling visibility of prices, usage data, and specific tools.
+- Configurable in [Settings](/settings).
 `;
 
     const systemPrompt = `You are the StackVault AI Assistant — a smart, concise advisor for SaaS tool portfolio management.
