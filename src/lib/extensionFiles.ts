@@ -21,7 +21,7 @@ export const extensionFiles = {
   },
   "content_scripts": [
     {
-      "matches": ["*://*.appsumo.com/*", "*://*.dealify.com/*", "*://*.stacksocial.com/*", "*://*.pitchground.com/*", "*://*.dealfuel.com/*"],
+      "matches": ["*://*.appsumo.com/*", "*://*.dealify.com/*", "*://*.stacksocial.com/*", "*://*.dealmirror.com/*", "*://*.dealfuel.com/*"],
       "js": ["content-deal-sites.js"],
       "run_at": "document_idle"
     }

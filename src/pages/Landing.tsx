@@ -212,7 +212,7 @@ export default function Landing() {
   const faqs = [
     {
       question: "What is a lifetime deal (LTD)?",
-      answer: "A lifetime deal is a one-time payment for software that would normally require monthly or annual subscriptions. Platforms like LTD sites, PitchGround, and others offer these deals, letting you pay once and use the tool forever."
+      answer: "A lifetime deal is a one-time payment for software that would normally require monthly or annual subscriptions. Platforms like LTD sites, DealMirror, and others offer these deals, letting you pay once and use the tool forever."
     },
     {
       question: "How does Stack Score work?",
@@ -497,7 +497,7 @@ export default function Landing() {
                   <div className="text-center py-8">
                     <div className="h-16 w-16 border-4 border-primary/30 border-t-primary rounded-full animate-spin mx-auto mb-4" />
                     <p className="text-lg font-medium">Scanning your typical LTD collector profile...</p>
-                    <p className="text-muted-foreground text-sm mt-2">Checking LTD sites, PitchGround, DealFuel...</p>
+                    <p className="text-muted-foreground text-sm mt-2">Checking LTD sites, DealMirror, DealFuel...</p>
                   </div>
                 )}
               </CardContent>
