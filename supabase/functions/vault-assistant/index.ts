@@ -93,6 +93,19 @@ ${tools?.map((t: any) => `- ${t.name} (${t.category}, ${t.platform}) — $${t.pr
 - **Insights**: Historical trends and usage summaries at [Insights](/insights).
 - **Tool Network**: Visual graph of tool relationships at [Network](/network).
 
+### 📊 Dashboard Sections
+- **Recently Added**: Shows the 5 most recently added tools with name, category, price, and date added. Helps users track their latest acquisitions.
+- **Quick Insights**: A summary panel showing key metrics — total tools count, active vs unused tools, wasted spend on unused tools, and top spending categories. Gives an instant health check of the stack.
+- **Tool Graveyard**: Lists tools that have never been used (timesUsed = 0 or lastUsed = null). These represent wasted investment. Users should consider using or removing these tools.
+- **Most Used Tools**: Ranks tools by usage count (timesUsed) in descending order. Shows the top 5 most engaged tools with usage counts. Helps identify the most valuable tools in the stack.
+- **Refund Alerts**: Warns about tools with refund windows closing soon. Refund window is 60 days from purchase date. Alerts appear when ≤10 days remain. Sorted by urgency (soonest deadline first). If no alerts, shows "All clear!"
+
+### 📈 Analytics Page
+- **Spend Breakdown**: Shows total investment, active tools value, and unused tools value with progress bars.
+- **Tools by Category**: Displays count and spend per category (Marketing, Design, Productivity, AI, Dev Tools, Analytics, Email, Video, Other).
+- **Stack Score™**: A health percentage for the stack. 🏆 70%+ excellent, ✅ 50-69% good, ⚠️ 30-49% needs attention, 🚨 <30% critical. Based on tools used, never opened, and average price.
+- **Platform Distribution**: Count of tools from each platform (AppSumo, DealMirror, DealFuel, StackSocial, LTD, Other).
+
 ### 🛠️ Common Tasks
 - **How to add a tool**:
   1. Go to the [Tool Library](/library).
