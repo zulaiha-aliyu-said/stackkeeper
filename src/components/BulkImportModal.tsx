@@ -37,7 +37,7 @@ function matchPlatform(raw: string): Platform | null {
   const idx = VALID_PLATFORMS.indexOf(lower);
   if (idx >= 0) return PLATFORMS[idx];
   if (lower.includes('appsumo') || lower.includes('ltd')) return 'LTD';
-  if (lower.includes('pitch')) return 'PitchGround';
+  if (lower.includes('dealmirror') || lower.includes('mirror')) return 'DealMirror';
   if (lower.includes('deal')) return 'DealFuel';
   if (lower.includes('stack')) return 'StackSocial';
   return null;
@@ -123,7 +123,7 @@ function parseCSV(text: string): ParsedTool[] {
 const SAMPLE_CSV = `Name,Category,Platform,Price,Purchase Date,Notes
 Writesonic,AI,LTD,59,2024-01-15,Content writing tool
 Canva Pro,Design,Other,99,2024-03-01,
-SEMrush,Marketing,PitchGround,149,2024-02-20,SEO tool`;
+SEMrush,Marketing,DealMirror,149,2024-02-20,SEO tool`;
 
 export function BulkImportModal({ isOpen, onClose, onImport }: BulkImportModalProps) {
   const [mode, setMode] = useState<'paste' | 'file'>('paste');

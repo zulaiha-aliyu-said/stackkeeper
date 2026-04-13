@@ -24,7 +24,7 @@ const STEPS = [
     subtitle: 'Build your vault',
     description:
       'Add tools manually, import from email receipts, or load our demo to explore. Each tool tracks price, platform, usage, and more.',
-    highlight: 'Supports LTD, PitchGround, DealFuel & more.',
+    highlight: 'Supports LTD, DealMirror, DealFuel & more.',
   },
   {
     icon: Zap,

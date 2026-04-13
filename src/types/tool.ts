@@ -55,7 +55,7 @@ export type Category =
 
 export type Platform = 
   | 'LTD'
-  | 'PitchGround'
+  | 'DealMirror'
   | 'DealFuel'
   | 'StackSocial'
   | 'Other';
@@ -74,7 +74,7 @@ export const CATEGORIES: Category[] = [
 
 export const PLATFORMS: Platform[] = [
   'LTD',
-  'PitchGround',
+  'DealMirror',
   'DealFuel',
   'StackSocial',
   'Other'
