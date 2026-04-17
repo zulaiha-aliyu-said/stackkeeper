@@ -10,8 +10,9 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
-import { Shield, Copy, Plus, Filter, Loader2, ShieldAlert, Download, CheckCircle2, X } from 'lucide-react';
+import { Shield, Copy, Plus, Filter, Loader2, ShieldAlert, Download, CheckCircle2, X, FileSpreadsheet } from 'lucide-react';
 import { toast } from 'sonner';
+import * as XLSX from 'xlsx';
 import type { UserTier } from '@/types/team';
 
 interface RedemptionCode {
