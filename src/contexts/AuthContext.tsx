@@ -138,6 +138,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (data.user && !data.session) {
             toast.success('Check your email to confirm your account!');
         } else {
+            if (data.session) {
+                setSession(data.session);
+                setUser(data.session.user);
+                fetchProfile(data.session.user.id).then(setProfile);
+            }
             toast.success('Account created!');
             navigate('/dashboard');
         }
