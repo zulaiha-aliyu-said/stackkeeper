@@ -340,6 +340,21 @@ export default function Admin() {
                   <Download className="h-4 w-4" />
                   Download .csv
                 </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    const ts = new Date().toISOString().slice(0, 10);
+                    downloadExcel(
+                      lastGenerated.map(code => ({ Code: code, Tier: selectedTier })),
+                      `codes-batch-${ts}.xlsx`
+                    );
+                  }}
+                  className="gap-2"
+                >
+                  <FileSpreadsheet className="h-4 w-4" />
+                  Download .xlsx
+                </Button>
               </div>
             </CardContent>
           </Card>
