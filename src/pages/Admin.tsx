@@ -405,6 +405,10 @@ export default function Admin() {
                   <Download className="h-4 w-4" />
                   .csv
                 </Button>
+                <Button variant="outline" size="sm" onClick={downloadVisibleExcel} className="gap-2">
+                  <FileSpreadsheet className="h-4 w-4" />
+                  .xlsx
+                </Button>
               </div>
             </div>
           </CardHeader>
