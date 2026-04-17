@@ -253,6 +253,73 @@ export default function Admin() {
           </CardContent>
         </Card>
 
+        {/* Last Generated Batch */}
+        {lastGenerated.length > 0 && (
+          <Card className="border-primary/40 bg-primary/5">
+            <CardHeader>
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-primary" />
+                    Last Generated Batch ({lastGenerated.length})
+                  </CardTitle>
+                  <CardDescription>Copy or download the codes you just created</CardDescription>
+                </div>
+                <Button variant="ghost" size="icon" onClick={() => setLastGenerated([])}>
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Textarea
+                readOnly
+                value={lastGenerated.join('\n')}
+                className="font-mono text-sm h-auto min-h-[80px]"
+                rows={Math.min(lastGenerated.length, 8)}
+                onFocus={(e) => e.currentTarget.select()}
+              />
+              <div className="flex flex-wrap gap-2">
+                <Button size="sm" onClick={() => copyCodes(lastGenerated, 'codes')} className="gap-2">
+                  <Copy className="h-4 w-4" />
+                  Copy All
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    const ts = new Date().toISOString().slice(0, 10);
+                    downloadCodes(
+                      lastGenerated.map(code => ({ code, tier: selectedTier })),
+                      `codes-batch-${ts}.txt`,
+                      'txt'
+                    );
+                  }}
+                  className="gap-2"
+                >
+                  <Download className="h-4 w-4" />
+                  Download .txt
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    const ts = new Date().toISOString().slice(0, 10);
+                    downloadCodes(
+                      lastGenerated.map(code => ({ code, tier: selectedTier })),
+                      `codes-batch-${ts}.csv`,
+                      'csv'
+                    );
+                  }}
+                  className="gap-2"
+                >
+                  <Download className="h-4 w-4" />
+                  Download .csv
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Codes Table */}
         <Card>
           <CardHeader>
