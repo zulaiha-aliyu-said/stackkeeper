@@ -357,6 +357,14 @@ export default function Admin() {
                   <Copy className="h-4 w-4" />
                   Copy All
                 </Button>
+                <Button variant="outline" size="sm" onClick={() => downloadVisible('txt')} className="gap-2">
+                  <Download className="h-4 w-4" />
+                  .txt
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => downloadVisible('csv')} className="gap-2">
+                  <Download className="h-4 w-4" />
+                  .csv
+                </Button>
               </div>
             </div>
           </CardHeader>
