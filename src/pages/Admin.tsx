@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
-import { Shield, Copy, Plus, Filter, Loader2, ShieldAlert } from 'lucide-react';
+import { Shield, Copy, Plus, Filter, Loader2, ShieldAlert, Download, CheckCircle2, X } from 'lucide-react';
 import { toast } from 'sonner';
 import type { UserTier } from '@/types/team';
 
@@ -54,6 +54,9 @@ export default function Admin() {
   // Filter
   const [filterTier, setFilterTier] = useState<string>('all');
   const [filterStatus, setFilterStatus] = useState<string>('all');
+
+  // Last generated batch
+  const [lastGenerated, setLastGenerated] = useState<string[]>([]);
 
   // Check admin role
   useEffect(() => {
@@ -112,6 +115,7 @@ export default function Admin() {
       toast.error('Failed to generate codes: ' + error.message);
     } else {
       toast.success(`Generated ${quantity} ${selectedTier} code(s)`);
+      setLastGenerated(newCodes.map(c => c.code));
       setNotes('');
       fetchCodes();
     }
@@ -123,10 +127,37 @@ export default function Admin() {
     toast.success('Code copied to clipboard');
   };
 
+  const copyCodes = (list: string[], label: string) => {
+    navigator.clipboard.writeText(list.join('\n'));
+    toast.success(`Copied ${list.length} ${label}`);
+  };
+
+  const downloadCodes = (list: { code: string; tier: string }[], filename: string, format: 'txt' | 'csv') => {
+    let content = '';
+    let mime = 'text/plain';
+    if (format === 'csv') {
+      content = 'code,tier\n' + list.map(c => `${c.code},${c.tier}`).join('\n');
+      mime = 'text/csv';
+    } else {
+      content = list.map(c => c.code).join('\n');
+    }
+    const blob = new Blob([content], { type: mime });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success(`Downloaded ${list.length} codes`);
+  };
+
   const copyAllVisible = () => {
-    const visible = filteredCodes.map(c => c.code).join('\n');
-    navigator.clipboard.writeText(visible);
-    toast.success(`Copied ${filteredCodes.length} codes`);
+    copyCodes(filteredCodes.map(c => c.code), 'codes');
+  };
+
+  const downloadVisible = (format: 'txt' | 'csv') => {
+    const ts = new Date().toISOString().slice(0, 10);
+    downloadCodes(filteredCodes, `redemption-codes-${ts}.${format}`, format);
   };
 
   const filteredCodes = codes.filter(c => {
@@ -222,6 +253,73 @@ export default function Admin() {
           </CardContent>
         </Card>
 
+        {/* Last Generated Batch */}
+        {lastGenerated.length > 0 && (
+          <Card className="border-primary/40 bg-primary/5">
+            <CardHeader>
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <CardTitle className="flex items-center gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-primary" />
+                    Last Generated Batch ({lastGenerated.length})
+                  </CardTitle>
+                  <CardDescription>Copy or download the codes you just created</CardDescription>
+                </div>
+                <Button variant="ghost" size="icon" onClick={() => setLastGenerated([])}>
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Textarea
+                readOnly
+                value={lastGenerated.join('\n')}
+                className="font-mono text-sm h-auto min-h-[80px]"
+                rows={Math.min(lastGenerated.length, 8)}
+                onFocus={(e) => e.currentTarget.select()}
+              />
+              <div className="flex flex-wrap gap-2">
+                <Button size="sm" onClick={() => copyCodes(lastGenerated, 'codes')} className="gap-2">
+                  <Copy className="h-4 w-4" />
+                  Copy All
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    const ts = new Date().toISOString().slice(0, 10);
+                    downloadCodes(
+                      lastGenerated.map(code => ({ code, tier: selectedTier })),
+                      `codes-batch-${ts}.txt`,
+                      'txt'
+                    );
+                  }}
+                  className="gap-2"
+                >
+                  <Download className="h-4 w-4" />
+                  Download .txt
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    const ts = new Date().toISOString().slice(0, 10);
+                    downloadCodes(
+                      lastGenerated.map(code => ({ code, tier: selectedTier })),
+                      `codes-batch-${ts}.csv`,
+                      'csv'
+                    );
+                  }}
+                  className="gap-2"
+                >
+                  <Download className="h-4 w-4" />
+                  Download .csv
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         {/* Codes Table */}
         <Card>
           <CardHeader>
@@ -258,6 +356,14 @@ export default function Admin() {
                 <Button variant="outline" size="sm" onClick={copyAllVisible} className="gap-2">
                   <Copy className="h-4 w-4" />
                   Copy All
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => downloadVisible('txt')} className="gap-2">
+                  <Download className="h-4 w-4" />
+                  .txt
+                </Button>
+                <Button variant="outline" size="sm" onClick={() => downloadVisible('csv')} className="gap-2">
+                  <Download className="h-4 w-4" />
+                  .csv
                 </Button>
               </div>
             </div>
