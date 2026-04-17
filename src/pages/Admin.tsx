@@ -10,8 +10,9 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
-import { Shield, Copy, Plus, Filter, Loader2, ShieldAlert, Download, CheckCircle2, X } from 'lucide-react';
+import { Shield, Copy, Plus, Filter, Loader2, ShieldAlert, Download, CheckCircle2, X, FileSpreadsheet } from 'lucide-react';
 import { toast } from 'sonner';
+import * as XLSX from 'xlsx';
 import type { UserTier } from '@/types/team';
 
 interface RedemptionCode {
@@ -151,6 +152,14 @@ export default function Admin() {
     toast.success(`Downloaded ${list.length} codes`);
   };
 
+  const downloadExcel = (list: Array<Record<string, any>>, filename: string, sheetName = 'Codes') => {
+    const ws = XLSX.utils.json_to_sheet(list);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, sheetName);
+    XLSX.writeFile(wb, filename);
+    toast.success(`Downloaded ${list.length} codes as Excel`);
+  };
+
   const copyAllVisible = () => {
     copyCodes(filteredCodes.map(c => c.code), 'codes');
   };
@@ -158,6 +167,22 @@ export default function Admin() {
   const downloadVisible = (format: 'txt' | 'csv') => {
     const ts = new Date().toISOString().slice(0, 10);
     downloadCodes(filteredCodes, `redemption-codes-${ts}.${format}`, format);
+  };
+
+  const downloadVisibleExcel = () => {
+    const ts = new Date().toISOString().slice(0, 10);
+    downloadExcel(
+      filteredCodes.map(c => ({
+        Code: c.code,
+        Tier: c.tier,
+        Status: c.is_redeemed ? 'Redeemed' : 'Available',
+        'Redeemed By': c.redeemed_by || '',
+        'Redeemed At': c.redeemed_at ? new Date(c.redeemed_at).toLocaleString() : '',
+        Created: new Date(c.created_at).toLocaleString(),
+        Notes: c.notes || '',
+      })),
+      `redemption-codes-${ts}.xlsx`
+    );
   };
 
   const filteredCodes = codes.filter(c => {
@@ -315,6 +340,21 @@ export default function Admin() {
                   <Download className="h-4 w-4" />
                   Download .csv
                 </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    const ts = new Date().toISOString().slice(0, 10);
+                    downloadExcel(
+                      lastGenerated.map(code => ({ Code: code, Tier: selectedTier })),
+                      `codes-batch-${ts}.xlsx`
+                    );
+                  }}
+                  className="gap-2"
+                >
+                  <FileSpreadsheet className="h-4 w-4" />
+                  Download .xlsx
+                </Button>
               </div>
             </CardContent>
           </Card>
@@ -364,6 +404,10 @@ export default function Admin() {
                 <Button variant="outline" size="sm" onClick={() => downloadVisible('csv')} className="gap-2">
                   <Download className="h-4 w-4" />
                   .csv
+                </Button>
+                <Button variant="outline" size="sm" onClick={downloadVisibleExcel} className="gap-2">
+                  <FileSpreadsheet className="h-4 w-4" />
+                  .xlsx
                 </Button>
               </div>
             </div>
