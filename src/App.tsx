@@ -1,0 +1,97 @@
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider, useAuth } from "@/contexts/AuthContext";
+import Landing from "./pages/Landing";
+import Pricing from "./pages/Pricing";
+import Dashboard from "./pages/Dashboard";
+import Library from "./pages/Library";
+import Analytics from "./pages/Analytics";
+import Insights from "./pages/Insights";
+import Network from "./pages/Network";
+import Extension from "./pages/Extension";
+import Battles from "./pages/Battles";
+import Profile from "./pages/Profile";
+import BattleChallenge from "./pages/BattleChallenge";
+import Settings from "./pages/Settings";
+import Admin from "./pages/Admin";
+import NotFound from "./pages/NotFound";
+import Contact from "./pages/Contact";
+import AuthPage from "./pages/Auth";
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 2, // 2 minutes
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
+
+const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
+  const { user, isLoading, isReady } = useAuth();
+
+  if (!isReady || isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-background text-foreground">
+        <div className="flex flex-col items-center gap-3">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+          <p className="text-muted-foreground text-sm">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
+
+  return <>{children}</>;
+};
+
+const App = () => (
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner
+        position="bottom-right"
+        toastOptions={{
+          style: {
+            background: 'hsl(222 47% 9%)',
+            border: '1px solid hsl(217 33% 20%)',
+            color: 'hsl(210 40% 98%)',
+          },
+        }}
+      />
+      <BrowserRouter>
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<Landing />} />
+            <Route path="/pricing" element={<Pricing />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/auth" element={<AuthPage />} />
+
+            <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/library" element={<ProtectedRoute><Library /></ProtectedRoute>} />
+            <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
+            <Route path="/insights" element={<ProtectedRoute><Insights /></ProtectedRoute>} />
+            <Route path="/network" element={<ProtectedRoute><Network /></ProtectedRoute>} />
+            <Route path="/extension" element={<ProtectedRoute><Extension /></ProtectedRoute>} />
+            <Route path="/battles" element={<ProtectedRoute><Battles /></ProtectedRoute>} />
+            <Route path="/battle" element={<ProtectedRoute><BattleChallenge /></ProtectedRoute>} />
+            <Route path="/profile/:username" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
+            <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+            <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
+
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthProvider>
+      </BrowserRouter>
+    </TooltipProvider>
+  </QueryClientProvider>
+);
+
+export default App;

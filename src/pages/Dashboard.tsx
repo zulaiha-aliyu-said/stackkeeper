@@ -1,0 +1,377 @@
+import { useState, useCallback, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useQueryClient } from '@tanstack/react-query';
+import { useAuth } from '@/contexts/AuthContext';
+import { toast } from 'sonner';
+import { Package, DollarSign, TrendingUp, AlertTriangle, Plus, Zap, Ghost, Share2 } from 'lucide-react';
+import { OnboardingWelcomeModal } from '@/components/OnboardingWelcomeModal';
+import { Layout } from '@/components/Layout';
+import { MetricCard } from '@/components/MetricCard';
+import { RefundTimer } from '@/components/RefundTimer';
+import { EmptyState } from '@/components/EmptyState';
+import { AddToolModal } from '@/components/AddToolModal';
+import { ToolDetailModal } from '@/components/ToolDetailModal';
+import { DuplicateAlert } from '@/components/DuplicateAlert';
+import { ShareStackModal } from '@/components/ShareStackModal';
+import { WeeklyUsageSummary } from '@/components/WeeklyUsageSummary';
+import { DailyUsagePrompt } from '@/components/DailyUsagePrompt';
+import { ActiveTimersIndicator } from '@/components/UsageTimer';
+import { GoalsOverview } from '@/components/UsageGoalProgress';
+import { PortfolioAppraisal } from '@/components/PortfolioAppraisal';
+import { StackHealthDoctor } from '@/components/StackHealthDoctor';
+import { DemoModeBanner } from '@/components/DemoModeBanner';
+import { DashboardInsights } from '@/components/DashboardInsights';
+import { AIInsightsCard } from '@/components/AIInsightsCard';
+import { useTools } from '@/hooks/useTools';
+import { useInterfaceMode } from '@/hooks/useInterfaceMode';
+import { Tool } from '@/types/tool';
+import { formatDistanceToNow } from 'date-fns';
+import { generateDemoTools, DEMO_TOOLS_COUNT } from '@/lib/demoData';
+
+export default function Dashboard() {
+  const { 
+    tools, 
+    isLoading,
+    addTool, 
+    updateTool,
+    deleteTool,
+    markAsUsed,
+    bulkMarkAsUsed,
+    totalInvestment, 
+    stackScore, 
+    getRefundAlerts,
+    getRecentlyAdded,
+    getToolGraveyard,
+    getDuplicates,
+    setToolsDirectly
+  } = useTools();
+  
+  const { features } = useInterfaceMode();
+  const { user, profile } = useAuth();
+  const queryClient = useQueryClient();
+
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [selectedTool, setSelectedTool] = useState<Tool | null>(null);
+  const [editTool, setEditTool] = useState<Tool | null>(null);
+  const [dismissedDuplicates, setDismissedDuplicates] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [demoLoading, setDemoLoading] = useState(false);
+  const [demoBannerDismissed, setDemoBannerDismissed] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  // Show onboarding for new users who haven't seen it yet
+  useEffect(() => {
+    if (user && tools.length === 0 && !localStorage.getItem('stackvault_onboarding_done')) {
+      setShowOnboarding(true);
+    }
+  }, [user, tools.length]);
+  const refundAlerts = getRefundAlerts();
+  const recentTools = getRecentlyAdded();
+  const graveyardTools = getToolGraveyard();
+
+  const getStackScoreEmoji = () => {
+    if (stackScore >= 70) return '🏆';
+    if (stackScore >= 50) return '✅';
+    if (stackScore >= 30) return '⚠️';
+    return '🚨';
+  };
+
+  const handleLoadDemo = async () => {
+    setDemoLoading(true);
+    const demoTools = generateDemoTools();
+    await setToolsDirectly(demoTools);
+    localStorage.setItem('stackvault_demo_loaded', 'true');
+    setDemoLoading(false);
+  };
+
+  const handleClearDemo = async () => {
+    setDemoLoading(true);
+    try {
+      // Delete all user's tools (demo data)
+      if (user) {
+        const { error } = await supabase
+          .from('tools')
+          .delete()
+          .eq('user_id', user.id);
+        if (error) throw error;
+        queryClient.invalidateQueries({ queryKey: ['tools'] });
+        toast.success('Demo data cleared!');
+      }
+    } catch (err) {
+      toast.error('Failed to clear demo data');
+    }
+    setDemoLoading(false);
+    setDemoBannerDismissed(false);
+    localStorage.removeItem('stackvault_demo_loaded');
+  };
+
+  // Check if demo was loaded in this session
+  const isUsingDemoData = localStorage.getItem('stackvault_demo_loaded') === 'true' && tools.length > 0;
+
+  const dismissOnboarding = () => {
+    setShowOnboarding(false);
+    localStorage.setItem('stackvault_onboarding_done', 'true');
+  };
+
+  if (isLoading) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center py-24">
+          <div className="flex flex-col items-center gap-3">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+            <p className="text-muted-foreground text-sm">Loading your vault...</p>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (tools.length === 0) {
+    return (
+      <Layout>
+        <EmptyState
+          icon={Package}
+          title="Your vault is empty"
+          description="Start tracking your lifetime deals by adding your first tool. Or try the demo with 47 pre-loaded tools to explore all features!"
+          action={{
+            label: 'Add Your First Tool',
+            onClick: () => setIsAddModalOpen(true)
+          }}
+          secondaryAction={{
+            label: `Load Demo (${DEMO_TOOLS_COUNT} tools)`,
+            onClick: handleLoadDemo,
+            loading: demoLoading
+          }}
+        />
+        <AddToolModal
+          isOpen={isAddModalOpen}
+          onClose={() => setIsAddModalOpen(false)}
+          onAdd={addTool}
+        />
+        <OnboardingWelcomeModal
+          isOpen={showOnboarding}
+          onClose={dismissOnboarding}
+          onAddFirstTool={() => setIsAddModalOpen(true)}
+          onLoadDemo={handleLoadDemo}
+          userName={profile?.full_name}
+        />
+      </Layout>
+    );
+  }
+
+  return (
+    <Layout>
+      <div className="space-y-8">
+        {/* Demo Mode Banner */}
+        {isUsingDemoData && !demoBannerDismissed && (
+          <DemoModeBanner
+            onClearDemo={handleClearDemo}
+            onDismiss={() => setDemoBannerDismissed(true)}
+            toolCount={tools.length}
+          />
+        )}
+
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-foreground">Dashboard</h1>
+            <p className="text-muted-foreground mt-1">Your lifetime deal command center</p>
+          </div>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setIsShareModalOpen(true)}
+              className="btn-secondary flex items-center gap-2"
+            >
+              <Share2 className="h-5 w-5" />
+              <span className="hidden sm:inline">Share</span>
+            </button>
+            <button
+              onClick={() => setIsAddModalOpen(true)}
+              className="btn-primary flex items-center gap-2"
+            >
+              <Plus className="h-5 w-5" />
+              Add Tool
+            </button>
+          </div>
+        </div>
+
+        {/* AI Insights */}
+        <AIInsightsCard />
+
+        {/* Metrics Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <MetricCard
+            title="Total Tools"
+            value={tools.length}
+            subtitle="in your vault"
+            icon={Package}
+          />
+          <MetricCard
+            title="Total Invested"
+            value={`$${totalInvestment.toLocaleString()}`}
+            subtitle="lifetime value"
+            icon={DollarSign}
+            iconColor="text-success"
+          />
+          <MetricCard
+            title="Stack Score™"
+            value={`${stackScore}%`}
+            subtitle={`${getStackScoreEmoji()} usage rate`}
+            icon={TrendingUp}
+            iconColor={stackScore >= 50 ? 'text-success' : 'text-warning'}
+          />
+          <MetricCard
+            title="Refund Alerts"
+            value={refundAlerts.length}
+            subtitle={refundAlerts.length > 0 ? 'need attention' : 'all clear'}
+            icon={AlertTriangle}
+            iconColor={refundAlerts.length > 0 ? 'text-warning' : 'text-muted-foreground'}
+          />
+        </div>
+
+        {/* Duplicate Alert */}
+        {!dismissedDuplicates && getDuplicates.length > 0 && (
+          <DuplicateAlert
+            duplicates={getDuplicates}
+            onDismiss={() => setDismissedDuplicates(true)}
+            onViewTool={(tool) => setSelectedTool(tool)}
+          />
+        )}
+
+        {/* Refund Timer */}
+        <RefundTimer 
+          alerts={refundAlerts} 
+          onViewTool={(tool) => setSelectedTool(tool)} 
+        />
+
+        {/* Weekly Usage Summary - Power Mode only */}
+        {features.showWeeklySummary && <WeeklyUsageSummary tools={tools} />}
+
+        {/* Portfolio Appraisal - Power Mode only */}
+        {features.showPortfolioAppraisal && <PortfolioAppraisal tools={tools} totalInvestment={totalInvestment} />}
+
+        {/* Goals Overview - Power Mode only */}
+        {features.showGoalsOverview && <GoalsOverview tools={tools} />}
+
+        {/* Stack Health Doctor - Power Mode only */}
+        {features.showStackHealthDoctor && (
+          <StackHealthDoctor 
+            tools={tools} 
+            onMarkAsUsed={markAsUsed}
+            onDeleteTool={deleteTool}
+            onViewTool={(tool) => setSelectedTool(tool)}
+          />
+        )}
+
+        {/* Insights Section */}
+        <DashboardInsights tools={tools} totalInvestment={totalInvestment} />
+
+        {/* Two Column Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Recently Added */}
+          <div className="metric-card">
+            <div className="flex items-center gap-3 mb-4">
+              <Plus className="h-5 w-5 text-primary" />
+              <h3 className="font-semibold text-foreground">Recently Added</h3>
+            </div>
+            <div className="space-y-3">
+              {recentTools.map(tool => (
+                <button
+                  key={tool.id}
+                  onClick={() => setSelectedTool(tool)}
+                  className="w-full flex items-center justify-between p-3 rounded-lg bg-secondary/50 hover:bg-secondary transition-colors text-left"
+                >
+                  <div>
+                    <p className="font-medium text-foreground">{tool.name}</p>
+                    <p className="text-sm text-muted-foreground">
+                      ${tool.price} • {formatDistanceToNow(new Date(tool.addedDate), { addSuffix: true })}
+                    </p>
+                  </div>
+                  <span className="badge-category text-xs">{tool.category}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Tool Graveyard */}
+          <div className="metric-card">
+            <div className="flex items-center gap-3 mb-4">
+              <Ghost className="h-5 w-5 text-muted-foreground" />
+              <h3 className="font-semibold text-foreground">Tool Graveyard</h3>
+            </div>
+            {graveyardTools.length === 0 ? (
+              <div className="flex items-center justify-center py-8 text-center">
+                <p className="text-muted-foreground">🎉 You're using all your tools!</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {graveyardTools.slice(0, 5).map(tool => (
+                  <div
+                    key={tool.id}
+                    className="flex items-center justify-between p-3 rounded-lg bg-secondary/50"
+                  >
+                    <div>
+                      <p className="font-medium text-foreground">{tool.name}</p>
+                      <p className="text-sm text-muted-foreground">${tool.price} • Never used</p>
+                    </div>
+                    <button
+                      onClick={() => markAsUsed(tool.id)}
+                      className="btn-secondary text-xs flex items-center gap-1"
+                    >
+                      <Zap className="h-3 w-3" />
+                      Mark Used
+                    </button>
+                  </div>
+                ))}
+                {graveyardTools.length > 5 && (
+                  <p className="text-sm text-muted-foreground text-center pt-2">
+                    +{graveyardTools.length - 5} more unused tools
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <AddToolModal
+        isOpen={isAddModalOpen}
+        onClose={() => {
+          setIsAddModalOpen(false);
+          setEditTool(null);
+        }}
+        onAdd={addTool}
+        editTool={editTool}
+        onUpdate={updateTool}
+      />
+
+      {selectedTool && (
+        <ToolDetailModal
+          tool={selectedTool}
+          isOpen={!!selectedTool}
+          onClose={() => setSelectedTool(null)}
+          onMarkAsUsed={markAsUsed}
+          onEdit={(tool) => {
+            setEditTool(tool);
+            setIsAddModalOpen(true);
+          }}
+          onDelete={deleteTool}
+        />
+      )}
+
+      <ShareStackModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        tools={tools}
+        totalInvestment={totalInvestment}
+        stackScore={stackScore}
+      />
+
+      {/* Daily Usage Prompt - Power Mode only */}
+      {features.showDailyUsagePrompt && <DailyUsagePrompt tools={tools} onMarkAsUsed={bulkMarkAsUsed} />}
+
+      {/* Active Timers Indicator - Power Mode only */}
+      {features.showActiveTimers && <ActiveTimersIndicator />}
+    </Layout>
+  );
+}

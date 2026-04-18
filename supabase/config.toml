@@ -1,0 +1,5 @@
+[project]
+id = "wfbrmywecdrtidcbnxoe"
+
+[functions.vault-assistant]
+verify_jwt = false
