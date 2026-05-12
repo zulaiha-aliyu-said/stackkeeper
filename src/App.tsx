@@ -19,6 +19,7 @@ import Settings from "./pages/Settings";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 import Contact from "./pages/Contact";
+import Roadmap from "./pages/Roadmap";
 import AuthPage from "./pages/Auth";
 
 const queryClient = new QueryClient({
@@ -72,6 +73,7 @@ const App = () => (
             <Route path="/" element={<Landing />} />
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/contact" element={<Contact />} />
+            <Route path="/roadmap" element={<Roadmap />} />
             <Route path="/auth" element={<AuthPage />} />
 
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
