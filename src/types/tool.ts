@@ -55,6 +55,7 @@ export type Category =
 
 export type Platform = 
   | 'LTD'
+  | 'AppSumo'
   | 'DealMirror'
   | 'DealFuel'
   | 'StackSocial'
@@ -74,6 +75,7 @@ export const CATEGORIES: Category[] = [
 
 export const PLATFORMS: Platform[] = [
   'LTD',
+  'AppSumo',
   'DealMirror',
   'DealFuel',
   'StackSocial',

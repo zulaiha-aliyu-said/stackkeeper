@@ -109,7 +109,8 @@ export function EmailImportModal({ isOpen, onClose, onImport }: EmailImportModal
 
     // Detect platform
     let platform: Platform | '' = '';
-    if (/ltd/i.test(text)) platform = 'LTD';
+    if (/appsumo/i.test(text)) platform = 'AppSumo';
+    else if (/ltd/i.test(text)) platform = 'LTD';
     else if (/dealmirror/i.test(text)) platform = 'DealMirror';
     else if (/dealfuel/i.test(text)) platform = 'DealFuel';
     else if (/stacksocial/i.test(text)) platform = 'StackSocial';
