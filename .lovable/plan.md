@@ -1,30 +1,35 @@
-## Roadmap Page for StackVault
+## Add AppSumo to all LTD platform lists in the frontend
 
-### Scope
-Create a public `/roadmap` page showcasing product direction, with three status sections and a feature request CTA.
+### Goal
+Add 'AppSumo' as a recognized LTD platform everywhere platform lists appear in the UI.
 
-### Files to create/edit
+### Files to change
 
-1. **Create `src/pages/Roadmap.tsx`**
-   - Public page (mirrors Contact page pattern: simple top nav, no Layout wrapper)
-   - Header: "Roadmap - What's Coming Next"
-   - Three sections as cards grid:
-     - **Recently Shipped** (green/success badges): AI Receipt Scanner, Tool Comparison, Time Machine, Network Visualization, Browser Extension
-     - **Coming Soon** (warning/amber badges with Q2/Q3 2026 timeline): Tool Wrapped, AI Purchase Advisor, Mobile Apps
-     - **Future Ideas** (muted badges): Stack Psychologist, Tool Resurrector, Public API, Desktop App
-   - Each item card: name, 1-sentence description, status badge, timeline where applicable
-   - Bottom CTA: "Want to request a feature? Email us: zulaihaaliyu440@gmail.com"
-   - Uses existing design tokens: `bg-card`, `border-border`, `text-gradient`, semantic badges
+1. **`src/types/tool.ts`** (source of truth)
+   - Add `'AppSumo'` to the `Platform` union type
+   - Add `'AppSumo'` to the `PLATFORMS` constant array
+   - This automatically propagates to every dropdown, filter, and export that consumes `PLATFORMS`
 
-2. **Edit `src/App.tsx`**
-   - Add `<Route path="/roadmap" element={<Roadmap />} />` as a public route (like `/contact`, `/pricing`)
+2. **`src/lib/demoData.ts`**
+   - Add `'AppSumo'` to the local `platforms` array so demo data can include it
 
-3. **Edit `src/components/Layout.tsx`**
-   - Add `{ path: '/roadmap', label: 'Roadmap', icon: Map, mode: 'all' }` to `allNavLinks` array (import `Map` from `lucide-react`)
+3. **`src/components/EmailImportModal.tsx`**
+   - Add AppSumo auto-detection regex: `else if (/appsumo/i.test(text)) platform = 'AppSumo';`
 
-### Technical details
-- No new dependencies.
-- Follow existing dark-theme card patterns (`glass-card`, subtle gradients).
-- Use shadcn `Card`, `Badge` components.
-- Responsive grid: 1 col mobile, 2 cols tablet, 3 cols desktop.
-- Status badge colors: `success` for shipped, `warning` for coming soon, `secondary` for future ideas.
+4. **`src/components/OnboardingWelcomeModal.tsx`**
+   - Update the highlight text from "Supports LTD, DealMirror, DealFuel & more." to include AppSumo
+
+### No changes needed
+- `src/lib/extensionFiles.ts` — Already lists `appsumo.com` in the content script `matches` array
+- `src/components/AddToolModal.tsx`, `src/pages/Analytics.tsx`, `src/hooks/useTools.ts` — All consume `PLATFORMS` from `src/types/tool.ts` and will auto-update
+
+### Plan
+
+```
+Step 1: Update Platform type and PLATFORMS array in src/types/tool.ts
+Step 2: Update demoData platforms array
+Step 3: Add AppSumo email parsing detection
+Step 4: Update onboarding mention text
+```
+
+No new dependencies. No backend changes required.
