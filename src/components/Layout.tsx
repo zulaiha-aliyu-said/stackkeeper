@@ -1,6 +1,6 @@
 import { ReactNode, useState, useCallback, useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Library, BarChart3, Vault, Command, Chrome, Clock, Network, Swords, Settings, CreditCard, LogOut, Menu, X, Mail, Map } from 'lucide-react';
+import { LayoutDashboard, Library, BarChart3, Vault, Command, Chrome, Clock, Network, Swords, Settings, CreditCard, LogOut, Menu, X, Mail, Map, VenetianMask } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { CommandPalette } from '@/components/CommandPalette';
 import { KeyboardShortcutsModal } from '@/components/KeyboardShortcutsModal';
@@ -19,6 +19,7 @@ import { useSocialSettings } from '@/hooks/useSocialSettings';
 import { useAuth } from '@/contexts/AuthContext';
 import { Tool } from '@/types/tool';
 import { toast } from 'sonner';
+import { Button } from '@/components/ui/button';
 
 interface LayoutProps {
   children: ReactNode;
@@ -32,7 +33,8 @@ export function Layout({ children }: LayoutProps) {
   const { isAgency } = useTier();
   const { isSimpleMode } = useInterfaceMode();
   const { enableBattles } = useSocialSettings();
-  const { user, logout } = useAuth();
+  const { user, logout, isImpersonating, impersonation, stopImpersonating } = useAuth();
+  const [exitingImpersonation, setExitingImpersonation] = useState(false);
 
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
   const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
@@ -93,7 +95,45 @@ export function Layout({ children }: LayoutProps) {
 
   return (
     <div className="min-h-screen bg-background">
-      <nav className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
+      <div className="sticky top-0 z-[60]">
+        {isImpersonating && (
+          <div className="border-b border-amber-500/40 bg-amber-500/15 text-foreground">
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-center gap-2 text-sm">
+                <VenetianMask className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                <span>
+                  Impersonating{' '}
+                  <strong>
+                    {impersonation.targetName || impersonation.targetEmail || 'user'}
+                  </strong>
+                  {impersonation.adminEmail ? (
+                    <span className="text-muted-foreground">
+                      {' '}
+                      · signed in as admin {impersonation.adminEmail}
+                    </span>
+                  ) : null}
+                </span>
+              </div>
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-8 border-amber-500/50"
+                disabled={exitingImpersonation}
+                onClick={async () => {
+                  setExitingImpersonation(true);
+                  try {
+                    await stopImpersonating();
+                  } finally {
+                    setExitingImpersonation(false);
+                  }
+                }}
+              >
+                {exitingImpersonation ? 'Exiting…' : 'Exit impersonation'}
+              </Button>
+            </div>
+          </div>
+        )}
+        <nav className="border-b border-border bg-background/80 backdrop-blur-xl">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
             {/* Logo */}
@@ -204,6 +244,7 @@ export function Layout({ children }: LayoutProps) {
           </div>
         )}
       </nav>
+      </div>
 
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {children}
