@@ -20,6 +20,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Tool } from '@/types/tool';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
+import { TrialBanner, TrialUpgradeNudges } from '@/components/TrialBanner';
 
 interface LayoutProps {
   children: ReactNode;
@@ -133,6 +134,7 @@ export function Layout({ children }: LayoutProps) {
             </div>
           </div>
         )}
+        <TrialBanner />
         <nav className="border-b border-border bg-background/80 backdrop-blur-xl">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
@@ -245,6 +247,8 @@ export function Layout({ children }: LayoutProps) {
         )}
       </nav>
       </div>
+
+      <TrialUpgradeNudges />
 
       <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         {children}

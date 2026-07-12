@@ -51,7 +51,7 @@ const faqs = [
   },
   {
     question: "Is there a free trial?",
-    answer: "You start with a free account that lets you manage up to 5 tools. Redeem a code to unlock a full plan."
+    answer: "Yes! Redeem a trial code (SV-TRL-…) for 7 days of Pro access — unlimited tools and advanced insights. When you're ready, redeem an LTD code to keep lifetime access. One trial per account."
   }
 ];
 

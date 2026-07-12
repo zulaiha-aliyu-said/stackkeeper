@@ -63,6 +63,8 @@ import {
 } from 'recharts';
 import type { UserTier } from '@/types/team';
 
+type CodeTier = UserTier | 'trial';
+
 interface RedemptionCode {
   id: string;
   code: string;
@@ -85,6 +87,9 @@ interface AdminUser {
   last_sign_in_at: string | null;
   email_confirmed_at: string | null;
   is_admin: boolean;
+  trial_started_at?: string | null;
+  trial_ends_at?: string | null;
+  trial_used?: boolean;
 }
 
 interface ActivityStats {
@@ -97,11 +102,12 @@ interface ActivityStats {
 const CODE_BATCH_SIZE = 100;
 const MAX_CODE_QUANTITY = 1000;
 
-function generateCode(tier: UserTier): string {
-  const prefixes: Record<UserTier, string> = {
+function generateCode(tier: CodeTier): string {
+  const prefixes: Record<CodeTier, string> = {
     starter: 'STR',
     pro: 'PRO',
     agency: 'AGY',
+    trial: 'TRL',
   };
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
   let random = '';
@@ -142,7 +148,7 @@ export default function Admin() {
   const [impersonateTarget, setImpersonateTarget] = useState<AdminUser | null>(null);
 
   // Generation form
-  const [selectedTier, setSelectedTier] = useState<UserTier>('starter');
+  const [selectedTier, setSelectedTier] = useState<CodeTier>('starter');
   const [quantity, setQuantity] = useState(1);
   const [notes, setNotes] = useState('');
 
@@ -510,6 +516,10 @@ export default function Admin() {
                     <Badge variant={u.tier === 'agency' ? 'default' : u.tier === 'pro' ? 'secondary' : 'outline'}>
                       {u.tier}
                     </Badge>
+                  ) : u.trial_ends_at && new Date(u.trial_ends_at).getTime() > Date.now() ? (
+                    <Badge variant="secondary">Trial</Badge>
+                  ) : u.trial_used ? (
+                    <Badge variant="outline">Trial ended</Badge>
                   ) : (
                     <Badge variant="outline">Free</Badge>
                   )}
@@ -1056,11 +1066,12 @@ export default function Admin() {
                 <div className="grid gap-4 md:grid-cols-4">
                   <div className="space-y-2">
                     <Label>Plan Tier</Label>
-                    <Select value={selectedTier} onValueChange={(v) => setSelectedTier(v as UserTier)}>
+                    <Select value={selectedTier} onValueChange={(v) => setSelectedTier(v as CodeTier)}>
                       <SelectTrigger>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
+                        <SelectItem value="trial">7-Day Trial (free)</SelectItem>
                         <SelectItem value="starter">Starter ($49)</SelectItem>
                         <SelectItem value="pro">Pro ($99)</SelectItem>
                         <SelectItem value="agency">Agency ($149)</SelectItem>
@@ -1213,6 +1224,7 @@ export default function Admin() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="all">All Tiers</SelectItem>
+                        <SelectItem value="trial">Trial</SelectItem>
                         <SelectItem value="starter">Starter</SelectItem>
                         <SelectItem value="pro">Pro</SelectItem>
                         <SelectItem value="agency">Agency</SelectItem>

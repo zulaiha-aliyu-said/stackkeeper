@@ -28,15 +28,35 @@ import {
   Globe,
   Copy,
   Ticket,
-  Loader2
+  Loader2,
+  Sparkles,
+  Clock,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
 export default function Settings() {
-  const { tier, limits, isAgency, redeemCode } = useTier();
+  const {
+    tier,
+    limits,
+    isAgency,
+    redeemCode,
+    isOnTrial,
+    isTrialExpired,
+    trialDaysLeft,
+    hasLifetimePlan,
+  } = useTier();
   const [redeemInput, setRedeemInput] = useState('');
   const [redeeming, setRedeeming] = useState(false);
+  const [searchParams] = useSearchParams();
+  const billingTab = searchParams.get('tab') === 'billing' ? 'billing' : undefined;
+  const [activeTab, setActiveTab] = useState(billingTab || 'preferences');
+
+  useEffect(() => {
+    if (billingTab) setActiveTab('billing');
+  }, [billingTab]);
+
   const { stacks, activeStack, deleteStack, hasMultipleStacks } = useStacks();
   const { mode, setMode, isSimpleMode } = useInterfaceMode();
   const { 
@@ -52,6 +72,14 @@ export default function Settings() {
     if (success) setRedeemInput('');
     setRedeeming(false);
   };
+
+  const planLabel = hasLifetimePlan
+    ? tier
+    : isOnTrial
+      ? `Pro Trial (${trialDaysLeft}d left)`
+      : isTrialExpired
+        ? 'Free (trial ended)'
+        : 'Free';
 
   const tiers = [
     {
@@ -102,7 +130,11 @@ export default function Settings() {
           </p>
         </div>
 
-        <Tabs defaultValue="preferences" className="space-y-6">
+        <Tabs
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="space-y-6"
+        >
           <TabsList className="grid w-full max-w-3xl grid-cols-6">
             <TabsTrigger value="preferences" className="gap-2">
               <Zap className="h-4 w-4" />
@@ -325,11 +357,46 @@ export default function Settings() {
 
           {/* Billing Tab */}
           <TabsContent value="billing" className="space-y-6">
+            {(isOnTrial || isTrialExpired) && (
+              <Card className={isOnTrial ? 'border-primary/40 bg-primary/5' : 'border-border'}>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    {isOnTrial ? (
+                      <Sparkles className="h-5 w-5 text-primary" />
+                    ) : (
+                      <Clock className="h-5 w-5 text-muted-foreground" />
+                    )}
+                    {isOnTrial ? 'You\'re on a Pro trial' : 'Trial ended'}
+                  </CardTitle>
+                  <CardDescription>
+                    {isOnTrial
+                      ? `${trialDaysLeft} day${trialDaysLeft === 1 ? '' : 's'} left of unlimited tools and advanced insights. When you're ready, redeem an LTD code below — one payment, yours forever.`
+                      : 'Your free trial has ended. Your tools are still safe. Redeem a lifetime code to unlock full access again.'}
+                  </CardDescription>
+                </CardHeader>
+                {isOnTrial && (
+                  <CardContent>
+                    <div className="h-2 rounded-full bg-muted overflow-hidden max-w-md">
+                      <div
+                        className="h-full rounded-full bg-primary transition-all"
+                        style={{ width: `${Math.min(100, ((7 - trialDaysLeft) / 7) * 100)}%` }}
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Day {Math.min(7, 8 - trialDaysLeft)} of 7 — keep exploring, then go lifetime.
+                    </p>
+                  </CardContent>
+                )}
+              </Card>
+            )}
+
             <Card>
               <CardHeader>
                 <CardTitle>Current Plan</CardTitle>
                 <CardDescription>
-                  You are currently on the <span className="font-semibold capitalize">{tier ?? 'Free'}</span> plan. Redeem a code to activate a plan.
+                  You are currently on the{' '}
+                  <span className="font-semibold capitalize">{planLabel}</span> plan.
+                  {!hasLifetimePlan && ' Redeem a trial or LTD code to unlock more.'}
                 </CardDescription>
               </CardHeader>
               <CardContent>
@@ -340,11 +407,18 @@ export default function Settings() {
                       className={`relative rounded-xl border p-6 transition-all ${
                         tier === t.value 
                           ? 'border-primary bg-primary/5' 
-                          : 'border-border hover:border-primary/50'
+                          : isOnTrial && t.value === 'pro'
+                            ? 'border-primary/50 bg-primary/5'
+                            : 'border-border hover:border-primary/50'
                       }`}
                     >
                       {tier === t.value && (
                         <Badge className="absolute -top-2 right-4">Current</Badge>
+                      )}
+                      {isOnTrial && !tier && t.value === 'pro' && (
+                        <Badge className="absolute -top-2 right-4" variant="secondary">
+                          Trial
+                        </Badge>
                       )}
                       <div className="mb-4">
                         <h3 className="font-semibold text-lg">{t.name}</h3>
@@ -374,13 +448,15 @@ export default function Settings() {
                   Redeem a Code
                 </CardTitle>
                 <CardDescription>
-                  Have a lifetime deal code? Enter it below to unlock your plan.
+                  {isOnTrial
+                    ? 'Have an LTD code? Redeem it now to convert your trial into lifetime access.'
+                    : 'Enter a 7-day trial code (SV-TRL-…) or a lifetime plan code (SV-PRO-…) below.'}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <div className="flex gap-3 max-w-md">
                   <Input
-                    placeholder="SV-PRO-XXXXXXXX"
+                    placeholder="SV-TRL-XXXXXXXX or SV-PRO-XXXXXXXX"
                     value={redeemInput}
                     onChange={(e) => setRedeemInput(e.target.value.toUpperCase())}
                     className="font-mono"
@@ -391,6 +467,11 @@ export default function Settings() {
                     Redeem
                   </Button>
                 </div>
+                {!hasLifetimePlan && !isOnTrial && !isTrialExpired && (
+                  <p className="text-sm text-muted-foreground mt-3">
+                    Tip: start with a trial code to explore Pro for 7 days — upgrade whenever you love it.
+                  </p>
+                )}
               </CardContent>
             </Card>
 
@@ -417,7 +498,7 @@ export default function Settings() {
                   </div>
                   <div className="p-4 rounded-lg bg-secondary/50">
                     <p className="text-sm text-muted-foreground">Features</p>
-                    <p className="text-2xl font-bold capitalize">{tier}</p>
+                    <p className="text-2xl font-bold capitalize">{planLabel}</p>
                   </div>
                 </div>
               </CardContent>
